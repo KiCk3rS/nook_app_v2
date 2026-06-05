@@ -25,12 +25,18 @@ expo-env.d.ts
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+*.apk
+.debug-temp.apk
+*.log
+maps-logcat*.txt
+.cursor/debug-*.log
 
 # macOS
 .DS_Store
 *.pem
 
 # local env files
+.env
 .env*.local
 
 # typescript

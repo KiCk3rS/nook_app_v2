@@ -1,0 +1,32 @@
+---
+description: Rédiger des spécifications d’écran d’app précises (UX, UI, états, accessibilité) alignées sur le brief NOOK.
+globs: docs/**/*.md
+alwaysApply: false
+---
+
+# Spécifications d’écran (NOOK)
+
+Quand tu rédiges ou complètes un document qui **décrit un écran ou un flux** dans `docs/` :
+
+## Obligations de contenu
+
+- **Identifiant** : référencer l’ID produit (`A1.1`, `A2.3`, etc.) depuis `docs/ecrans.md` quand il existe ; sinon proposer un ID provisoire et la correspondance future.
+- **But utilisateur** : une phrase « afin de… » testable ; pas de jargon interne seul.
+- **Préconditions / postconditions** : d’où on arrive, où on va (écrans IDs ou noms stables).
+- **Hiérarchie visuelle** : ordre de lecture (1 = priorité visuelle) et ce qui est **fixe** vs **contextuel** (modale, feuille, barre).
+
+## UX / UI (règles courtes)
+
+- **Mobile first** : zones tactiles confortables, gestes (retour swipe sur feuille), pas d’action unique bloquée hors viewport.
+- **États explicites** : chargement, vide, erreur, hors ligne, permission refusée — chacun avec **copie** + **action** (réessayer, paramètres, continuer sans).
+- **Une intention primaire** par vue : un CTA principal ; actions secondaires regroupées ou en niveau 2.
+- **Cohérence carte / liste** : si l’écran touche recherche ou résultats, rappeler la règle « même jeu de résultats / tri documenté » (brief §3.2).
+- **Accessibilité** : ordre de focus, labels pour lecteurs d’écran sur icônes, contrastes suffisants, alternatives textuelles aux images porteuses de sens.
+
+## Forme du document
+
+- Tableaux pour **composants / champs / actions** (nom, type, état, erreur).
+- Séparer **comportement** (logique, règles) de **présentation** (layout, tokens) sans inventer de stack si non demandé.
+- Ne pas dupliquer tout le brief : **pointer** vers `docs/brief.md` et `docs/ecrans.md` par section.
+
+Pour un **gabarit complet** et une **checklist UX** détaillée, utiliser le skill projet `spec-ecran-app` (`.cursor/skills/spec-ecran-app/SKILL.md`).
