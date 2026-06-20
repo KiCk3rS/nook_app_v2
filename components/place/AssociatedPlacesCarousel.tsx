@@ -17,6 +17,7 @@ import {
   elevation,
   radius,
   spacing,
+  surfaceCardBorder,
   textStyle,
 } from '../../constants/theme';
 
@@ -109,10 +110,8 @@ const styles = StyleSheet.create({
   },
   card: {
     width: CARD_WIDTH,
-    backgroundColor: colors.surfaceCard,
     borderRadius: radius.md,
-    overflow: 'hidden',
-    ...elevation.card,
+    ...surfaceCardBorder,
   },
   cardPressed: {
     opacity: 0.92,
@@ -120,6 +119,9 @@ const styles = StyleSheet.create({
   imageWrap: {
     height: IMAGE_HEIGHT,
     backgroundColor: colors.surfaceStrong,
+    borderTopLeftRadius: radius.md,
+    borderTopRightRadius: radius.md,
+    overflow: 'hidden',
   },
   image: {
     width: '100%',

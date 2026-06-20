@@ -30,6 +30,13 @@ export interface HomeMapHandle {
 
   centerOnUser: (coords: { latitude: number; longitude: number }) => void;
 
+  centerOnRegion: (region: {
+    latitude: number;
+    longitude: number;
+    latitudeDelta: number;
+    longitudeDelta: number;
+  }) => void;
+
 }
 
 
@@ -87,6 +94,12 @@ export const HomeMap = forwardRef<HomeMapHandle, HomeMapProps>(function HomeMap(
         350,
 
       );
+
+    },
+
+    centerOnRegion(region) {
+
+      mapRef.current?.animateToRegion(region, 350);
 
     },
 

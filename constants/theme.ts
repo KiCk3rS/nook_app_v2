@@ -308,6 +308,13 @@ export const elevation = {
   },
 } as const;
 
+/** Carte liste / carrousel — bordure discrète sans ombre (évite le clipping RN sur overflow). */
+export const surfaceCardBorder = {
+  backgroundColor: colors.surfaceCard,
+  borderWidth: 1,
+  borderColor: colors.hairline,
+} as const;
+
 /** Hauteur tab bar — alignée sur `app/(tabs)/_layout.tsx` */
 export const tabBarHeight = 64;
 

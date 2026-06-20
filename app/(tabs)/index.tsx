@@ -1,5 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRef, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
 
 import { StyleSheet, View } from 'react-native';
 
@@ -19,9 +20,12 @@ import { PoiPreviewCard } from '../../components/home/PoiPreviewCard';
 
 import { SearchHeader } from '../../components/home/SearchHeader';
 
+import { SearchSheet } from '../../components/search/SearchSheet';
+
 import type { PermissionType } from '../../constants/permissions';
 
 import { getPlaceById } from '../../constants/mockPlaces';
+import { getCityBySlug } from '../../constants/mockCities';
 import { useAudioPlayback } from '../../contexts/AudioPlaybackContext';
 import { colors, miniPlayerHeight, spacing, zIndex } from '../../constants/theme';
 
@@ -41,12 +45,20 @@ export default function CarteScreen() {
 
   const insets = useSafeAreaInsets();
   const mapRef = useRef<HomeMapHandle>(null);
+  const { focusCity } = useLocalSearchParams<{ focusCity?: string }>();
 
   const [selectedCategoryId, setSelectedCategoryId] = useState('all');
 
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
 
   const [permissionSheetVisible, setPermissionSheetVisible] = useState(false);
+
+  const [searchSheetVisible, setSearchSheetVisible] = useState(false);
+
+  const [userCoords, setUserCoords] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
   const [permissionSheetSource, setPermissionSheetSource] =
 
@@ -70,7 +82,13 @@ export default function CarteScreen() {
 
   } = useLocationPermission();
 
-
+  useEffect(() => {
+    if (typeof focusCity !== 'string') return;
+    const city = getCityBySlug(focusCity);
+    if (city) {
+      mapRef.current?.centerOnRegion(city.mapRegion);
+    }
+  }, [focusCity]);
 
   const [poiCardHeight, setPoiCardHeight] = useState(0);
   const { viewMode } = useAudioPlayback();
@@ -102,7 +120,10 @@ export default function CarteScreen() {
 
       const coords = await getCurrentPosition();
 
-      if (coords) mapRef.current?.centerOnUser(coords);
+      if (coords) {
+        setUserCoords(coords);
+        mapRef.current?.centerOnUser(coords);
+      }
 
       return;
 
@@ -132,7 +153,10 @@ export default function CarteScreen() {
 
         const coords = await getCurrentPosition();
 
-        if (coords) mapRef.current?.centerOnUser(coords);
+        if (coords) {
+          setUserCoords(coords);
+          mapRef.current?.centerOnUser(coords);
+        }
 
       }
 
@@ -149,6 +173,22 @@ export default function CarteScreen() {
   function handleClosePermissionSheet() {
 
     setPermissionSheetVisible(false);
+
+  }
+
+
+
+  function handleOpenSearch() {
+
+    setSearchSheetVisible(true);
+
+  }
+
+
+
+  function handleCloseSearchSheet() {
+
+    setSearchSheetVisible(false);
 
   }
 
@@ -180,7 +220,7 @@ export default function CarteScreen() {
 
       <SafeAreaView style={styles.overlay} edges={['top']} pointerEvents="box-none">
 
-        <SearchHeader />
+        <SearchHeader onPress={handleOpenSearch} />
 
         <CategorySlider
 
@@ -249,6 +289,18 @@ export default function CarteScreen() {
         onClose={handleClosePermissionSheet}
 
         onRequestPermission={handleRequestPermission}
+
+      />
+
+      <SearchSheet
+
+        visible={searchSheetVisible}
+
+        locationStatus={locationStatus}
+
+        userCoords={userCoords}
+
+        onClose={handleCloseSearchSheet}
 
       />
 

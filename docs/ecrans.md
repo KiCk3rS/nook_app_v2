@@ -47,6 +47,8 @@ Document **dérivé** du [brief produit](./brief.md). Il sert de **source unique
 |----|--------|----------|------------|----------|
 | A4.1 | **Fil de découverte** (défilement vertical) | Sections dynamiques : mis en avant, plus écoutés, mieux notés, etc. | §3.4 | P0 |
 | A4.2 | **Section recommandations personnalisées** (si produit activé) | Bloc ou onglet dédié aux recommandations ; peut être fusionné avec A4.1. | §3.4 | Évolution |
+| A4.3 | **Hub ville** (vitrine territoriale) | Porte d’entrée éditoriale d’une ville : catégories d’itinéraires, premium, incontournables, affiliation. | §3.4, §3.5 | P1 |
+| A4.4 | **Hub pays** (vitrine territoriale) | Même gabarit qu’A4.3 à l’échelle nation : villes à explorer, itinéraires transverses. | §3.4, §3.5 | P2 |
 
 ### A5. Parcours
 
@@ -57,6 +59,8 @@ Document **dérivé** du [brief produit](./brief.md). Il sert de **source unique
 | A5.3 | **Suggestions ou modèles de parcours** (si produit prévoit des gabarits) | Thème, durée approximative ; insertion dans un parcours utilisateur. | §3.5 | P2 |
 | A5.4 | **Visualisation parcours sur carte** | Tracé ou enchaînement des étapes sur la carte ; lecture des étapes. | §3.5 | P1 |
 | A5.5 | **Détail d’un parcours** (lecture « mode guidage ») | Suivre le parcours étape par étape avec accès aux fiches lieux et audio. | §3.5 | P1 |
+| A5.6 | **Détail itinéraire éditorial** | Parcours curaté NOOK (≠ parcours utilisateur) ; étapes, carte, audio ; accès premium. | §3.5 | P1 |
+| A5.7 | **Liste itinéraires par catégorie** | Vue filtrée depuis le hub (« Les points forts », « Les secrets », etc.). | §3.5 | P1 |
 
 ### A6. Compte et espace personnel
 
@@ -83,6 +87,7 @@ Document **dérivé** du [brief produit](./brief.md). Il sert de **source unique
 |----|--------|----------|------------|----------|
 | A8.1 | **Informations légales / confidentialité** | Transparence sur l’usage des données (peut être webview ou pages natives). | §5.2 | P1 |
 | A8.2 | **Conditions d’utilisation** (si requis) | Acceptation ou consultation. | §5.2 | P1 |
+| A8.3 | **Paywall premium** (déblocage contenu) | Feuille achat à l’unité ou abonnement pour itinéraires premium. | §5.2 | P1 |
 
 ---
 
@@ -107,10 +112,12 @@ Ces écrans répondent à la problématique **éditoriale et opérationnelle** d
 
 1. **Découverte spatiale** : A1.1 → A1.4 → A3.1 → A3.2 ; option A3.3 vers A5.x.  
 2. **Découverte éditoriale** : A4.1 → A3.1 → A3.2.  
-3. **Recherche ciblée** : A2.1 ± A2.2 → A2.3 ou A2.4 → A3.1.  
-4. **Parcours** : A5.1 / A5.2 / A5.4 / A5.5 en boucle avec A1.1 et A3.  
-5. **Rétention** : A6.5, A6.6, A5.1 depuis A6.4 ou A1.1.  
-6. **Production** (équipe) : B2 → B3 / B4 / B5 ; B6 → B7 → B8.
+3. **Découverte territoriale** : A2.1 / A4.1 → **A4.3** → A5.7 / **A5.6** → A3.1 / A1.1 ; **A4.4** → A4.3 (pays → ville, P2).  
+4. **Recherche ciblée** : A2.1 ± A2.2 → A2.3 ou A2.4 → A3.1 ou **A4.3** (ville).  
+5. **Parcours** : A5.1 / A5.2 / A5.4 / A5.5 en boucle avec A1.1 et A3.  
+6. **Monétisation premium** : A4.3 / A5.6 / A5.7 → **A8.3** → contenu débloqué sur A5.6.  
+7. **Rétention** : A6.5, A6.6, A5.1 depuis A6.4 ou A1.1.  
+8. **Production** (équipe) : B2 → B3 / B4 / B5 ; B6 → B7 → B8.
 
 ---
 
@@ -118,7 +125,13 @@ Ces écrans répondent à la problématique **éditoriale et opérationnelle** d
 
 - **A1.1** concentre l’ancien « accueil / hub » et la **carte principale** : une seule vue racine, mobile first.  
 - **A1.2** : feuille permissions depuis le contrôle géoloc sur la carte (pas d’onboarding bloquant) — spec [`ecran-A1.2-permissions.md`](./ecran-A1.2-permissions.md).  
-- **A3.1** : fiche lieu plein écran depuis l’aperçu carte (**A1.4**) — spec [`ecran-A3.1-fiche-lieu.md`](./ecran-A3.1-fiche-lieu.md).  
+- **A3.1** : fiche lieu plein écran depuis l’aperçu carte (**A1.4**) — spec [`ecran-A3.1-fiche-lieu.md`](./ecran-A3.1-fiche-lieu.md).
+- **A2.1** : recherche textuelle en feuille depuis la barre carte (**A1.1**) — découverte (promu, populaires) + résultats — spec [`ecran-A2.1-recherche-textuelle.md`](./ecran-A2.1-recherche-textuelle.md). Les cartes « destination » représentant une **ville** mènent vers **A4.3** ; les **POI** unitaires restent **A3.1**.  
+- **A4.3** : hub ville — vitrine territoriale (itinéraires, premium, affiliation) — spec [`ecran-A4.3-hub-ville.md`](./ecran-A4.3-hub-ville.md). Couche entre recherche/fil et fiche lieu.  
+- **A4.4** : hub pays (P2) — réutilise le pattern **A4.3** — spec [`ecran-A4.4-hub-pays.md`](./ecran-A4.4-hub-pays.md).  
+- **A5.6** : détail itinéraire éditorial — spec [`ecran-A5.6-detail-itineraire-editorial.md`](./ecran-A5.6-detail-itineraire-editorial.md). Distinct des parcours utilisateur **A5.5**.  
+- **A5.7** : liste itinéraires par catégorie depuis le hub — spec [`ecran-A5.7-liste-itineraires-categorie.md`](./ecran-A5.7-liste-itineraires-categorie.md).  
+- **A8.3** : paywall premium — spec [`ecran-A8.3-paywall-premium.md`](./ecran-A8.3-paywall-premium.md).  
 - Plusieurs IDs peuvent être **fusionnés** en une seule vue (ex. recherche + filtres + carte en onglets ou split).  
 - Le **lecteur audio** peut être un composant persistant (mini-player) plutôt qu’un « écran » à part entière ; l’important est de couvrir **reprise de lecture** et **contexte lieu**.  
 - L’alignement **liste / carte** (§3.2) impose des règles UX et techniques communes, quel que soit le nombre de vues physiques.  

@@ -1,70 +1,40 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, TextInput, View } from 'react-native';
 
-import {
-  colors,
-  componentSizes,
-  elevation,
-  radius,
-  spacing,
-  textStyle,
-} from '../../constants/theme';
+import { colors } from '../../constants/theme';
 
-export function SearchHeader() {
+import { mapSearchBarStyles } from './mapSearchBarStyles';
+
+interface SearchHeaderProps {
+  onPress?: () => void;
+}
+
+export function SearchHeader({ onPress }: SearchHeaderProps) {
   return (
-    <View style={styles.container}>
-      <View style={styles.searchBar}>
+    <View style={mapSearchBarStyles.container}>
+      <Pressable
+        style={({ pressed }) => [
+          mapSearchBarStyles.bar,
+          pressed && onPress && mapSearchBarStyles.barPressed,
+        ]}
+        onPress={onPress}
+        disabled={!onPress}
+        accessibilityRole="button"
+        accessibilityLabel="Rechercher un lieu"
+        accessibilityHint="Ouvre la recherche de destinations"
+      >
         <TextInput
-          style={styles.input}
+          style={mapSearchBarStyles.input}
           placeholder="Rechercher un lieu…"
           placeholderTextColor={colors.mutedSoft}
           accessibilityLabel="Rechercher un lieu"
           editable={false}
+          pointerEvents="none"
         />
-        <Pressable
-          style={({ pressed }) => [styles.searchOrb, pressed && styles.searchOrbPressed]}
-          accessibilityRole="button"
-          accessibilityLabel="Lancer la recherche"
-        >
+        <View style={mapSearchBarStyles.searchOrb} accessibilityElementsHidden>
           <Ionicons name="search" size={22} color={colors.onPrimary} />
-        </Pressable>
-      </View>
+        </View>
+      </Pressable>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: spacing.base,
-    paddingTop: spacing.sm,
-  },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: componentSizes.searchBarHeight,
-    backgroundColor: colors.canvas,
-    borderRadius: radius.full,
-    paddingLeft: spacing.base,
-    paddingRight: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.hairline,
-    ...elevation.control,
-  },
-  input: {
-    flex: 1,
-    ...textStyle('bodyMd'),
-    color: colors.ink,
-    padding: 0,
-  },
-  searchOrb: {
-    width: componentSizes.searchOrbSize,
-    height: componentSizes.searchOrbSize,
-    borderRadius: radius.full,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  searchOrbPressed: {
-    backgroundColor: colors.primaryActive,
-  },
-});
