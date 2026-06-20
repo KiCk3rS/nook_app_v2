@@ -25,7 +25,15 @@ import {
   trackPermissionSheetOpened,
   type PermissionSheetSource,
 } from '../../lib/analytics';
-import { colors, elevation, radius, spacing, typography, zIndex } from '../../constants/theme';
+import {
+  colors,
+  componentSizes,
+  elevation,
+  radius,
+  spacing,
+  textStyle,
+  zIndex,
+} from '../../constants/theme';
 
 interface PermissionSheetProps {
   visible: boolean;
@@ -111,7 +119,7 @@ export function PermissionSheet({
         <View
           style={[
             styles.sheet,
-            { paddingBottom: Math.max(insets.bottom, spacing.lg) },
+            { paddingBottom: Math.max(insets.bottom, spacing.base) },
           ]}
           accessibilityRole="none"
           accessibilityLabel={PERMISSION_SHEET_COPY.title}
@@ -146,7 +154,7 @@ export function PermissionSheet({
                 return (
                   <View key={card.type} style={styles.card}>
                     <View style={styles.cardIconWrap}>
-                      <Ionicons name={card.icon} size={22} color={colors.brand} />
+                      <Ionicons name={card.icon} size={22} color={colors.primary} />
                     </View>
                     <View style={styles.cardBody}>
                       <View style={styles.cardTextGroup}>
@@ -183,7 +191,7 @@ export function PermissionSheet({
                         accessibilityState={{ disabled: isCardLoading, busy: isCardLoading }}
                       >
                         {isCardLoading ? (
-                          <ActivityIndicator size="small" color={colors.textInverse} />
+                          <ActivityIndicator size="small" color={colors.onPrimary} />
                         ) : (
                           <Text style={styles.ctaText}>
                             {isBlocked ? 'Ouvrir les paramètres' : card.cta}
@@ -235,9 +243,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.scrim,
   },
   sheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
+    backgroundColor: colors.canvas,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
     maxHeight: '70%',
     ...elevation.sheet,
   },
@@ -253,43 +261,40 @@ const styles = StyleSheet.create({
     backgroundColor: colors.borderStrong,
   },
   scrollContent: {
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
-    paddingBottom: spacing.xl,
-    gap: spacing.lg,
+    paddingBottom: spacing.lg,
+    gap: spacing.base,
   },
   headerGroup: {
     gap: spacing.xs,
   },
   title: {
-    fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
-    color: colors.textPrimary,
-    lineHeight: typography.size.xl * typography.lineHeight.normal,
+    ...textStyle('displaySm'),
+    color: colors.ink,
   },
   subtitle: {
-    fontSize: typography.size.sm,
-    color: colors.textSecondary,
-    lineHeight: typography.size.sm * typography.lineHeight.relaxed,
+    ...textStyle('bodySm'),
+    color: colors.muted,
   },
   cards: {
-    gap: spacing.lg,
+    gap: spacing.base,
     marginTop: spacing.md,
   },
   card: {
     flexDirection: 'row',
-    gap: spacing.lg,
-    padding: spacing.xl,
-    backgroundColor: colors.surfaceElevated,
-    borderRadius: radius.lg,
+    gap: spacing.base,
+    padding: spacing.lg,
+    backgroundColor: colors.surfaceSoft,
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.hairline,
   },
   cardIconWrap: {
     width: 44,
     height: 44,
     borderRadius: radius.full,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.canvas,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -301,51 +306,46 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   cardTitle: {
-    fontSize: typography.size.md,
-    fontWeight: typography.weight.semibold,
-    color: colors.textPrimary,
+    ...textStyle('titleMd'),
+    color: colors.ink,
   },
   cardDescription: {
-    fontSize: typography.size.sm,
-    color: colors.textSecondary,
-    lineHeight: typography.size.sm * typography.lineHeight.normal,
+    ...textStyle('bodySm'),
+    color: colors.muted,
   },
   blockedHint: {
-    fontSize: typography.size.sm,
+    ...textStyle('buttonSm'),
     color: colors.warning,
-    fontWeight: typography.weight.medium,
     textDecorationLine: 'underline',
   },
   cta: {
     marginTop: spacing.sm,
-    minHeight: 48,
-    borderRadius: radius.md,
-    backgroundColor: colors.textPrimary,
+    minHeight: componentSizes.buttonPrimaryHeight,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
   },
   ctaPressed: {
-    opacity: 0.88,
+    backgroundColor: colors.primaryActive,
   },
   ctaDisabled: {
     opacity: 0.7,
   },
   ctaText: {
-    fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
-    color: colors.textInverse,
+    ...textStyle('buttonMd'),
+    color: colors.onPrimary,
   },
   footer: {
-    marginTop: spacing.lg,
-    fontSize: typography.size.xs,
-    color: colors.textMuted,
-    lineHeight: typography.size.xs * typography.lineHeight.relaxed,
+    ...textStyle('captionSm'),
+    marginTop: spacing.base,
+    color: colors.mutedSoft,
   },
   footerLink: {
-    color: colors.brand,
+    ...textStyle('link'),
+    color: colors.legalLink,
     textDecorationLine: 'underline',
-    fontWeight: typography.weight.medium,
   },
 });

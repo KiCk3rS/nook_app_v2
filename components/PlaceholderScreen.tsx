@@ -1,16 +1,17 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors, spacing, typography } from '../constants/theme';
+import { colors, spacing, textStyle } from '../constants/theme';
 
 interface PlaceholderScreenProps {
   title: string;
+  description: string;
 }
 
-export function PlaceholderScreen({ title }: PlaceholderScreenProps) {
+export function PlaceholderScreen({ title, description }: PlaceholderScreenProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
-      <Text style={styles.subtitle}>Bientôt disponible</Text>
+      <Text style={styles.description}>{description}</Text>
     </View>
   );
 }
@@ -20,17 +21,19 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.background,
-    padding: spacing.xl,
+    backgroundColor: colors.canvas,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.xl,
   },
   title: {
-    fontSize: typography.size.xxl,
-    fontWeight: typography.weight.bold,
-    color: colors.textPrimary,
+    ...textStyle('displaySm'),
+    color: colors.ink,
+    textAlign: 'center',
   },
-  subtitle: {
-    marginTop: spacing.sm,
-    fontSize: typography.size.md,
-    color: colors.textSecondary,
+  description: {
+    ...textStyle('bodyMd'),
+    marginTop: spacing.md,
+    color: colors.muted,
+    textAlign: 'center',
   },
 });

@@ -118,6 +118,7 @@ Ces écrans répondent à la problématique **éditoriale et opérationnelle** d
 
 - **A1.1** concentre l’ancien « accueil / hub » et la **carte principale** : une seule vue racine, mobile first.  
 - **A1.2** : feuille permissions depuis le contrôle géoloc sur la carte (pas d’onboarding bloquant) — spec [`ecran-A1.2-permissions.md`](./ecran-A1.2-permissions.md).  
+- **A3.1** : fiche lieu plein écran depuis l’aperçu carte (**A1.4**) — spec [`ecran-A3.1-fiche-lieu.md`](./ecran-A3.1-fiche-lieu.md).  
 - Plusieurs IDs peuvent être **fusionnés** en une seule vue (ex. recherche + filtres + carte en onglets ou split).  
 - Le **lecteur audio** peut être un composant persistant (mini-player) plutôt qu’un « écran » à part entière ; l’important est de couvrir **reprise de lecture** et **contexte lieu**.  
 - L’alignement **liste / carte** (§3.2) impose des règles UX et techniques communes, quel que soit le nombre de vues physiques.  

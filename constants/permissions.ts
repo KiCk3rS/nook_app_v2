@@ -43,6 +43,6 @@ export const PERMISSION_CARDS: PermissionCardConfig[] = [
     title: 'Localisation',
     description:
       'Indiquez où vous vous trouvez pour voir les lieux autour de vous et centrer la carte.',
-    cta: 'Activer maintenant',
+    cta: 'Autoriser la localisation',
   },
 ];

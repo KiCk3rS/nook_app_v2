@@ -2,9 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
 import { GEOLOC_CONTROL_COPY } from '../../constants/permissions';
-import { colors, elevation, radius, spacing, zIndex } from '../../constants/theme';
+import { colors, componentSizes, elevation, radius } from '../../constants/theme';
 
-const CONTROL_SIZE = 44;
+const CONTROL_SIZE = componentSizes.iconControlSize;
 
 interface GeolocControlProps {
   isAttention: boolean;
@@ -31,17 +31,17 @@ export function GeolocControl({ isAttention, isLoading, onPress }: GeolocControl
       hitSlop={4}
     >
       {isLoading ? (
-        <ActivityIndicator size="small" color={colors.brand} />
+        <ActivityIndicator size="small" color={colors.primary} />
       ) : (
         <Ionicons
           name="navigate"
           size={22}
-          color={isAttention ? colors.warning : colors.textPrimary}
+          color={isAttention ? colors.warning : colors.ink}
         />
       )}
       {isAttention && !isLoading ? (
         <View style={styles.badge} accessibilityLabel={GEOLOC_CONTROL_COPY.missingBadge}>
-          <Ionicons name="help" size={10} color={colors.textInverse} />
+          <Ionicons name="help" size={10} color={colors.onPrimary} />
         </View>
       ) : null}
     </Pressable>
@@ -53,14 +53,15 @@ const styles = StyleSheet.create({
     width: CONTROL_SIZE,
     height: CONTROL_SIZE,
     borderRadius: radius.full,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.canvas,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: zIndex.mapControls,
+    borderWidth: 1,
+    borderColor: colors.hairline,
     ...elevation.control,
   },
   controlPressed: {
-    backgroundColor: colors.surfaceSunken,
+    backgroundColor: colors.surfaceStrong,
   },
   badge: {
     position: 'absolute',
@@ -73,7 +74,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: colors.surface,
+    borderColor: colors.canvas,
   },
 });
 

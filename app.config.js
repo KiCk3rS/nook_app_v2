@@ -27,6 +27,15 @@ module.exports = {
       'expo-router',
       'expo-status-bar',
       'expo-dev-client',
+      'expo-font',
+      'expo-splash-screen',
+      [
+        'expo-audio',
+        {
+          recordAudioAndroid: false,
+          enableBackgroundPlayback: true,
+        },
+      ],
       [
         'expo-location',
         {

@@ -1,70 +1,70 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
-import { colors, elevation, radius, spacing, typography } from '../../constants/theme';
+import {
+  colors,
+  componentSizes,
+  elevation,
+  radius,
+  spacing,
+  textStyle,
+} from '../../constants/theme';
 
 export function SearchHeader() {
   return (
-    <View style={styles.row}>
+    <View style={styles.container}>
       <View style={styles.searchBar}>
-        <Ionicons name="search-outline" size={20} color={colors.textMuted} />
         <TextInput
           style={styles.input}
-          placeholder="Rechercher un lieu..."
-          placeholderTextColor={colors.textMuted}
+          placeholder="Rechercher un lieu…"
+          placeholderTextColor={colors.mutedSoft}
           accessibilityLabel="Rechercher un lieu"
+          editable={false}
         />
+        <Pressable
+          style={({ pressed }) => [styles.searchOrb, pressed && styles.searchOrbPressed]}
+          accessibilityRole="button"
+          accessibilityLabel="Lancer la recherche"
+        >
+          <Ionicons name="search" size={22} color={colors.onPrimary} />
+        </Pressable>
       </View>
-      <Pressable
-        style={styles.premiumButton}
-        accessibilityRole="button"
-        accessibilityLabel="Premium"
-      >
-        <Text style={styles.premiumText}>Premium</Text>
-      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
+  container: {
+    paddingHorizontal: spacing.base,
     paddingTop: spacing.sm,
   },
   searchBar: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.surface,
+    height: componentSizes.searchBarHeight,
+    backgroundColor: colors.canvas,
     borderRadius: radius.full,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    minHeight: 44,
+    paddingLeft: spacing.base,
+    paddingRight: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.hairline,
     ...elevation.control,
   },
   input: {
     flex: 1,
-    fontSize: typography.size.md,
-    color: colors.textPrimary,
+    ...textStyle('bodyMd'),
+    color: colors.ink,
     padding: 0,
   },
-  premiumButton: {
-    backgroundColor: colors.brand,
+  searchOrb: {
+    width: componentSizes.searchOrbSize,
+    height: componentSizes.searchOrbSize,
     borderRadius: radius.full,
-    paddingHorizontal: spacing.lg,
-    minHeight: 44,
-    minWidth: 44,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    ...elevation.control,
   },
-  premiumText: {
-    fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
-    color: colors.textInverse,
+  searchOrbPressed: {
+    backgroundColor: colors.primaryActive,
   },
 });

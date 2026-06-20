@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRef, useState } from 'react';
 
 import { StyleSheet, View } from 'react-native';
@@ -20,9 +21,9 @@ import { SearchHeader } from '../../components/home/SearchHeader';
 
 import type { PermissionType } from '../../constants/permissions';
 
-import { mockPlaces } from '../../constants/mockPlaces';
-
-import { spacing, tabBarHeight, zIndex } from '../../constants/theme';
+import { getPlaceById } from '../../constants/mockPlaces';
+import { useAudioPlayback } from '../../contexts/AudioPlaybackContext';
+import { colors, miniPlayerHeight, spacing, zIndex } from '../../constants/theme';
 
 import { useLocationPermission } from '../../hooks/useLocationPermission';
 
@@ -30,16 +31,15 @@ import type { PermissionSheetSource } from '../../lib/analytics';
 
 
 
-/** Marge uniforme autour de la carte POI (latéral + au-dessus de la tab bar). */
+/** Marge latérale et basse de la carte POI (la tab bar est déjà hors zone contenu). */
 
-const poiCardMargin = spacing.lg;
+const poiCardMargin = spacing.base;
 
 
 
 export default function CarteScreen() {
 
   const insets = useSafeAreaInsets();
-
   const mapRef = useRef<HomeMapHandle>(null);
 
   const [selectedCategoryId, setSelectedCategoryId] = useState('all');
@@ -72,15 +72,23 @@ export default function CarteScreen() {
 
 
 
+  const [poiCardHeight, setPoiCardHeight] = useState(0);
+  const { viewMode } = useAudioPlayback();
+
   const selectedPlace =
+    selectedPlaceId ? getPlaceById(selectedPlaceId) ?? null : null;
 
-    mockPlaces.find((p) => p.id === selectedPlaceId) ?? null;
+  const miniPlayerInset =
+    viewMode === 'mini' ? miniPlayerHeight + spacing.sm + 2 : 0;
+  const poiCardBottom = poiCardMargin + miniPlayerInset;
 
+  const geolocControlBottom = selectedPlace
 
+    ? poiCardBottom + poiCardHeight + spacing.base
 
-  const poiCardBottom = poiCardMargin;
+    : poiCardBottom;
 
-  const geolocControlBottom = tabBarHeight + insets.bottom + spacing.lg;
+  const statusBarScrimHeight = insets.top + spacing.base;
 
 
 
@@ -162,6 +170,14 @@ export default function CarteScreen() {
 
       />
 
+      <LinearGradient
+        colors={[colors.canvas, 'transparent']}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+        style={[styles.statusBarScrim, { height: statusBarScrimHeight }]}
+        pointerEvents="none"
+      />
+
       <SafeAreaView style={styles.overlay} edges={['top']} pointerEvents="box-none">
 
         <SearchHeader />
@@ -203,6 +219,8 @@ export default function CarteScreen() {
           style={[styles.poiPreview, { bottom: poiCardBottom }]}
 
           pointerEvents="box-none"
+
+          onLayout={(event) => setPoiCardHeight(event.nativeEvent.layout.height)}
 
         >
 
@@ -250,6 +268,20 @@ const styles = StyleSheet.create({
 
   },
 
+  statusBarScrim: {
+
+    position: 'absolute',
+
+    top: 0,
+
+    left: 0,
+
+    right: 0,
+
+    zIndex: zIndex.mapControls,
+
+  },
+
   overlay: {
 
     position: 'absolute',
@@ -268,7 +300,7 @@ const styles = StyleSheet.create({
 
     position: 'absolute',
 
-    right: spacing.lg,
+    right: spacing.base,
 
     zIndex: zIndex.mapControls,
 

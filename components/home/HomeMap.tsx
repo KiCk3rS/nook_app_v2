@@ -6,7 +6,7 @@ import { Platform, StyleSheet, View } from 'react-native';
 
 
 
-import { mockPlaces, parisRegion } from '../../constants/mockPlaces';
+import { rootPlaces, parisRegion } from '../../constants/mockPlaces';
 
 import { zIndex } from '../../constants/theme';
 
@@ -154,7 +154,7 @@ export const HomeMap = forwardRef<HomeMapHandle, HomeMapProps>(function HomeMap(
 
       >
 
-        {mockPlaces.map((place) => (
+        {rootPlaces.map((place) => (
           <PlaceMapMarker
             key={place.id}
             place={place}

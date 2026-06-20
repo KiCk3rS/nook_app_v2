@@ -1,8 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import { Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, tabBarHeight, typography } from '../../constants/theme';
+import { colors, spacing, tabBarHeight, textStyle } from '../../constants/theme';
+
+function TabBarBackground() {
+  return <View style={[StyleSheet.absoluteFill, styles.tabBarBackground]} />;
+}
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
@@ -11,19 +16,20 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.brand,
-        tabBarInactiveTintColor: colors.textMuted,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.mutedSoft,
+        tabBarBackground: TabBarBackground,
         tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.border,
+          backgroundColor: colors.canvas,
+          borderTopColor: colors.hairlineSoft,
           borderTopWidth: 1,
-          paddingTop: 8,
+          paddingTop: spacing.sm,
           paddingBottom: insets.bottom,
           height: tabBarHeight + insets.bottom,
+          ...(Platform.OS === 'android' ? { elevation: 0 } : {}),
         },
         tabBarLabelStyle: {
-          fontSize: typography.size.xs,
-          fontWeight: typography.weight.medium,
+          ...textStyle('buttonSm'),
         },
       }}
     >
@@ -66,3 +72,9 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBarBackground: {
+    backgroundColor: colors.canvas,
+  },
+});

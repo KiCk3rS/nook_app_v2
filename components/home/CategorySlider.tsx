@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { categories } from '../../constants/mockPlaces';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { colors, componentSizes, radius, spacing, textStyle } from '../../constants/theme';
 
 interface CategorySliderProps {
   selectedCategoryId: string;
@@ -31,7 +31,7 @@ export function CategorySlider({ selectedCategoryId, onSelectCategory }: Categor
             <Ionicons
               name="pricetag-outline"
               size={14}
-              color={isActive ? colors.textInverse : colors.textSecondary}
+              color={isActive ? colors.onPrimary : colors.muted}
             />
             <Text style={[styles.chipText, isActive ? styles.chipTextActive : styles.chipTextInactive]}>
               {category.label}
@@ -45,7 +45,7 @@ export function CategorySlider({ selectedCategoryId, onSelectCategory }: Categor
 
 const styles = StyleSheet.create({
   content: {
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.base,
     paddingTop: spacing.md,
     gap: spacing.sm,
   },
@@ -53,26 +53,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
-    height: 36,
-    paddingHorizontal: spacing.lg,
+    minHeight: componentSizes.iconControlSize,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.sm,
     borderRadius: radius.full,
   },
   chipActive: {
-    backgroundColor: colors.brand,
+    backgroundColor: colors.primary,
   },
   chipInactive: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.canvas,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.hairline,
   },
   chipText: {
-    fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    ...textStyle('buttonSm'),
   },
   chipTextActive: {
-    color: colors.textInverse,
+    color: colors.onPrimary,
   },
   chipTextInactive: {
-    color: colors.textPrimary,
+    color: colors.muted,
   },
 });

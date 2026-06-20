@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors, typography } from '../../constants/theme';
+import { colors, elevation, spacing, textStyle } from '../../constants/theme';
 
 interface PoiMarkerVisualProps {
   categoryId: string;
@@ -12,7 +12,7 @@ interface PoiMarkerVisualProps {
 
 export const MARKER_SIZE = 48;
 export const MARKER_SIZE_SELECTED = 54;
-export const BORDER_WIDTH = 5;
+export const BORDER_WIDTH = 3;
 export const TAIL_WIDTH = 12;
 export const TAIL_HEIGHT = 8;
 export const LABEL_MAX_WIDTH = 120;
@@ -34,7 +34,8 @@ export function PoiMarkerVisual({
 }: PoiMarkerVisualProps) {
   const size = selected ? MARKER_SIZE_SELECTED : MARKER_SIZE;
   const ringSize = size + BORDER_WIDTH * 2;
-  const fillColor = selected ? colors.markerSelected : colors.brand;
+  const ringBorderColor = selected ? colors.markerActiveBorder : colors.markerIdleBorder;
+  const iconColor = selected ? colors.markerActiveIcon : colors.markerIdleIcon;
   const iconName = categoryIconNames[categoryId] ?? 'location-outline';
 
   return (
@@ -51,14 +52,15 @@ export function PoiMarkerVisual({
               width: ringSize,
               height: ringSize,
               borderRadius: ringSize / 2,
-              backgroundColor: fillColor,
+              backgroundColor: colors.surfaceSoft,
+              borderColor: ringBorderColor,
             },
           ]}
         >
           <Ionicons
             name={iconName}
             size={selected ? 28 : 25}
-            color={colors.textInverse}
+            color={iconColor}
             accessibilityElementsHidden
           />
         </View>
@@ -70,12 +72,12 @@ export function PoiMarkerVisual({
               borderLeftWidth: TAIL_WIDTH / 2,
               borderRightWidth: TAIL_WIDTH / 2,
               borderTopWidth: TAIL_HEIGHT,
-              borderTopColor: colors.background,
+              borderTopColor: ringBorderColor,
             },
           ]}
         />
       </View>
-      <Text style={styles.label} numberOfLines={2}>
+      <Text style={[styles.label, selected && styles.labelSelected]} numberOfLines={2}>
         {name}
       </Text>
     </View>
@@ -90,21 +92,15 @@ const styles = StyleSheet.create({
   },
   pin: {
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    ...elevation.control,
   },
   pinSelected: {
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.38,
-    shadowRadius: 10,
-    elevation: 10,
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
   },
   photoRing: {
     borderWidth: BORDER_WIDTH,
-    borderColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -117,14 +113,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   label: {
-    marginTop: 4,
+    marginTop: spacing.xxs,
     maxWidth: LABEL_MAX_WIDTH,
     textAlign: 'center',
-    fontSize: typography.size.xs,
-    fontWeight: typography.weight.medium,
-    color: colors.textPrimary,
+    ...textStyle('microLabel'),
+    color: colors.muted,
     textShadowColor: 'rgba(255, 255, 255, 0.95)',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 6,
+  },
+  labelSelected: {
+    color: colors.ink,
   },
 });
