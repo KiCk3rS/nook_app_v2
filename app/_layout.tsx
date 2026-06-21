@@ -16,6 +16,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { colors, fontFamilyForWeight, typography } from '../constants/theme';
 import { GlobalAudioChrome } from '../components/audio/GlobalAudioChrome';
 import { AudioPlaybackProvider } from '../contexts/AudioPlaybackContext';
+import { FavoritesProvider } from '../contexts/FavoritesContext';
 import { PremiumProvider } from '../contexts/PremiumContext';
 
 SplashScreen.preventAutoHideAsync();
@@ -42,6 +43,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <AudioPlaybackProvider>
+          <FavoritesProvider>
           <PremiumProvider>
           <StatusBar style="dark" />
           <Stack
@@ -87,6 +89,7 @@ export default function RootLayout() {
           </Stack>
           <GlobalAudioChrome />
           </PremiumProvider>
+          </FavoritesProvider>
         </AudioPlaybackProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

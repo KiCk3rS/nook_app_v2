@@ -51,8 +51,6 @@ export const ITINERARY_COPY = {
   stepsSection: 'Étapes',
   startCta: 'Démarrer le parcours',
   unlockCta: 'Débloquer ce parcours',
-  saveCta: 'Enregistrer dans mes parcours',
-  saveSuccess: 'Parcours ajouté à votre liste',
   mapCta: 'Voir sur la carte',
   mapModeKicker: 'Parcours sur la carte',
   mapModeOpenDetail: 'Voir le détail du parcours',

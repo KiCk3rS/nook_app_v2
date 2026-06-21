@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
 import {
   Image,
   Pressable,
@@ -9,6 +8,7 @@ import {
   View,
 } from 'react-native';
 
+import { useFavorites } from '../../contexts/FavoritesContext';
 import { getCategoryLabel, type MockPlace } from '../../constants/mockPlaces';
 import { getPlaceHref } from '../../lib/placeNavigation';
 import {
@@ -27,7 +27,8 @@ interface PoiPreviewCardProps {
 
 export function PoiPreviewCard({ place, onClose }: PoiPreviewCardProps) {
   const router = useRouter();
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isPlaceFavorite, togglePlaceFavorite } = useFavorites();
+  const isFavorite = isPlaceFavorite(place.id);
   const categoryLabel = getCategoryLabel(place.categoryId);
   const readyGuideCount = place.audioGuides.filter((g) => g.status === 'ready').length;
 
@@ -57,7 +58,7 @@ export function PoiPreviewCard({ place, onClose }: PoiPreviewCardProps) {
             style={styles.iconButton}
             onPress={(e) => {
               e.stopPropagation();
-              setIsFavorite((v) => !v);
+              togglePlaceFavorite(place.id);
             }}
             accessibilityRole="button"
             accessibilityLabel={

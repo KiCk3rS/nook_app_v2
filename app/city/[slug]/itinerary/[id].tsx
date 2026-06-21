@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
   Pressable,
   ScrollView,
   Share,
@@ -40,6 +39,7 @@ import {
   textStyle,
 } from '../../../../constants/theme';
 import { usePremium } from '../../../../contexts/PremiumContext';
+import { useFavorites } from '../../../../contexts/FavoritesContext';
 import {
   trackEditorialItineraryMapTapped,
   trackEditorialItineraryViewed,
@@ -68,12 +68,13 @@ export default function EditorialItineraryScreen() {
   );
 
   const { isUnlocked } = usePremium();
+  const { isItineraryFavorite, toggleItineraryFavorite } = useFavorites();
   const unlocked = itinerary
     ? isUnlocked(itinerary.id, itinerary.isPremium)
     : false;
+  const isFavorite = itinerary ? isItineraryFavorite(itinerary.id) : false;
 
   const [paywallVisible, setPaywallVisible] = useState(false);
-  const [isFavorite] = useState(false);
 
   const scrollTopInset = PLACE_HERO_HEIGHT - PLACE_CONTENT_OVERLAP;
   const bodyMinHeight = windowHeight - scrollTopInset + PLACE_CONTENT_OVERLAP;
@@ -126,10 +127,6 @@ export default function EditorialItineraryScreen() {
     });
   }
 
-  function handleSave() {
-    Alert.alert(ITINERARY_COPY.saveCta, ITINERARY_COPY.saveSuccess);
-  }
-
   if (!itinerary || !city) {
     return (
       <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
@@ -157,7 +154,7 @@ export default function EditorialItineraryScreen() {
       <PlaceHeroControls
         isFavorite={isFavorite}
         onBack={handleBack}
-        onToggleFavorite={() => {}}
+        onToggleFavorite={() => itinerary && toggleItineraryFavorite(itinerary.id)}
         onShare={() => void handleShare()}
       />
 
@@ -225,14 +222,6 @@ export default function EditorialItineraryScreen() {
             );
           })}
 
-          <Pressable
-            onPress={handleSave}
-            style={({ pressed }) => [styles.secondaryBtn, pressed && styles.linkPressed]}
-            accessibilityRole="button"
-            accessibilityLabel={ITINERARY_COPY.saveCta}
-          >
-            <Text style={styles.secondaryBtnText}>{ITINERARY_COPY.saveCta}</Text>
-          </Pressable>
         </View>
       </ScrollView>
 
@@ -340,15 +329,6 @@ const styles = StyleSheet.create({
     color: colors.ink,
     marginTop: spacing.sm,
   },
-  secondaryBtn: {
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    marginTop: spacing.sm,
-  },
-  secondaryBtnText: {
-    ...textStyle('buttonMd'),
-    color: colors.primary,
-  },
   stickyBar: {
     position: 'absolute',
     left: 0,
@@ -373,9 +353,6 @@ const styles = StyleSheet.create({
   primaryText: {
     ...textStyle('buttonMd'),
     color: colors.onPrimary,
-  },
-  linkPressed: {
-    opacity: 0.85,
   },
   notFound: {
     flex: 1,

@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -23,6 +23,7 @@ import {
   PlaceHeroControls,
 } from '../../components/place/PlaceHero';
 import { useAudioPlayback } from '../../contexts/AudioPlaybackContext';
+import { useFavorites } from '../../contexts/FavoritesContext';
 import { getPlaceById, getPlaceChildren, getPlaceParent } from '../../constants/mockPlaces';
 import {
   colors,
@@ -50,7 +51,8 @@ export default function PlaceDetailScreen() {
     [place],
   );
 
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isPlaceFavorite, togglePlaceFavorite } = useFavorites();
+  const isFavorite = place ? isPlaceFavorite(place.id) : false;
   const {
     activeGuideId,
     isPlaying,
@@ -121,7 +123,7 @@ export default function PlaceDetailScreen() {
       <PlaceHeroControls
         isFavorite={isFavorite}
         onBack={handleBack}
-        onToggleFavorite={() => setIsFavorite((v) => !v)}
+        onToggleFavorite={() => togglePlaceFavorite(place.id)}
         onShare={() => void handleShare()}
       />
 
