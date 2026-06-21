@@ -12,7 +12,7 @@
 
 ## Résumé
 
-**Utilisateur :** explorer un pays dans son ensemble — villes à visiter, itinéraires transverses, cartes et expériences à l’échelle nationale.
+**Utilisateur :** explorer un pays dans son ensemble — villes à visiter, itinéraires transverses, pass touristiques et expériences à l’échelle nationale.
 
 **Produit :** extension du hub ville (**A4.3**) à l’échelle pays ; réutilise le même gabarit vitrine avec des sections spécifiques (grille de villes, road trips).
 
@@ -26,7 +26,7 @@ Les sections suivantes sont **identiques** au hub ville — se référer à [ecr
 - Bloc itinéraire premium → **A5.6** / **A8.3**
 - POI incontournables (national/regional)
 - Recommandé pour vous
-- Cartes touristiques (affiliation)
+- Pass touristiques (affiliation)
 - Expériences (affiliation)
 
 **Règles transverses inchangées :** transparence partenaires, cohérence carte/liste, itinéraires éditoriaux vs parcours utilisateur, états chargement / erreur / hors ligne.
@@ -57,7 +57,7 @@ Les sections suivantes sont **identiques** au hub ville — se référer à [ecr
 5. **Bloc itinéraire premium national** — ex. « Tour de France culturel ».
 6. **Incontournables** — POI iconiques multi-régions.
 7. **Recommandé pour vous**
-8. **Cartes touristiques** — cartes nationales / régionales.
+8. **Pass touristiques** — pass nationaux ou multi-villes (partenaires tourisme).
 9. **Expériences** — activités multi-villes.
 
 ### Zones spécifiques pays

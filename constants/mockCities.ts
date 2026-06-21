@@ -7,12 +7,18 @@ export interface CityBbox {
   longitudeDelta: number;
 }
 
-export interface AffiliateMapItem {
+export interface TouristPassItem {
   id: string;
   title: string;
   partnerName: string;
   imageUrl: string;
   affiliateUrl: string;
+  /** Prix affiché « à partir de ». */
+  priceFrom: string;
+  /** Ex. « 2 jours », « 48 h ». */
+  validityLabel?: string;
+  /** Ex. « Jusqu’à 30 % d’économies ». */
+  savingsHint?: string;
 }
 
 export interface AffiliateExperienceItem {
@@ -36,7 +42,7 @@ export interface MockCity {
   mustSeePoiIds: string[];
   recommendedPoiIds: string[];
   featuredPremiumItineraryId: string | null;
-  affiliateMaps: AffiliateMapItem[];
+  touristPasses: TouristPassItem[];
   affiliateExperiences: AffiliateExperienceItem[];
 }
 
@@ -57,22 +63,28 @@ export const mockCities: MockCity[] = [
     mustSeePoiIds: ['1', '2', '4', '6'],
     recommendedPoiIds: ['3', '5'],
     featuredPremiumItineraryId: 'itin-paris-premium',
-    affiliateMaps: [
+    touristPasses: [
       {
-        id: 'map-paris-1',
-        title: 'Carte Paris monuments',
-        partnerName: 'Planète Guides',
+        id: 'pass-paris-1',
+        title: 'Paris Museum Pass',
+        partnerName: 'Office de Tourisme de Paris',
         imageUrl:
-          'https://images.unsplash.com/photo-1524661135-423995f22d0b?w=400&q=80',
-        affiliateUrl: 'https://example.com/affiliate/paris-map',
+          'https://images.unsplash.com/photo-1743880475189-e36f80868bcc?w=400&q=80',
+        affiliateUrl: 'https://example.com/affiliate/paris-museum-pass',
+        priceFrom: '62 €',
+        validityLabel: '2 jours',
+        savingsHint: 'Accès à 50+ musées et monuments',
       },
       {
-        id: 'map-paris-2',
-        title: 'Plan métro & monuments',
-        partnerName: 'Urban Maps',
+        id: 'pass-paris-2',
+        title: 'Paris Pass',
+        partnerName: 'Paris City Vision',
         imageUrl:
-          'https://images.unsplash.com/photo-1569336410460-0f0a2a2a0a0a?w=400&q=80',
-        affiliateUrl: 'https://example.com/affiliate/paris-metro',
+          'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&q=80',
+        affiliateUrl: 'https://example.com/affiliate/paris-pass',
+        priceFrom: '89 €',
+        validityLabel: '4 jours',
+        savingsHint: 'Musées + transports + activités',
       },
     ],
     affiliateExperiences: [
@@ -116,7 +128,7 @@ export const mockCities: MockCity[] = [
     mustSeePoiIds: [],
     recommendedPoiIds: [],
     featuredPremiumItineraryId: null,
-    affiliateMaps: [],
+    touristPasses: [],
     affiliateExperiences: [],
   },
 ];

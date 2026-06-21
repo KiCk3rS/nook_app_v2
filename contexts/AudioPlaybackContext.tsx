@@ -25,6 +25,7 @@ interface AudioPlaybackContextValue {
   expand: () => void;
   dismiss: () => void;
   togglePlay: () => void;
+  pause: () => void;
   seekTo: (ms: number) => void;
   skipBack: () => void;
   skipForward: () => void;
@@ -40,8 +41,17 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
   const sessionActive = viewMode !== 'idle' && guide !== null;
 
   const playback = useAudioPlayer({ guide, place, active: sessionActive });
-  const { togglePlay, reset, isPlaying, positionMs, durationMs, seekTo, skipBack, skipForward } =
-    playback;
+  const {
+    togglePlay,
+    pause,
+    reset,
+    isPlaying,
+    positionMs,
+    durationMs,
+    seekTo,
+    skipBack,
+    skipForward,
+  } = playback;
 
   const startPlayback = useCallback(
     (nextPlace: MockPlace, nextGuide: AudioGuide) => {
@@ -88,6 +98,7 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
       expand,
       dismiss,
       togglePlay,
+      pause,
       seekTo,
       skipBack,
       skipForward,
@@ -100,6 +111,7 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
       positionMs,
       durationMs,
       togglePlay,
+      pause,
       seekTo,
       skipBack,
       skipForward,

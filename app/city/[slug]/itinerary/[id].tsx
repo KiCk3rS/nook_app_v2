@@ -92,7 +92,7 @@ export default function EditorialItineraryScreen() {
       setPaywallVisible(true);
       return;
     }
-    Alert.alert('Guidage', 'Mode guidage pas-à-pas — à venir (A5.5).');
+    router.push(`/city/${slug}/itinerary/${id}/guide`);
   }
 
   function handleStepPress(stepIndex: number) {

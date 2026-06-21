@@ -151,6 +151,10 @@ export function useAudioPlayer({ guide, place, active }: UseAudioPlayerOptions) 
     void seekTo(positionMs + SKIP_FORWARD_SEC * 1000);
   }, [positionMs, seekTo]);
 
+  const pause = useCallback(() => {
+    player.pause();
+  }, [player]);
+
   const reset = useCallback(() => {
     player.pause();
     void player.seekTo(0);
@@ -168,6 +172,7 @@ export function useAudioPlayer({ guide, place, active }: UseAudioPlayerOptions) 
     seekTo,
     skipBack,
     skipForward,
+    pause,
     reset,
   };
 }

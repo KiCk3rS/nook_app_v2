@@ -12,9 +12,9 @@
 
 ## Résumé
 
-**Utilisateur :** choisir une ville et comprendre comment la visiter — itinéraires thématiques, lieux incontournables, cartes et activités complémentaires.
+**Utilisateur :** choisir une ville et comprendre comment la visiter — itinéraires thématiques, lieux incontournables, pass touristiques et activités complémentaires.
 
-**Produit :** hub éditorial territorial servant de porte d’entrée vers les itinéraires curatés NOOK, avec monétisation premium (contenu payant) et blocs d’affiliation (cartes touristiques, expériences partenaires).
+**Produit :** hub éditorial territorial servant de porte d’entrée vers les itinéraires curatés NOOK, avec monétisation premium (contenu payant) et blocs d’affiliation (pass touristiques partenaires, expériences).
 
 ## Utilisateur et contexte
 
@@ -26,7 +26,7 @@
 | Sens | Détail |
 |------|--------|
 | **Arrivée depuis** | **A2.1** — tap carte « destination » (ville) ; **A4.1** — section ville mise en avant ; **A4.4** — tap ville depuis hub pays ; lien profond `/city/[slug]`. |
-| **Sorties** | **A5.7** — tap tuile catégorie d’itinéraire ; **A5.6** — tap itinéraire (dont premium) ; **A3.1** — tap POI incontournable ou reco ; **A1.1** — CTA « Voir sur la carte » (bbox ville) ; **A8.3** — itinéraire premium verrouillé ; WebView / navigateur — cartes affiliées et expériences. |
+| **Sorties** | **A5.7** — tap tuile catégorie d’itinéraire ; **A5.6** — tap itinéraire (dont premium) ; **A3.1** — tap POI incontournable ou reco ; **A1.1** — CTA « Voir sur la carte » (bbox ville) ; **A8.3** — itinéraire premium verrouillé ; WebView / navigateur — pass touristiques et expériences partenaires. |
 | **Retour arrière** | Bouton retour héros ; geste OS back = écran précédent (A2.1, A4.1, etc.). |
 
 **Lien profond :** `/city/[slug]` — si slug inconnu : état « Ville introuvable » + retour.
@@ -41,7 +41,7 @@
 4. **Bloc itinéraire premium** — mise en avant monétisée.
 5. **POI incontournables** — carrousel horizontal.
 6. **Recommandé pour vous** — personnalisation ou fallback populaire.
-7. **Cartes touristiques** — affiliation.
+7. **Pass touristiques** — affiliation (offices de tourisme, opérateurs).
 8. **Expériences** — affiliation (ex. GetYourGuide).
 
 ### Zones / composants
@@ -55,7 +55,7 @@
 | **Carte premium** | Monétisation | `itineraryId`, `title`, `duration`, `stepCount`, `isLocked`, `priceLabel?` | Badge « Premium » ; icône cadenas si verrouillé ; tap → **A5.6** ou **A8.3** |
 | **Section incontournables** | Découverte POI | Liste `poiIds[]` ordonnée éditorialement | Carrousel 4–6 cartes compactes ; pattern visuel **PopularDestinationCard** |
 | **Section recommandé** | Personnalisation | POI ou itinéraires selon profil | Masquée si anonyme sans fallback ; sinon « Populaire dans {ville} » |
-| **Section cartes touristiques** | Affiliation | `partnerId`, `title`, `imageUrl`, `affiliateUrl`, `disclosure` | Badge « Partenaire » ; header avec lien « En savoir plus » sur la transparence |
+| **Section pass touristiques** | Affiliation | `partnerName`, `title`, `priceFrom`, `validityLabel?`, `savingsHint?`, `affiliateUrl` | Badge « Partenaire » ; valeur perçue (économies, durée) |
 | **Section expériences** | Affiliation | `provider`, `title`, `priceFrom`, `rating?`, `duration?`, `externalUrl` | Sous-titre « Réservation sur {partenaire} » ; ouverture externe |
 
 ### Tuile catégorie d’itinéraire (détail)
@@ -82,7 +82,7 @@ Liste configurable côté éditorial ; les slugs absents du catalogue ville ne g
 
 ## Interactions et règles
 
-- **Gestes :** scroll vertical sur la page ; scroll horizontal sur carrousels (incontournables, cartes, expériences).
+- **Gestes :** scroll vertical sur la page ; scroll horizontal sur carrousels (incontournables, pass, expériences).
 - **Itinéraire éditorial ≠ parcours utilisateur** : contenu curaté NOOK ; pas d’édition directe ; copie vers parcours perso via action secondaire sur **A5.6** (**A5.2**).
 - **Premium** : états d’accès `locked` | `purchased` | `included_in_subscription` ; après achat **A8.3**, retour au hub ou **A5.6** sans rechargement complet de la page.
 - **Affiliation** : transparence alignée **A2.1** (badge « Partenaire », « Promu » si applicable) ; pas de redirection silencieuse ; interstitiel « Vous quittez NOOK » avant ouverture externe si requis légal.
@@ -115,10 +115,11 @@ Liste configurable côté éditorial ; les slugs absents du catalogue ville ne g
 | Section incontournables | « Incontournables » |
 | Section recommandé (connecté) | « Recommandé pour vous » |
 | Section recommandé (fallback) | « Populaire à {ville} » |
-| Section cartes | « Cartes et guides papier » |
+| Section pass touristiques | « Pass touristiques » |
+| Mention pass | « Achat sur {partenaire} » |
 | Section expériences | « Expériences et activités » |
 | Badge partenaire | « Partenaire » |
-| Sortie app (interstitiel) | « Vous allez être redirigé vers {partenaire} pour finaliser votre réservation. » |
+| Sortie app (interstitiel) | « Vous allez être redirigé vers {partenaire} pour poursuivre. » |
 | Bouton interstitiel | « Continuer » / « Annuler » |
 | Ville introuvable | « Cette destination n’existe pas ou n’est plus disponible. » |
 | Section sans contenu (catégories) | « De nouveaux parcours arrivent bientôt. » |
@@ -130,7 +131,7 @@ Liste configurable côté éditorial ; les slugs absents du catalogue ville ne g
 ## Accessibilité
 
 - Titre d’écran annoncé : « Hub {ville} ».
-- Labels : « Retour », « Partager {ville} », « Voir {ville} sur la carte », « Catégorie {label} — {count} parcours », « Itinéraire premium {title} — verrouillé », « Lieu incontournable {name} », « Carte partenaire {title} », « Expérience {title} — réservation externe ».
+- Labels : « Retour », « Partager {ville} », « Voir {ville} sur la carte », « Catégorie {label} — {count} parcours », « Itinéraire premium {title} — verrouillé », « Lieu incontournable {name} », « Pass touristique {title} », « Expérience {title} — réservation externe ».
 - Cibles tactiles ≥ 44×44 pt ; carrousels annonçables par position (« 2 sur 6 »).
 - Contraste badge « Premium » et « Partenaire » suffisant sur fond image.
 - Réduction de mouvement : pas d’auto-scroll agressif sur carrousels.
@@ -143,7 +144,7 @@ Liste configurable côté éditorial ; les slugs absents du catalogue ville ne g
 | `hub_city_category_tapped` | `city_id`, `category_slug` |
 | `hub_city_premium_tapped` | `city_id`, `itinerary_id`, `is_locked` |
 | `hub_city_poi_tapped` | `city_id`, `poi_id`, `section` (must_see, recommended) |
-| `hub_city_affiliate_tapped` | `city_id`, `partner_id`, `slot` (map, experience), `item_id` |
+| `hub_city_affiliate_tapped` | `city_id`, `partner_id`, `slot` (tourist_pass, experience), `item_id` |
 | `hub_city_map_cta_tapped` | `city_id` |
 | `hub_city_shared` | `city_id` |
 
@@ -169,7 +170,7 @@ Réponse minimale (DTO provisoire) :
   "featuredPremiumItinerary": { "id": "…", "title": "…", "isLocked": true, "priceLabel": "4,99 €" },
   "mustSeePoiIds": ["…"],
   "recommended": { "type": "poi", "ids": ["…"] },
-  "affiliateMaps": [{ "partnerId": "…", "title": "…", "affiliateUrl": "…" }],
+  "touristPasses": [{ "partnerName": "…", "title": "…", "priceFrom": "62 €", "validityLabel": "2 jours", "affiliateUrl": "…" }],
   "affiliateExperiences": [{ "provider": "GetYourGuide", "title": "…", "priceFrom": "29 €", "externalUrl": "…" }]
 }
 ```
@@ -183,7 +184,7 @@ En MVP : données mock locales ; pas d’endpoint dans [api-client-reference.md]
 3. **Given** itinéraire premium verrouillé **When** tap sur la carte premium **Then** ouverture **A8.3** ; **When** achat réussi **Then** accès **A5.6** avec contenu débloqué.
 4. **Given** hub ville **When** tap POI incontournable **Then** navigation **A3.1** avec le bon `poiId`.
 5. **Given** hub ville **When** tap CTA « Voir sur la carte » **Then** **A1.1** centrée sur la bbox ville avec les POI de la ville.
-6. **Given** carte affiliée ou expérience **When** tap **Then** interstitiel de transparence puis ouverture WebView ou navigateur externe.
+6. **Given** pass touristique ou expérience partenaire **When** tap **Then** interstitiel de transparence puis ouverture WebView ou navigateur externe.
 7. **Given** slug ville invalide **When** ouverture lien profond **Then** état « Ville introuvable » avec action retour.
 8. **Given** mode hors ligne avec cache **When** ouverture hub **Then** sections éditoriales cache visibles ; blocs affiliation masqués ou message explicite.
 9. **Given** section incontournables vide **When** rendu hub **Then** section masquée (pas de bloc vide).

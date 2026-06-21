@@ -489,7 +489,7 @@ Dérivé de [ecrans.md](./ecrans.md). Mettre à jour au fil de l’eau.
 | A5.2 | Création / édition parcours | P1 | Non démarré | — | — |
 | A5.3 | Modèles de parcours | P2 | Non démarré | — | — |
 | A5.4 | Parcours sur carte | P1 | Non démarré | — | — |
-| A5.5 | Détail parcours (guidage) | P1 | Non démarré | — | — |
+| A5.5 | Détail parcours (guidage) | P1 | Implémenté (éditorial) | — | [`ecran-A5.5-mode-guidage.md`](./ecran-A5.5-mode-guidage.md) |
 | A6.1 | Connexion | P1 | Non démarré | — | — |
 | A6.2 | Inscription | P1 | Non démarré | — | — |
 | A6.3 | Réinitialisation MDP | P1 | Non démarré | — | — |

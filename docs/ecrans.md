@@ -129,6 +129,7 @@ Ces écrans répondent à la problématique **éditoriale et opérationnelle** d
 - **A2.1** : recherche textuelle en feuille depuis la barre carte (**A1.1**) — découverte (promu, populaires) + résultats — spec [`ecran-A2.1-recherche-textuelle.md`](./ecran-A2.1-recherche-textuelle.md). Les cartes « destination » représentant une **ville** mènent vers **A4.3** ; les **POI** unitaires restent **A3.1**.  
 - **A4.3** : hub ville — vitrine territoriale (itinéraires, premium, affiliation) — spec [`ecran-A4.3-hub-ville.md`](./ecran-A4.3-hub-ville.md). Couche entre recherche/fil et fiche lieu.  
 - **A4.4** : hub pays (P2) — réutilise le pattern **A4.3** — spec [`ecran-A4.4-hub-pays.md`](./ecran-A4.4-hub-pays.md).  
+- **A5.5** : mode guidage pas-à-pas — spec [`ecran-A5.5-mode-guidage.md`](./ecran-A5.5-mode-guidage.md). Partagé parcours utilisateur et itinéraires éditoriaux ; entrée depuis **A5.6** ou **A5.1**.
 - **A5.6** : détail itinéraire éditorial — spec [`ecran-A5.6-detail-itineraire-editorial.md`](./ecran-A5.6-detail-itineraire-editorial.md). Distinct des parcours utilisateur **A5.5**.  
 - **A5.7** : liste itinéraires par catégorie depuis le hub — spec [`ecran-A5.7-liste-itineraires-categorie.md`](./ecran-A5.7-liste-itineraires-categorie.md).  
 - **A8.3** : paywall premium — spec [`ecran-A8.3-paywall-premium.md`](./ecran-A8.3-paywall-premium.md).  

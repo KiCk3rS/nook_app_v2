@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AffiliateMapCard } from '../../../components/city/AffiliateMapCard';
+import { TouristPassCard } from '../../../components/city/TouristPassCard';
 import { CategoryTile } from '../../../components/city/CategoryTile';
 import { ExperienceCard } from '../../../components/city/ExperienceCard';
 import { ExternalLinkSheet } from '../../../components/city/ExternalLinkSheet';
@@ -144,7 +144,7 @@ export default function CityHubScreen() {
   function handleAffiliatePress(
     url: string,
     partner: string,
-    slot: 'map' | 'experience',
+    slot: 'tourist_pass' | 'experience',
     itemId: string,
   ) {
     if (!city) return;
@@ -278,23 +278,23 @@ export default function CityHubScreen() {
             </View>
           ) : null}
 
-          {city.affiliateMaps.length > 0 ? (
+          {city.touristPasses.length > 0 ? (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{HUB_COPY.mapsSection}</Text>
+              <Text style={styles.sectionTitle}>{HUB_COPY.touristPassesSection}</Text>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.carousel}
               >
-                {city.affiliateMaps.map((item) => (
-                  <AffiliateMapCard
+                {city.touristPasses.map((item) => (
+                  <TouristPassCard
                     key={item.id}
                     item={item}
                     onPress={() =>
                       handleAffiliatePress(
                         item.affiliateUrl,
                         item.partnerName,
-                        'map',
+                        'tourist_pass',
                         item.id,
                       )
                     }

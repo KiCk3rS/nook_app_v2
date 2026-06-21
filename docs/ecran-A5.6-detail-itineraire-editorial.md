@@ -151,4 +151,5 @@
 
 - Nombre d’étapes visibles en freemium avant paywall (0, 1, 2 ?).
 - Favori itinéraire éditorial : P1 ou P2 ?
-- Mode guidage **A5.5** : réutilisation composant unique ou écran dédié avec flag `editorial` ?
+
+**Résolu :** mode guidage **A5.5** — composant unique `GuidanceScreen` avec `sourceType` ; voir [`ecran-A5.5-mode-guidage.md`](./ecran-A5.5-mode-guidage.md).
