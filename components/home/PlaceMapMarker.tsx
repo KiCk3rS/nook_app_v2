@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Platform, StyleSheet, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 
 import type { MockPlace } from '../../constants/mockPlaces';
@@ -12,26 +12,21 @@ interface PlaceMapMarkerProps {
   onPress: () => void;
 }
 
-const TRACKS_OFF_DELAY_MS = 150;
+/** Délai court avant de figer le snapshot du marqueur (évite OOM Android). */
+const TRACKS_OFF_DELAY_MS = Platform.OS === 'android' ? 300 : 150;
 
 export function PlaceMapMarker({ place, selected, onPress }: PlaceMapMarkerProps) {
   const [tracksViewChanges, setTracksViewChanges] = useState(true);
-  const tracksOffTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setTracksViewChanges(true);
-
-    tracksOffTimerRef.current = setTimeout(() => {
-      setTracksViewChanges(false);
-    }, TRACKS_OFF_DELAY_MS);
-
-    return () => {
-      if (tracksOffTimerRef.current) clearTimeout(tracksOffTimerRef.current);
-    };
+    const timer = setTimeout(() => setTracksViewChanges(false), TRACKS_OFF_DELAY_MS);
+    return () => clearTimeout(timer);
   }, [selected]);
 
   return (
     <Marker
+      key={`${place.id}-${selected ? '1' : '0'}`}
       coordinate={{ latitude: place.latitude, longitude: place.longitude }}
       anchor={POI_MARKER_ANCHOR}
       tracksViewChanges={tracksViewChanges}

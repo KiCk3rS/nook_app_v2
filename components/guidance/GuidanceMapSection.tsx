@@ -75,6 +75,8 @@ export function GuidanceMapSection({
             rotateEnabled={false}
             pitchEnabled={false}
             pointerEvents="none"
+            liteMode={Platform.OS === 'android'}
+            cacheEnabled={Platform.OS === 'android'}
           >
             {coordinates.length >= 2 ? (
               <Polyline

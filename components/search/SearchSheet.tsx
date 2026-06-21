@@ -24,6 +24,7 @@ import {
   trackSearchSheetDismissed,
   trackSearchSheetOpened,
 } from '../../lib/analytics';
+import { getPlaceHrefById } from '../../lib/placeNavigation';
 import { searchAll } from '../../lib/searchPlaces';
 import {
   colors,
@@ -113,7 +114,7 @@ export function SearchSheet({
   function handleSelectPlace(placeId: string) {
     trackSearchResultTap(placeId);
     handleClose();
-    router.push(`/place/${placeId}`);
+    router.push(getPlaceHrefById(placeId));
   }
 
   function handleSelectCity(citySlug: string) {

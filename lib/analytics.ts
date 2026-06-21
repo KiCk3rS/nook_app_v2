@@ -84,6 +84,57 @@ export function trackHubCityMapCtaTapped(_citySlug: string): void {
   // hub_city_map_cta_tapped
 }
 
+export function trackHubDistrictViewed(
+  _citySlug: string,
+  _districtSlug: string,
+  _source: 'search' | 'feed' | 'deeplink' | 'direct' | 'city_hub' | 'map',
+): void {
+  // hub_district_viewed
+}
+
+export function trackHubDistrictCategoryTapped(
+  _citySlug: string,
+  _districtSlug: string,
+  _categorySlug: string,
+): void {
+  // hub_district_category_tapped
+}
+
+export function trackHubDistrictPremiumTapped(
+  _citySlug: string,
+  _districtSlug: string,
+  _itineraryId: string,
+  _isLocked: boolean,
+): void {
+  // hub_district_premium_tapped
+}
+
+export function trackHubDistrictPoiTapped(
+  _citySlug: string,
+  _districtSlug: string,
+  _poiId: string,
+  _section: 'must_see' | 'recommended',
+): void {
+  // hub_district_poi_tapped
+}
+
+export function trackHubDistrictAffiliateTapped(
+  _citySlug: string,
+  _districtSlug: string,
+  _partnerId: string,
+  _slot: 'tourist_pass' | 'experience',
+  _itemId: string,
+): void {
+  // hub_district_affiliate_tapped
+}
+
+export function trackHubDistrictMapCtaTapped(
+  _citySlug: string,
+  _districtSlug: string,
+): void {
+  // hub_district_map_cta_tapped
+}
+
 export function trackItineraryCategoryListViewed(
   _citySlug: string,
   _categorySlug: string,

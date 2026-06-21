@@ -5,6 +5,8 @@ export type ItineraryDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
 export interface EditorialItinerary {
   id: string;
   citySlug: string;
+  /** Présent si l’itinéraire est rattaché à un hub quartier (A4.5). */
+  districtSlug?: string;
   categorySlug: string;
   title: string;
   description: string;
@@ -118,6 +120,73 @@ export const mockItineraries: EditorialItinerary[] = [
     priceLabel: '4,99 €',
     editorialOrder: 1,
   },
+  {
+    id: 'itin-marais-highlights',
+    citySlug: 'paris',
+    districtSlug: 'le-marais',
+    categorySlug: 'highlights',
+    title: 'Les essentiels du Marais',
+    description:
+      'Place des Vosges, hôtels particuliers et ruelles emblématiques du quartier historique.',
+    coverImageUrl:
+      'https://images.unsplash.com/photo-1594558068774-4bd20990a583?w=800&q=80',
+    durationMinutes: 90,
+    distanceMeters: 2400,
+    difficulty: 'EASY',
+    stepPoiIds: ['10', '11', '12'],
+    isPremium: false,
+    editorialOrder: 1,
+  },
+  {
+    id: 'itin-marais-secrets',
+    citySlug: 'paris',
+    districtSlug: 'le-marais',
+    categorySlug: 'secrets',
+    title: 'Cours cachées et adresses secrètes',
+    description: 'Passages privés, cours intérieures et détails architecturaux méconnus.',
+    coverImageUrl:
+      'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&q=80',
+    durationMinutes: 75,
+    distanceMeters: 2100,
+    difficulty: 'MEDIUM',
+    stepPoiIds: ['13', '14', '12'],
+    isPremium: false,
+    editorialOrder: 1,
+  },
+  {
+    id: 'itin-marais-walking',
+    citySlug: 'paris',
+    districtSlug: 'le-marais',
+    categorySlug: 'walking',
+    title: 'Flânerie dans le Marais',
+    description: 'Un rythme lent entre galeries, cafés et patrimoine du 3e et 4e.',
+    coverImageUrl:
+      'https://images.unsplash.com/photo-1431274172761-fca41c894578?w=800&q=80',
+    durationMinutes: 120,
+    distanceMeters: 3200,
+    difficulty: 'EASY',
+    stepPoiIds: ['10', '12', '11', '13'],
+    isPremium: false,
+    editorialOrder: 1,
+  },
+  {
+    id: 'itin-marais-premium',
+    citySlug: 'paris',
+    districtSlug: 'le-marais',
+    categorySlug: 'evening',
+    title: 'Marais by Night — Premium',
+    description:
+      'Itinéraire exclusif au crépuscule : façades illuminées, places paisibles et guides enrichis.',
+    coverImageUrl:
+      'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=800&q=80',
+    durationMinutes: 105,
+    distanceMeters: 2800,
+    difficulty: 'EASY',
+    stepPoiIds: ['10', '11', '12', '13', '14'],
+    isPremium: true,
+    priceLabel: '3,99 €',
+    editorialOrder: 1,
+  },
 ];
 
 export function getItineraryById(id: string): EditorialItinerary | undefined {
@@ -131,9 +200,14 @@ export function getItinerariesByCity(citySlug: string): EditorialItinerary[] {
 export function getItinerariesByCategory(
   citySlug: string,
   categorySlug: string,
+  districtSlug?: string,
 ): EditorialItinerary[] {
   return mockItineraries
-    .filter((i) => i.citySlug === citySlug && i.categorySlug === categorySlug)
+    .filter((i) => {
+      if (i.citySlug !== citySlug || i.categorySlug !== categorySlug) return false;
+      if (districtSlug) return i.districtSlug === districtSlug;
+      return i.districtSlug === undefined;
+    })
     .sort((a, b) => {
       if (a.editorialOrder !== b.editorialOrder) {
         return a.editorialOrder - b.editorialOrder;
@@ -145,8 +219,9 @@ export function getItinerariesByCategory(
 export function countItinerariesByCategory(
   citySlug: string,
   categorySlug: string,
+  districtSlug?: string,
 ): number {
-  return getItinerariesByCategory(citySlug, categorySlug).length;
+  return getItinerariesByCategory(citySlug, categorySlug, districtSlug).length;
 }
 
 export function formatItineraryDuration(minutes: number): string {

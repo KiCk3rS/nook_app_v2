@@ -158,7 +158,7 @@ export const HomeMap = forwardRef<HomeMapHandle, HomeMapProps>(function HomeMap(
         toolbarEnabled={false}
 
         rotateEnabled={false}
-
+        cacheEnabled={Platform.OS === 'android'}
         customMapStyle={HIDE_NATIVE_POI_MAP_STYLE}
 
         showsPointsOfInterests={false}

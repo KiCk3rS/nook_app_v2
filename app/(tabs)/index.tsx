@@ -26,6 +26,7 @@ import type { PermissionType } from '../../constants/permissions';
 
 import { getPlaceById } from '../../constants/mockPlaces';
 import { getCityBySlug } from '../../constants/mockCities';
+import { getDistrictBySlug } from '../../constants/mockDistricts';
 import { useAudioPlayback } from '../../contexts/AudioPlaybackContext';
 import { colors, miniPlayerHeight, spacing, zIndex } from '../../constants/theme';
 
@@ -45,7 +46,10 @@ export default function CarteScreen() {
 
   const insets = useSafeAreaInsets();
   const mapRef = useRef<HomeMapHandle>(null);
-  const { focusCity } = useLocalSearchParams<{ focusCity?: string }>();
+  const { focusCity, focusDistrict } = useLocalSearchParams<{
+    focusCity?: string;
+    focusDistrict?: string;
+  }>();
 
   const [selectedCategoryId, setSelectedCategoryId] = useState('all');
 
@@ -89,6 +93,16 @@ export default function CarteScreen() {
       mapRef.current?.centerOnRegion(city.mapRegion);
     }
   }, [focusCity]);
+
+  useEffect(() => {
+    if (typeof focusDistrict !== 'string') return;
+    const [citySlug, districtSlug] = focusDistrict.split('/');
+    if (!citySlug || !districtSlug) return;
+    const district = getDistrictBySlug(citySlug, districtSlug);
+    if (district) {
+      mapRef.current?.centerOnRegion(district.mapRegion);
+    }
+  }, [focusDistrict]);
 
   const [poiCardHeight, setPoiCardHeight] = useState(0);
   const { viewMode } = useAudioPlayback();

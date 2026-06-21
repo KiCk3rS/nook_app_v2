@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import { getCategoryLabel, type MockPlace } from '../../constants/mockPlaces';
+import { getPlaceHref } from '../../lib/placeNavigation';
 import {
   colors,
   componentSizes,
@@ -31,7 +32,7 @@ export function PoiPreviewCard({ place, onClose }: PoiPreviewCardProps) {
   const readyGuideCount = place.audioGuides.filter((g) => g.status === 'ready').length;
 
   function handleOpenDetail() {
-    router.push(`/place/${place.id}`);
+    router.push(getPlaceHref(place));
   }
 
   return (

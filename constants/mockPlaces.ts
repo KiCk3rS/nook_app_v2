@@ -407,6 +407,131 @@ export const mockPlaces: MockPlace[] = [
       },
     ],
   },
+  {
+    id: '10',
+    name: 'Place des Vosges',
+    latitude: 48.8554,
+    longitude: 2.3655,
+    categoryId: 'monument',
+    address: 'Place des Vosges, 75004 Paris',
+    imageUrl:
+      'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80',
+    description:
+      'Plus ancienne place planifiée de Paris, entourée d’arcades et d’hôtels particuliers du XVIIe siècle.',
+    audioGuides: [
+      {
+        id: '10-a',
+        title: 'Place des Vosges',
+        summary: 'De la place Royale à la promenade des Parisiens.',
+        durationSec: 420,
+        language: 'FR',
+        authorName: 'Utilisateur',
+        publishedAt: '15/02/2026',
+        status: 'ready',
+        rating: 4.5,
+      },
+    ],
+  },
+  {
+    id: '11',
+    name: 'Musée Picasso',
+    latitude: 48.8599,
+    longitude: 2.3625,
+    categoryId: 'musee',
+    address: '5 Rue de Thorigny, 75003 Paris',
+    imageUrl:
+      'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&q=80',
+    description:
+      'Installé dans l’hôtel Salé, le musée abrite la plus grande collection publique d’œuvres de Picasso.',
+    audioGuides: [
+      {
+        id: '11-a',
+        title: 'Musée Picasso — parcours express',
+        summary: 'Les chefs-d’œuvre incontournables en une visite ciblée.',
+        durationSec: 600,
+        language: 'FR',
+        authorName: 'Utilisateur',
+        publishedAt: '16/02/2026',
+        status: 'ready',
+        rating: 4.6,
+      },
+    ],
+  },
+  {
+    id: '12',
+    name: 'Rue des Rosiers',
+    latitude: 48.8575,
+    longitude: 2.3598,
+    categoryId: 'monument',
+    address: 'Rue des Rosiers, 75004 Paris',
+    imageUrl:
+      'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80',
+    description:
+      'Artère historique du pletzl, entre synagogues, boulangeries et l’ambiance du Marais juif.',
+    audioGuides: [
+      {
+        id: '12-a',
+        title: 'Rue des Rosiers',
+        summary: 'Histoire et saveurs d’une rue emblématique.',
+        durationSec: 360,
+        language: 'FR',
+        authorName: 'Utilisateur',
+        publishedAt: '17/02/2026',
+        status: 'ready',
+        rating: 4.4,
+      },
+    ],
+  },
+  {
+    id: '13',
+    name: 'Hôtel de Sully',
+    latitude: 48.8547,
+    longitude: 2.3644,
+    categoryId: 'monument',
+    address: '62 Rue Saint-Antoine, 75004 Paris',
+    imageUrl:
+      'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&q=80',
+    description:
+      'Hôtel particulier du début du XVIIe siècle, porte d’entrée vers la place des Vosges.',
+    audioGuides: [
+      {
+        id: '13-a',
+        title: 'Hôtel de Sully',
+        summary: 'Architecture, jardin et accès à la place des Vosges.',
+        durationSec: 300,
+        language: 'FR',
+        authorName: 'Utilisateur',
+        publishedAt: '18/02/2026',
+        status: 'ready',
+        rating: 4.3,
+      },
+    ],
+  },
+  {
+    id: '14',
+    name: 'Musée Carnavalet',
+    latitude: 48.8572,
+    longitude: 2.3627,
+    categoryId: 'musee',
+    address: '16 Rue des Francs-Bourgeois, 75003 Paris',
+    imageUrl:
+      'https://images.unsplash.com/photo-1743880475189-e36f80868bcc?w=800&q=80',
+    description:
+      'Musée d’histoire de Paris, installé dans deux hôtels particuliers du Marais.',
+    audioGuides: [
+      {
+        id: '14-a',
+        title: 'Musée Carnavalet',
+        summary: 'Paris à travers les siècles, du Moyen Âge à nos jours.',
+        durationSec: 720,
+        language: 'FR',
+        authorName: 'Utilisateur',
+        publishedAt: '19/02/2026',
+        status: 'ready',
+        rating: 4.5,
+      },
+    ],
+  },
 ];
 
 export const rootPlaces = mockPlaces.filter(isRootPlace);

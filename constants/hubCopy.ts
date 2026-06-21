@@ -20,9 +20,15 @@ export const HUB_COPY = {
   externalCancel: 'Annuler',
   cityNotFoundTitle: 'Destination introuvable',
   cityNotFoundBody: 'Cette destination n’existe pas ou n’est plus disponible.',
+  districtNotFoundTitle: 'Quartier introuvable',
+  districtNotFoundBody: 'Ce quartier n’existe pas ou n’est plus disponible.',
+  parentCityLink: (city: string) => `Quartier à ${city}`,
+  districtPopularFallback: (district: string) => `Populaire dans ${district}`,
   emptyCategory: 'De nouveaux parcours arrivent bientôt.',
   back: 'Retour',
-  shareMessage: (city: string) => `Découvrez ${city} sur NOOK`,
+  shareMessage: (name: string) => `Découvrez ${name} sur NOOK`,
+  districtShareMessage: (district: string, city: string) =>
+    `Découvrez ${district} à ${city} sur NOOK`,
 } as const;
 
 export const PAYWALL_COPY = {
