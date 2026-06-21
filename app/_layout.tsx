@@ -77,6 +77,13 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="listen-history"
+              options={{
+                headerShown: false,
+                presentation: 'card',
+              }}
+            />
+            <Stack.Screen
               name="itinerary"
               options={{
                 headerShown: false,

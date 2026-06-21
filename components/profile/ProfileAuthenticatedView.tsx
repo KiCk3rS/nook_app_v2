@@ -309,19 +309,6 @@ export function ProfileAuthenticatedView({
             ))}
           </View>
 
-          <Pressable
-            style={({ pressed }) => [styles.createBtn, pressed && styles.createBtnPressed]}
-            onPress={() => router.push('/(tabs)')}
-            accessibilityRole="button"
-            accessibilityLabel={PROFILE_COPY.createRouteCta}
-          >
-            <Ionicons name="add-circle-outline" size={22} color={colors.onPrimary} />
-            <View style={styles.createBtnText}>
-              <Text style={styles.createBtnTitle}>{PROFILE_COPY.createRouteCta}</Text>
-              <Text style={styles.createBtnHint}>{PROFILE_COPY.createRouteHint}</Text>
-            </View>
-          </Pressable>
-
           {recentRoutes.length > 0 ? (
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
@@ -369,7 +356,15 @@ export function ProfileAuthenticatedView({
 
           {recentListens.length > 0 ? (
             <View style={styles.section}>
-              <Text style={styles.sectionHeading}>{PROFILE_COPY.recentListensTitle}</Text>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionHeading}>{PROFILE_COPY.recentListensTitle}</Text>
+                <Pressable
+                  onPress={() => router.push('/listen-history')}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.sectionLink}>{PROFILE_COPY.recentListensSeeAll}</Text>
+                </Pressable>
+              </View>
               <View style={styles.listenList}>
                 {recentListens.map((item) => (
                   <Pressable
@@ -442,7 +437,7 @@ export function ProfileAuthenticatedView({
               icon="time-outline"
               label={PROFILE_COPY.history}
               subtitle={`${stats.listenCount} guides écoutés`}
-              onPress={() => router.push('/(tabs)/decouvrir')}
+              onPress={() => router.push('/listen-history')}
             />
           </View>
 
@@ -757,30 +752,6 @@ const styles = StyleSheet.create({
     ...textStyle('captionSm'),
     color: colors.ink,
     textAlign: 'center',
-  },
-  createBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    minHeight: componentSizes.buttonPrimaryHeight + 8,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.md,
-    backgroundColor: colors.primary,
-  },
-  createBtnPressed: {
-    backgroundColor: colors.primaryActive,
-  },
-  createBtnText: {
-    flex: 1,
-    gap: spacing.xxs,
-  },
-  createBtnTitle: {
-    ...textStyle('buttonMd'),
-    color: colors.onPrimary,
-  },
-  createBtnHint: {
-    ...textStyle('captionSm'),
-    color: 'rgba(255,255,255,0.85)',
   },
   section: {
     gap: spacing.sm,

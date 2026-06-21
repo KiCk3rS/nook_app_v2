@@ -39,7 +39,6 @@ Document **dérivé** du [brief produit](./brief.md). Il sert de **source unique
 |----|--------|----------|------------|----------|
 | A3.1 | **Fiche lieu (détail point d’intérêt)** | Texte, médias visuels, métadonnées utiles (durée, distance, signaux qualité/popularité). | §3.3 | P0 |
 | A3.2 | **Lecteur audio intégré** (sur la fiche ou barre globale) | Lecture du guide dans l’app ; reprise de position ; métadonnées durée / langue. | §3.3, §5.4 | P0 |
-| A3.3 | **Ajout au parcours** (flux depuis la fiche) | Choisir un parcours existant ou en créer un ; confirmer l’intégration du lieu. | §3.3, §3.5 | P1 |
 
 ### A4. Découverte (fil / vitrine)
 
@@ -55,9 +54,8 @@ Document **dérivé** du [brief produit](./brief.md). Il sert de **source unique
 
 | ID | Écran | Objectif | Réf. brief | Priorité |
 |----|--------|----------|------------|----------|
-| A5.1 | **Liste des parcours enregistrés** | Parcours créés ou sauvegardés ; accès rapide. | §3.5, §3.6 | P1 |
-| A5.2 | **Création / édition de parcours** | Composer l’ordre des étapes ; nom du parcours ; ajout / suppression de lieux. | §3.5 | P1 |
-| A5.3 | **Suggestions ou modèles de parcours** (si produit prévoit des gabarits) | Thème, durée approximative ; insertion dans un parcours utilisateur. | §3.5 | P2 |
+| A5.1 | **Liste des parcours enregistrés** | Parcours accessibles depuis le compte ; consultation et reprise. | §3.5, §3.6 | P1 |
+| A5.3 | **Suggestions ou modèles de parcours** (si produit prévoit des gabarits) | Thème, durée approximative ; découverte de gabarits éditoriaux. | §3.5 | P2 |
 | A5.4 | **Visualisation parcours sur carte** | Tracé ou enchaînement des étapes sur la carte ; lecture des étapes. | §3.5 | P1 |
 | A5.5 | **Détail d’un parcours** (lecture « mode guidage ») | Suivre le parcours étape par étape avec accès aux fiches lieux et audio. | §3.5 | P1 |
 | A5.6 | **Détail itinéraire éditorial** | Parcours curaté NOOK (≠ parcours utilisateur) ; étapes, carte, audio ; accès premium. | §3.5 | P1 |
@@ -111,11 +109,11 @@ Ces écrans répondent à la problématique **éditoriale et opérationnelle** d
 
 ## Synthèse des flux principaux (pour le design)
 
-1. **Découverte spatiale** : A1.1 → A1.4 → A3.1 → A3.2 ; option A3.3 vers A5.x.  
+1. **Découverte spatiale** : A1.1 → A1.4 → A3.1 → A3.2.  
 2. **Découverte éditoriale** : A4.1 → A3.1 → A3.2.  
 3. **Découverte territoriale** : A2.1 / A4.1 → **A4.3** → A5.7 / **A5.6** → A3.1 / A1.1 ; **A4.4** → A4.3 (pays → ville, P2) ; **A4.3** → **A4.5** (ville → quartier hub, si contenu éditorial).  
 4. **Recherche ciblée** : A2.1 ± A2.2 → A2.3 ou A2.4 → A3.1 ou **A4.3** (ville).  
-5. **Parcours** : A5.1 / A5.2 / A5.4 / A5.5 en boucle avec A1.1 et A3.  
+5. **Parcours** : A5.1 / A5.4 / A5.5 en boucle avec A1.1 et A3 ; itinéraires éditoriaux via **A5.6** / **A5.7**.  
 6. **Monétisation premium** : A4.3 / A5.6 / A5.7 → **A8.3** → contenu débloqué sur A5.6.  
 7. **Rétention** : A6.5, A6.6, A5.1 depuis A6.4 ou A1.1.  
 8. **Production** (équipe) : B2 → B3 / B4 / B5 ; B6 → B7 → B8.
@@ -143,6 +141,7 @@ Ces écrans répondent à la problématique **éditoriale et opérationnelle** d
 - Le **lecteur audio** peut être un composant persistant (mini-player) plutôt qu’un « écran » à part entière ; l’important est de couvrir **reprise de lecture** et **contexte lieu**.  
 - L’alignement **liste / carte** (§3.2) impose des règles UX et techniques communes, quel que soit le nombre de vues physiques.  
 - Les écrans **Évolution** (A4.2, A7.1) peuvent rester hors maquette initiale mais le brief les anticipe : prévoir l’espace informationnel (navigation, droits).
+- **Hors périmètre actuel :** création / édition de parcours utilisateur et ajout d’un lieu à un parcours depuis la fiche lieu (anciens **A5.2**, **A3.3**).
 
 ---
 

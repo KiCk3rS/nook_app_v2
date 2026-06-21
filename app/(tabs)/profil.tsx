@@ -19,7 +19,7 @@ import { PROFILE_COPY } from '../../constants/profileCopy';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFavorites } from '../../contexts/FavoritesContext';
 import { fetchItineraries } from '../../lib/api/itineraries';
-import { isApiConfigured } from '../../lib/config';
+import { isApiConfigured, shouldShowDemoLogin } from '../../lib/config';
 import { ApiError } from '../../types/api';
 
 export default function ProfilScreen() {
@@ -139,7 +139,7 @@ export default function ProfilScreen() {
         onLogin={openLogin}
         onRegister={openRegister}
         onDemoLogin={() => void handleDemoLogin()}
-        showDemoLogin={!isApiConfigured()}
+        showDemoLogin={shouldShowDemoLogin()}
       />
     );
   }

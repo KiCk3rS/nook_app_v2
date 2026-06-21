@@ -163,7 +163,6 @@ export default function UserItinerariesScreen() {
             <UserItineraryCard
               itinerary={item}
               onPress={() => handleFollow(item)}
-              onFollow={() => handleFollow(item)}
               onDelete={() => handleDelete(item)}
             />
           )}
@@ -218,8 +217,7 @@ const styles = StyleSheet.create({
     color: colors.legalLink,
   },
   list: {
-    padding: spacing.base,
-    gap: spacing.md,
+    paddingHorizontal: spacing.base,
     paddingBottom: spacing.xxl,
   },
 });

@@ -450,7 +450,7 @@ Une seule tier d’ombre + baseline plate :
 ### Ton
 
 - **Clair et rassurant** — pas de jargon technique vers l’utilisateur.
-- **Orienté action** sur les boutons : « Écouter le guide », « Ajouter au parcours », « Réessayer ».
+- **Orienté action** sur les boutons : « Écouter le guide », « Démarrer le parcours », « Réessayer ».
 - **Vide utile** : expliquer pourquoi c’est vide + proposer une action, pas seulement « Aucun résultat ».
 
 ### Règles produit à respecter partout
@@ -482,11 +482,9 @@ Dérivé de [ecrans.md](./ecrans.md). Mettre à jour au fil de l’eau.
 | A2.4 | Carte filtrée / résultats | P1 | Non démarré | — | — |
 | A3.1 | Fiche lieu | P0 | Non démarré | — | — |
 | A3.2 | Lecteur audio | P0 | Non démarré | — | — |
-| A3.3 | Ajout au parcours | P1 | Non démarré | — | — |
 | A4.1 | Fil de découverte | P0 | Non démarré | — | — |
 | A4.2 | Recommandations | Évolution | N/A | — | — |
 | A5.1 | Liste parcours | P1 | Non démarré | — | [`ecran-A5.1-liste-parcours.md`](./ecran-A5.1-liste-parcours.md) |
-| A5.2 | Création / édition parcours | P1 | Non démarré | — | — |
 | A5.3 | Modèles de parcours | P2 | Non démarré | — | — |
 | A5.4 | Parcours sur carte | P1 | Non démarré | — | — |
 | A5.5 | Détail parcours (guidage) | P1 | Implémenté (éditorial) | — | [`ecran-A5.5-mode-guidage.md`](./ecran-A5.5-mode-guidage.md) |

@@ -218,28 +218,25 @@ Implémentation : `src/discovery/discovery.controller.ts`.
 
 ### Itinéraires (parcours utilisateur)
 
+**Périmètre app actuel :** consultation (`GET`) et suppression (`DELETE`) uniquement. Création et édition (`POST` / `PATCH`) hors périmètre.
+
 | Méthode | Chemin | Auth | Description | Codes notables |
 |--------|--------|------|-------------|----------------|
 | GET | `/api/v1/itineraries` | Bearer | Liste mes parcours (F-010) | 200 ; 401 ; 422 |
-| POST | `/api/v1/itineraries` | Bearer | Créer (≥2 POI publiés, ordre conservé) | 201 ; 401 ; 422 |
 | GET | `/api/v1/itineraries/:id` | Bearer | Détail + étapes | 200 ; 401 ; 404 |
-| PATCH | `/api/v1/itineraries/:id` | Bearer | Mise à jour partielle | 200 ; 401 ; 404 ; 422 |
 | DELETE | `/api/v1/itineraries/:id` | Bearer | Suppression | 204 ; 401 ; 404 |
 
-DTO : `src/itineraries/dto/create-itinerary.dto.ts`, `patch-itinerary.dto.ts`, `list-itineraries.query.dto.ts`, réponses sous `src/itineraries/dto/*.response.dto.ts`  
+DTO : `src/itineraries/dto/list-itineraries.query.dto.ts`, réponses sous `src/itineraries/dto/*.response.dto.ts`  
 Implémentation : `src/itineraries/itineraries.controller.ts`.
 
-**Exemple création**
+**Évolution (contrat API existant, non exposé in-app)**
 
-```json
-{
-  "title": "Balade du dimanche",
-  "poiIds": ["uuid-poi-1", "uuid-poi-2"],
-  "estimatedDurationMinutes": 120,
-  "distanceMeters": 5000,
-  "difficulty": "MEDIUM"
-}
-```
+| Méthode | Chemin | Auth | Description | Codes notables |
+|--------|--------|------|-------------|----------------|
+| POST | `/api/v1/itineraries` | Bearer | Créer (≥2 POI publiés, ordre conservé) | 201 ; 401 ; 422 |
+| PATCH | `/api/v1/itineraries/:id` | Bearer | Mise à jour partielle | 200 ; 401 ; 404 ; 422 |
+
+DTO : `src/itineraries/dto/create-itinerary.dto.ts`, `patch-itinerary.dto.ts`
 
 ---
 

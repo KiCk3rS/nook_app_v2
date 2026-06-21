@@ -7,18 +7,18 @@
 | ID produit | A5.1 |
 | Priorité | P1 |
 | Plateforme | Mobile iOS et Android (Expo) |
-| Dépendances | Brief §3.5, §3.6 ; écrans liés : **A6.4**, **A6.1**, **A5.2**, **A5.5**, **A5.4**, **A3.1**, **A1.1**, **A3.3** |
+| Dépendances | Brief §3.5, §3.6 ; écrans liés : **A6.4**, **A6.1**, **A5.5**, **A5.4**, **A3.1**, **A1.1** |
 | Document lié | [Inventaire écrans](./ecrans.md) · [Brief](./brief.md) · [Guidage A5.5](./ecran-A5.5-mode-guidage.md) · [Profil A6.4](./ecran-A6.4-profil.md) · [API client](./api-client-reference.md) |
 
 ## Résumé
 
-**Utilisateur :** retrouver rapidement les parcours qu'il a créés ou sauvegardés et reprendre une visite sur le terrain.
+**Utilisateur :** retrouver les parcours associés à son compte et reprendre une visite sur le terrain.
 
-**Produit :** liste des parcours personnels (≠ itinéraires éditoriaux **A5.6**) ; hub de reprise vers guidage **A5.5**, édition **A5.2** et vue carte **A5.4** ; nécessite authentification.
+**Produit :** liste des parcours personnels (≠ itinéraires éditoriaux **A5.6**) ; hub de reprise vers guidage **A5.5** et vue carte **A5.4** ; nécessite authentification. **Hors périmètre actuel :** création et édition de parcours in-app.
 
 ## Utilisateur et contexte
 
-- **Persona / situation :** visiteur régulier qui compose des balades depuis les fiches lieux (**A3.3**) et veut les relancer depuis son espace compte.
+- **Persona / situation :** visiteur connecté qui veut relancer un parcours depuis son espace compte.
 - **Contraintes :** liste potentiellement longue ; réseau variable ; distinction claire parcours utilisateur vs contenu éditorial NOOK.
 
 ## Distinction parcours utilisateur vs itinéraire éditorial
@@ -26,8 +26,8 @@
 | Aspect | Parcours utilisateur (**A5.1**) | Itinéraire éditorial (**A5.6**) |
 |--------|-----------------------------------|----------------------------------|
 | Source | `GET /api/v1/itineraries` | Hub ville, découverte |
-| Création | **A5.2**, **A3.3** | Équipe NOOK |
-| Édition | **A5.2** | Non (copie vers parcours perso — évolution) |
+| Création in-app | Hors périmètre actuel | Équipe NOOK |
+| Édition | Hors périmètre actuel | Lecture seule |
 | Guidage | **A5.5** `sourceType: user` | **A5.5** `sourceType: editorial` |
 | Auth | Obligatoire | Contenu public / premium |
 
@@ -35,8 +35,8 @@
 
 | Sens | Détail |
 |------|--------|
-| **Arrivée depuis** | **A6.4** — « Mes parcours » ; **A3.3** — après ajout à un parcours (option retour liste) ; deep link `/itineraries` (optionnel). |
-| **Sorties** | **A5.5** — « Suivre le parcours » ; **A5.2** — création / édition ; **A5.4** — vue carte ; **A3.1** — tap étape depuis aperçu ; **A6.1** — si non connecté ; **A1.1** — CTA « Explorer la carte » (état vide). |
+| **Arrivée depuis** | **A6.4** — « Mes parcours » ; deep link `/itineraries` (optionnel). |
+| **Sorties** | **A5.5** — « Suivre le parcours » ; **A5.4** — vue carte ; **A3.1** — tap étape depuis aperçu ; **A6.1** — si non connecté ; **A1.1** — CTA « Explorer la carte » (état vide). |
 | **Retour arrière** | Bouton retour → **A6.4** ; geste OS back = écran précédent. |
 
 **Garde d'entrée :** non authentifié → **A6.1** avec `returnTo` liste parcours.
@@ -46,21 +46,19 @@
 ### Hiérarchie visuelle (1 = plus important)
 
 1. **Liste des parcours** — cartes ordonnées (récent en premier par défaut).
-2. **CTA « Créer un parcours »** — FAB ou bouton header (action primaire si liste non vide).
-3. **État vide** — invitation à explorer ou créer.
-4. **Actions par carte** — suivre, modifier, supprimer (niveau 2).
+2. **État vide** — invitation à explorer les itinéraires éditoriaux.
+3. **Actions par carte** — suivre, supprimer (niveau 2).
 
 ### Zones / composants
 
 | Zone ou composant | Rôle | Contenu / données | Notes UX |
 |-------------------|------|-------------------|----------|
-| **Header** | Navigation + action | Titre « Mes parcours », retour, bouton « + » ou « Créer » | Retour vers **A6.4** |
+| **Header** | Navigation | Titre « Mes parcours », retour | Retour vers **A6.4** |
 | **Carte parcours** | Item liste | `id`, `title`, `stepCount`, `estimatedDurationMinutes?`, `coverImageUrl?` (1er POI) | Tap → détail rapide ou **A5.5** selon produit (open question) |
 | **Métadonnées carte** | Contexte | « {n} étapes · {durée} » | Durée formatée « 1 h 30 » ou « 45 min » |
 | **CTA carte « Suivre »** | Action primaire | — | Accès direct **A5.5** |
-| **Menu contextuel carte** | Actions secondaires | Modifier, Voir sur la carte, Supprimer | Swipe ou icône « … » ; 44×44 pt |
-| **FAB / CTA créer** | Création | — | → **A5.2** mode création |
-| **État vide** | Onboarding | Illustration + texte | CTA « Créer un parcours » + « Explorer la carte » |
+| **Menu contextuel carte** | Actions secondaires | Voir sur la carte, Supprimer | Swipe ou icône « … » ; 44×44 pt |
+| **État vide** | Onboarding | Illustration + texte | CTA « Explorer la carte » ou « Découvrir les parcours » |
 | **Modale suppression** | Confirmation | Titre parcours | Destructif ; « Supprimer » / « Annuler » |
 
 ### Données carte parcours (API)
@@ -81,9 +79,7 @@ Champs attendus depuis `GET /api/v1/itineraries` (liste) :
 
 - **Chargement liste :** `GET /api/v1/itineraries` avec pagination si > 20 items (`limit`, `offset` — DTO query).
 - **Tri par défaut :** `updatedAt` desc (plus récemment modifié en tête) ; open question tri alternatif (alpha, date création).
-- **Tap carte :** MVP — ouverture **A5.5** guidage si ≥ 2 étapes ; sinon message « Ajoutez au moins 2 lieux » + **A5.2**.
-- **Créer :** navigation **A5.2** sans parcours préexistant.
-- **Modifier :** **A5.2** avec `itineraryId`.
+- **Tap carte :** MVP — ouverture **A5.5** guidage si ≥ 2 étapes ; sinon message « Ce parcours ne peut pas être démarré » (parcours incomplet).
 - **Voir sur la carte :** **A5.4** ou **A1.1** avec tracé parcours (`itineraryId`).
 - **Supprimer :** `DELETE /api/v1/itineraries/:id` → 204 ; retrait optimiste de la liste ; toast « Parcours supprimé ».
 - **Pull-to-refresh :** recharge liste.
@@ -96,8 +92,8 @@ Champs attendus depuis `GET /api/v1/itineraries` (liste) :
 |------|-------------|-----------|---------|
 | **Non authentifié** | Pas de token | Redirect **A6.1** | Connexion |
 | **Chargement** | Entrée écran | Skeleton 3 cartes | — |
-| **Liste OK** | 200, items > 0 | Liste scrollable + CTA créer | Suivre, éditer, supprimer |
-| **Vide** | 200, items = 0 | Illustration + invitation | Créer, explorer carte |
+| **Liste OK** | 200, items > 0 | Liste scrollable | Suivre, supprimer |
+| **Vide** | 200, items = 0 | Illustration + invitation | Explorer carte, découvrir parcours |
 | **Erreur réseau** | Fetch échoue | Bannière + réessayer | Réessayer |
 | **Session expirée** | 401 | Redirect **A6.1** + toast | Reconnexion |
 | **Suppression — confirmation** | Action supprimer | Modale | Confirmer / Annuler |
@@ -109,10 +105,7 @@ Champs attendus depuis `GET /api/v1/itineraries` (liste) :
 | Contexte | Texte |
 |----------|-------|
 | Titre écran | « Mes parcours » |
-| CTA créer (header) | « Créer » |
-| CTA créer (FAB) | « Nouveau parcours » |
 | CTA suivre | « Suivre le parcours » |
-| Modifier | « Modifier » |
 | Voir carte | « Voir sur la carte » |
 | Supprimer | « Supprimer » |
 | Modale suppression titre | « Supprimer ce parcours ? » |
@@ -120,17 +113,16 @@ Champs attendus depuis `GET /api/v1/itineraries` (liste) :
 | Modale confirmer | « Supprimer » |
 | Modale annuler | « Annuler » |
 | État vide titre | « Aucun parcours pour l'instant » |
-| État vide corps | « Créez un parcours en ajoutant des lieux depuis la carte ou une fiche. » |
-| État vide CTA 1 | « Créer un parcours » |
-| État vide CTA 2 | « Explorer la carte » |
+| État vide corps | « Explorez la carte ou les parcours NOOK pour commencer. » |
+| État vide CTA | « Explorer la carte » |
 | Badge incomplet | « Incomplet » |
 | Toast supprimé | « Parcours supprimé » |
 | Erreur chargement | « Impossible de charger vos parcours. » |
-| Parcours trop court | « Ajoutez au moins 2 lieux pour démarrer ce parcours. » |
+| Parcours trop court | « Ce parcours ne peut pas être démarré pour l'instant. » |
 | Étapes | « {n} étapes » |
 | Durée | « {h} h {m} min » / « {m} min » |
 
-**Ton :** encourageant ; valorise la composition personnelle.
+**Ton :** encourageant ; oriente vers la découverte éditoriale si liste vide.
 
 ## Accessibilité
 
@@ -146,12 +138,10 @@ Champs attendus depuis `GET /api/v1/itineraries` (liste) :
 |-----------|------------------------|
 | `itineraries_list_viewed` | `count` |
 | `itinerary_card_tapped` | `itinerary_id`, `action` (open, follow) |
-| `itinerary_create_tapped` | `source` (list_header, fab, empty_state) |
-| `itinerary_edit_tapped` | `itinerary_id` |
 | `itinerary_map_tapped` | `itinerary_id` |
 | `itinerary_delete_requested` | `itinerary_id` |
 | `itinerary_delete_confirmed` | `itinerary_id` |
-| `itineraries_list_empty_cta` | `cta` (create, explore_map) |
+| `itineraries_list_empty_cta` | `cta` (explore_map, discover) |
 
 ## Contrat API (existant)
 
@@ -160,7 +150,8 @@ Champs attendus depuis `GET /api/v1/itineraries` (liste) :
 | GET | `/api/v1/itineraries` | Liste **A5.1** |
 | GET | `/api/v1/itineraries/:id` | Détail (preview ou **A5.5**) |
 | DELETE | `/api/v1/itineraries/:id` | Suppression |
-| POST | `/api/v1/itineraries` | Création — via **A5.2** |
+
+**Hors périmètre app actuel :** `POST` / `PATCH` (création et édition de parcours).
 
 **Exemple item liste (schéma indicatif)**
 
@@ -179,13 +170,12 @@ Champs attendus depuis `GET /api/v1/itineraries` (liste) :
 
 1. **Given** utilisateur connecté **A6.4** **When** tap « Mes parcours » **Then** ouverture **A5.1** avec liste chargée via `GET /itineraries`.
 2. **Given** liste avec parcours **When** tap « Suivre le parcours » **Then** navigation **A5.5** (`sourceType: user`, bon `itineraryId`).
-3. **Given** liste vide **When** affichage **Then** état vide avec CTA créer et explorer ; pas de liste fantôme.
+3. **Given** liste vide **When** affichage **Then** état vide avec CTA explorer ; pas de liste fantôme ; pas de CTA création.
 4. **Given** parcours en liste **When** suppression confirmée **Then** `DELETE` 204, item retiré, toast succès.
 5. **Given** utilisateur anonyme **When** accès **A5.1** **Then** redirect **A6.1** avec retour post-auth vers liste.
-6. **Given** liste **When** tap « Créer » **Then** navigation **A5.2** mode création.
-7. **Given** parcours **When** tap « Voir sur la carte » **Then** **A1.1** ou **A5.4** avec tracé du parcours.
-8. **Given** erreur réseau **When** chargement **Then** bannière + « Réessayer ».
-9. **Given** profil **A6.4** **When** compteur parcours affiché **Then** cohérent avec nombre d'items liste (hors pagination).
+6. **Given** parcours **When** tap « Voir sur la carte » **Then** **A1.1** ou **A5.4** avec tracé du parcours.
+7. **Given** erreur réseau **When** chargement **Then** bannière + « Réessayer ».
+8. **Given** profil **A6.4** **When** compteur parcours affiché **Then** cohérent avec nombre d'items liste (hors pagination).
 
 ## Open questions
 

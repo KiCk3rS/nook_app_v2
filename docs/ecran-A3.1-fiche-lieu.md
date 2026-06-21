@@ -7,12 +7,12 @@
 | ID produit | A3.1 |
 | Priorité | P0 |
 | Plateforme | Mobile iOS et Android (Expo) |
-| Dépendances | Brief §3.3 ; écrans liés : **A1.4**, **A3.2**, **A3.3**, **A6.5**, **A4.1**, **A2.3** |
+| Dépendances | Brief §3.3 ; écrans liés : **A1.4**, **A3.2**, **A6.5**, **A4.1**, **A2.3** |
 | Document lié | [Inventaire écrans](./ecrans.md) · [Brief](./brief.md) · [Design](./DESIGN.md) |
 
 ## Résumé
 
-**Utilisateur :** consulter le détail d'un lieu (image, description, guides audio) pour décider d'écouter ou d'ajouter le lieu à un parcours.
+**Utilisateur :** consulter le détail d'un lieu (image, description, guides audio) pour décider d'écouter ou de se déplacer sur place.
 
 **Produit :** convertir l'aperçu carte (**A1.4**) en fiche complète avec intention primaire « écouter un guide » et actions secondaires (favori, partage).
 
@@ -26,7 +26,7 @@
 | Sens | Détail |
 |------|--------|
 | **Arrivée depuis** | **A1.4** — CTA « Voir la fiche » ; **A4.1**, **A2.3/A2.4**, **A6.5** (favoris) — même route `/place/[id]`. |
-| **Sorties** | **A3.2** — tap play sur une piste ou CTA sticky « Écouter le guide » ; **A3.3** — « Ajouter au parcours » (P1, hors MVP implémenté) ; retour écran précédent. |
+| **Sorties** | **A3.2** — tap play sur une piste ou CTA sticky « Écouter le guide » ; retour écran précédent. |
 | **Retour arrière** | Bouton retour en haut à gauche (sur l'image) ; geste OS back = même comportement. |
 
 **Lien profond :** `/place/[id]` — si `id` inconnu : écran « Lieu introuvable » + retour.
@@ -126,7 +126,6 @@
 
 - **Note / popularité** (token `rating-display`) : afficher en P0 ou reporter ?
 - **Distance** depuis la position utilisateur : calcul live ou texte statique en mock ?
-- **Ajouter au parcours** (**A3.3**) : bouton secondaire sous le CTA sticky ou entrée dans le menu partage ?
 - **Carousel** d'images multiples (**B4**) : hors P0 ; une seule couverture suffit pour le MVP.
 
 ---

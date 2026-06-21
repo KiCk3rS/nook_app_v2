@@ -2,7 +2,7 @@ export const PROFILE_COPY = {
   title: 'Mon compte',
   welcomeAnonymous:
     'Connectez-vous pour retrouver vos parcours et synchroniser votre expérience.',
-  benefitRoutes: 'Sauvegardez vos parcours',
+  benefitRoutes: 'Retrouvez vos parcours enregistrés',
   benefitSync: 'Reprenez où vous en étiez sur tous vos appareils',
   loginCta: 'Se connecter',
   registerCta: 'Créer un compte',
@@ -44,8 +44,7 @@ export const PROFILE_COPY = {
   recentRoutesTitle: 'Parcours récents',
   recentRoutesSeeAll: 'Tout voir',
   recentListensTitle: 'Dernières écoutes',
-  createRouteCta: 'Composer un parcours',
-  createRouteHint: 'Ajoutez des lieux depuis la carte',
+  recentListensSeeAll: 'Tout voir',
   premiumCardTitle: 'NOOK Premium',
   premiumCardBodyActive: 'Tous vos parcours premium sont débloqués.',
   premiumCardBodyInactive: 'Parcours curatés et guides audio exclusifs.',

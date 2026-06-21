@@ -58,17 +58,18 @@ L’ambition est une expérience **immersive, simple et personnalisée** pour ex
 
 ### 3.5 Parcours (itinéraires)
 
-- Créer un **parcours ordonné** reliant plusieurs lieux.
+- Consulter des **itinéraires éditoriaux** curatés par NOOK (thèmes, durée, étapes).
 - Éventuellement proposer des **modèles** ou suggestions (ex. thème, durée approximative).
 - Visualiser le parcours sur la **carte** avec un **enchaînement d’étapes**.
-- **Enregistrer** les parcours de l’utilisateur pour les retrouver plus tard.
+- **Suivre** un itinéraire sur place (mode guidage) avec accès aux guides audio.
+- **Consulter** les parcours enregistrés sur le compte (sans création in-app au premier périmètre).
 
 ### 3.6 Compte et espace personnel
 
 - **Profil** : informations que l’utilisateur choisit de renseigner ou d’afficher.
 - **Historique d’écoute** : trace des contenus audio consultés (niveau de détail et durée de rétention à trancher produit / conformité).
 - **Favoris** : lieux marqués par l’utilisateur.
-- **Parcours enregistrés** : liste des parcours créés ou sauvegardés.
+- **Parcours enregistrés** : liste des parcours accessibles depuis le compte (consultation et reprise).
 - **Paramètres** : langue, préférences d’usage, notifications si applicable.
 
 ### 3.7 Dialogue avec un « guide » autour d’un lieu (évolution produit)
@@ -146,7 +147,7 @@ Découpage **fonctionnel** — un même périmètre peut correspondre à un ou p
 | **Taxonomie** | Catégories stables pour filtres et classement. |
 | **Audio** | Métadonnées des pistes ; accès contrôlé au fichier de lecture. |
 | **Découverte** | Agrégats ou listes pour les écrans « vitrine » (nouveautés, popularité, notes). |
-| **Parcours** | Création, modification, suppression, consultation des parcours utilisateur. |
+| **Parcours** | Consultation et suppression des parcours utilisateur ; itinéraires éditoriaux et guidage. |
 | **Engagement** | Favoris, historique d’écoute, signaux légers d’écoute pour affiner popularité si prévu. |
 | **Administration contenu** | Opérations réservées aux rôles éditoriaux sur lieux, médias et catégories. |
 | **Production IA audio** | Orchestration du pipeline source → script → voix → enregistrement ; suivi des jobs. |

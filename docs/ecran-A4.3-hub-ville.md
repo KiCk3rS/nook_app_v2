@@ -83,7 +83,7 @@ Liste configurable côté éditorial ; les slugs absents du catalogue ville ne g
 ## Interactions et règles
 
 - **Gestes :** scroll vertical sur la page ; scroll horizontal sur carrousels (incontournables, pass, expériences).
-- **Itinéraire éditorial ≠ parcours utilisateur** : contenu curaté NOOK ; pas d’édition directe ; copie vers parcours perso via action secondaire sur **A5.6** (**A5.2**).
+- **Itinéraire éditorial ≠ parcours utilisateur** : contenu curaté NOOK ; pas d’édition directe ; pas de copie vers parcours perso au premier périmètre.
 - **Premium** : états d’accès `locked` | `purchased` | `included_in_subscription` ; après achat **A8.3**, retour au hub ou **A5.6** sans rechargement complet de la page.
 - **Affiliation** : transparence alignée **A2.1** (badge « Partenaire », « Promu » si applicable) ; pas de redirection silencieuse ; interstitiel « Vous quittez NOOK » avant ouverture externe si requis légal.
 - **Cohérence carte** : POI et étapes d’itinéraires affichés sur **A1.1** via CTA carte = même jeu d’IDs que les sections hub (brief §3.2).

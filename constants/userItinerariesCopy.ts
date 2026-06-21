@@ -1,9 +1,6 @@
 export const USER_ITINERARIES_COPY = {
   title: 'Mes parcours',
-  createHeader: 'Créer',
-  createFab: 'Nouveau parcours',
   follow: 'Suivre le parcours',
-  edit: 'Modifier',
   viewMap: 'Voir sur la carte',
   delete: 'Supprimer',
   deleteTitle: 'Supprimer ce parcours ?',
@@ -11,15 +8,12 @@ export const USER_ITINERARIES_COPY = {
   deleteConfirm: 'Supprimer',
   cancel: 'Annuler',
   emptyTitle: "Aucun parcours pour l'instant",
-  emptyBody:
-    'Créez un parcours en ajoutant des lieux depuis la carte ou une fiche.',
-  emptyCreate: 'Créer un parcours',
+  emptyBody: 'Explorez la carte ou les parcours NOOK pour commencer.',
   emptyExplore: 'Explorer la carte',
+  emptyDiscover: 'Découvrir les parcours',
   incompleteBadge: 'Incomplet',
   deletedToast: 'Parcours supprimé',
   loadError: 'Impossible de charger vos parcours.',
   retry: 'Réessayer',
-  tooShort: 'Ajoutez au moins 2 lieux pour démarrer ce parcours.',
-  createSoon: 'La création de parcours arrive bientôt.',
-  editSoon: 'La modification de parcours arrive bientôt.',
+  tooShort: 'Ce parcours ne peut pas être démarré pour l\'instant.',
 } as const;

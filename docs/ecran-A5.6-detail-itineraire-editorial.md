@@ -7,14 +7,14 @@
 | ID produit | A5.6 |
 | Priorité | P1 |
 | Plateforme | Mobile iOS et Android (Expo) |
-| Dépendances | Brief §3.5 ; écrans liés : **A4.3**, **A5.7**, **A5.5** (référence guidage), **A5.2** (copie parcours), **A3.1**, **A1.1**, **A3.2**, **A8.3** |
+| Dépendances | Brief §3.5 ; écrans liés : **A4.3**, **A5.7**, **A5.5** (référence guidage), **A3.1**, **A1.1**, **A3.2**, **A8.3** |
 | Document lié | [Inventaire écrans](./ecrans.md) · [Hub ville A4.3](./ecran-A4.3-hub-ville.md) · [Brief](./brief.md) |
 
 ## Résumé
 
 **Utilisateur :** consulter un parcours curaté par NOOK (étapes, durée, carte) et le suivre sur place avec les guides audio.
 
-**Produit :** fiche itinéraire éditorial distincte des parcours utilisateur (**A5.5**) ; supporte le contenu premium payant et la conversion vers parcours personnel.
+**Produit :** fiche itinéraire éditorial distincte des parcours utilisateur (**A5.5**) ; supporte le contenu premium payant.
 
 ## Utilisateur et contexte
 
@@ -26,7 +26,7 @@
 | Aspect | A5.5 Parcours utilisateur | A5.6 Itinéraire éditorial |
 |--------|---------------------------|---------------------------|
 | Source | API `GET /api/v1/itineraries` (auth) | Contenu éditorial / futur API publique |
-| Édition | **A5.2** création / modification | Lecture seule |
+| Édition | Hors périmètre (parcours utilisateur) | Lecture seule |
 | Premium | N/A | Paywall **A8.3** sur contenu selon règle produit |
 | Guidage | Mode pas-à-pas complet | Idem ; étapes / audio peuvent être verrouillées |
 | Persistance | Compte utilisateur | Déblocage premium lié au compte / achat |
@@ -36,7 +36,7 @@
 | Sens | Détail |
 |------|--------|
 | **Arrivée depuis** | **A4.3** — carte premium ou reco ; **A5.7** — tap ligne ; lien profond `/city/[slug]/itinerary/[id]`. |
-| **Sorties** | **A3.1** — tap étape (POI) ; **A1.1** — « Voir sur la carte » (tracé) ; **A3.2** — lecture audio étape ; **A8.3** — déblocage premium ; **A5.2** — « Enregistrer dans mes parcours » (copie). |
+| **Sorties** | **A3.1** — tap étape (POI) ; **A1.1** — « Voir sur la carte » (tracé) ; **A3.2** — lecture audio étape ; **A8.3** — déblocage premium. |
 | **Retour arrière** | Bouton retour héros ; geste OS back → écran précédent (**A4.3** ou **A5.7**). |
 
 **Lien profond :** `/city/[slug]/itinerary/[id]` — id inconnu → état introuvable.
@@ -50,7 +50,6 @@
 3. **CTA principal** — « Démarrer le parcours » ou « Débloquer » (premium verrouillé).
 4. **Liste des étapes** — POI ordonnés avec aperçu.
 5. **Mini-carte ou aperçu tracé** — lien vers carte plein écran.
-6. **Action secondaire** — « Enregistrer dans mes parcours ».
 
 ### Zones / composants
 
@@ -63,7 +62,6 @@
 | **CTA sticky bas** | Action primaire | Démarrer / Débloquer | Masqué si état introuvable |
 | **Liste étapes** | Contenu | `steps[]` : ordre, `poiId`, `name`, `thumbnail`, `audioDuration?`, `isLocked?` | Numérotation 1…n ; cadenas sur étape verrouillée |
 | **Aperçu carte** | Spatial | Mini-map statique ou thumbnail tracé | Tap → **A1.1** mode parcours **A5.4** |
-| **Enregistrer** | Conversion | Copie vers parcours user | Secondaire ; requiert auth **A6.1** |
 
 ### Étape (détail ligne)
 
@@ -80,7 +78,6 @@
 - **Démarrer le parcours :** si premium verrouillé → **A8.3** ; sinon lance mode guidage (comportement aligné **A5.5** : étape courante, accès audio **A3.2**).
 - **Tap étape débloquée :** navigation **A3.1** ; retour conserve position dans l’itinéraire.
 - **Tap étape verrouillée :** **A8.3** avec contexte.
-- **Enregistrer dans mes parcours :** POST copie des `poiIds` ordonnés vers API `/itineraries` (**A5.2**) ; toast confirmation ; redirect **A5.1** optionnel.
 - **Partage :** titre itinéraire + lien profond.
 - **Cohérence carte :** tracé **A1.1** = même ordre d’étapes que la liste (brief §3.2).
 
@@ -103,7 +100,6 @@
 | **Premium verrouillé** | `isLocked === true` | Teaser + étapes partielles | CTA « Débloquer » → **A8.3** |
 | **Intrrouvable** | `id` invalide | Message + retour | Retour |
 | **Erreur / hors ligne** | Fetch échoué | Bannière ; cache partiel si dispo | Réessayer |
-| **Copie en cours** | « Enregistrer » tap | Indicateur | Succès toast ou erreur auth |
 
 ## Contenus et microcopy
 
@@ -113,9 +109,6 @@
 | CTA débloquer | « Débloquer ce parcours » |
 | Section étapes | « Étapes » |
 | Étape verrouillée | « Étape verrouillée » |
-| Enregistrer | « Enregistrer dans mes parcours » |
-| Toast enregistré | « Parcours ajouté à votre liste » |
-| Erreur auth enregistrer | « Connectez-vous pour enregistrer ce parcours » |
 | Voir carte | « Voir sur la carte » |
 | Intrrouvable | « Ce parcours n’existe pas ou n’est plus disponible. » |
 | Difficulté | « Facile » / « Modéré » / « Difficile » |
@@ -134,7 +127,6 @@
 | `editorial_itinerary_viewed` | `itinerary_id`, `city_id`, `is_locked`, `category_slug?` |
 | `editorial_itinerary_start_tapped` | `itinerary_id`, `is_locked` |
 | `editorial_itinerary_step_tapped` | `itinerary_id`, `poi_id`, `step_order`, `is_locked` |
-| `editorial_itinerary_save_tapped` | `itinerary_id`, `success` |
 | `editorial_itinerary_map_tapped` | `itinerary_id` |
 
 ## Critères d’acceptation
@@ -143,9 +135,7 @@
 2. **Given** itinéraire premium verrouillé **When** ouverture **A5.6** **Then** teaser visible et CTA « Débloquer » ; étapes verrouillées non accessibles.
 3. **Given** achat réussi via **A8.3** **When** retour **A5.6** **Then** contenu débloqué sans rechargement manuel.
 4. **Given** étape débloquée **When** tap **Then** navigation **A3.1**.
-5. **Given** utilisateur connecté **When** « Enregistrer dans mes parcours » **Then** parcours copié visible dans **A5.1**.
-6. **Given** utilisateur non connecté **When** « Enregistrer » **Then** redirection **A6.1** ou message explicite.
-7. **Given** fiche chargée **When** « Voir sur la carte » **Then** **A1.1** avec tracé des étapes.
+5. **Given** fiche chargée **When** « Voir sur la carte » **Then** **A1.1** avec tracé des étapes.
 
 ## Open questions
 

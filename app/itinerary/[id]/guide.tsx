@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GuidanceExperience } from '../../../components/guidance/GuidanceExperience';
 import { GUIDANCE_COPY } from '../../../constants/guidanceCopy';
 import { HUB_COPY } from '../../../constants/hubCopy';
+import { getMockUserItineraryById } from '../../../constants/mockUserItineraries';
 import {
   colors,
   componentSizes,
@@ -13,8 +14,10 @@ import {
   spacing,
   textStyle,
 } from '../../../constants/theme';
+import { useAuth } from '../../../contexts/AuthContext';
 import { useRequireAuth } from '../../../hooks/useRequireAuth';
 import { fetchItineraryById } from '../../../lib/api/itineraries';
+import { isApiConfigured } from '../../../lib/config';
 import type { UserItineraryDetail } from '../../../lib/api/itineraries';
 
 export default function UserGuidanceScreen() {
@@ -24,6 +27,7 @@ export default function UserGuidanceScreen() {
   const { isReady } = useRequireAuth(
     typeof id === 'string' ? `/itinerary/${id}/guide` : '/itineraries',
   );
+  const { isMockSession } = useAuth();
 
   const [itinerary, setItinerary] = useState<UserItineraryDetail | null>(null);
   const [loadError, setLoadError] = useState(false);
@@ -38,6 +42,21 @@ export default function UserGuidanceScreen() {
   useEffect(() => {
     if (!isReady || typeof id !== 'string') return;
     let cancelled = false;
+
+    if (isMockSession) {
+      setItinerary(getMockUserItineraryById(id) ?? null);
+      setLoadError(false);
+      setIsLoading(false);
+      return;
+    }
+
+    if (!isApiConfigured()) {
+      setItinerary(null);
+      setLoadError(true);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setLoadError(false);
     void fetchItineraryById(id)
@@ -53,7 +72,7 @@ export default function UserGuidanceScreen() {
     return () => {
       cancelled = true;
     };
-  }, [id, isReady]);
+  }, [id, isMockSession, isReady]);
 
   if (!isReady || isLoading) {
     return (
