@@ -47,6 +47,23 @@ export function trackPromotedHidden(): void {
   // promoted_hidden
 }
 
+export type DiscoveryFeedSection = 'latest' | 'popular' | 'top_rated';
+
+export function trackDiscoveryFeedViewed(): void {
+  // discovery_feed_viewed
+}
+
+export function trackDiscoveryPlaceTapped(
+  _placeId: string,
+  _section: DiscoveryFeedSection,
+): void {
+  // discovery_place_tapped
+}
+
+export function trackDiscoveryPromotedHidden(): void {
+  // discovery_promoted_hidden
+}
+
 export function trackHubCityViewed(_citySlug: string, _source: HubCitySource): void {
   // hub_city_viewed
 }
