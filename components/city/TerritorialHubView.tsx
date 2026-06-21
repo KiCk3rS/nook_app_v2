@@ -251,11 +251,16 @@ export function TerritorialHubView({
         style={styles.scroll}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingTop: scrollTopInset, paddingBottom: insets.bottom + spacing.xxl },
+          { paddingTop: scrollTopInset },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.body, { minHeight: bodyMinHeight }]}>
+        <View
+          style={[
+            styles.body,
+            { minHeight: bodyMinHeight, paddingBottom: insets.bottom + spacing.xxl },
+          ]}
+        >
           {config.parentCityName ? (
             <Pressable
               style={({ pressed }) => [styles.parentLink, pressed && styles.parentLinkPressed]}

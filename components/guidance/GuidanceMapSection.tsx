@@ -7,10 +7,15 @@ import type { MockPlace } from '../../constants/mockPlaces';
 import {
   colors,
   componentSizes,
+  elevation,
   radius,
   spacing,
   textStyle,
 } from '../../constants/theme';
+import {
+  getCoordinatesForPlaces,
+  getRegionForPlaces,
+} from '../../lib/itineraryMap';
 
 interface GuidanceMapSectionProps {
   places: MockPlace[];
@@ -34,26 +39,12 @@ export function GuidanceMapSection({
   }
 
   const mapProvider = Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined;
-  const coordinates = places.map((p) => ({
-    latitude: p.latitude,
-    longitude: p.longitude,
-  }));
+  const region = getRegionForPlaces(places);
+  const coordinates = getCoordinatesForPlaces(places);
 
-  const lats = places.map((p) => p.latitude);
-  const lngs = places.map((p) => p.longitude);
-  const minLat = Math.min(...lats);
-  const maxLat = Math.max(...lats);
-  const minLng = Math.min(...lngs);
-  const maxLng = Math.max(...lngs);
-  const latDelta = Math.max((maxLat - minLat) * 1.6, 0.01);
-  const lngDelta = Math.max((maxLng - minLng) * 1.6, 0.01);
-
-  const region = {
-    latitude: (minLat + maxLat) / 2,
-    longitude: (minLng + maxLng) / 2,
-    latitudeDelta: latDelta,
-    longitudeDelta: lngDelta,
-  };
+  if (!region) {
+    return null;
+  }
 
   return (
     <View style={styles.section}>
@@ -93,28 +84,45 @@ export function GuidanceMapSection({
               />
             ))}
           </MapView>
-          <View style={styles.mapOverlay} pointerEvents="none">
-            <View style={styles.mapCtaBar}>
-              <Ionicons name="map-outline" size={18} color={colors.onPrimary} />
-              <Text style={styles.mapCtaText}>{GUIDANCE_COPY.openMap}</Text>
-              <Ionicons name="chevron-forward" size={16} color={colors.onPrimary} />
+          <View style={styles.expandHint} pointerEvents="none">
+            <View style={styles.expandBadge}>
+              <Ionicons name="expand-outline" size={16} color={colors.ink} />
             </View>
           </View>
         </View>
       </Pressable>
 
-      {canViewPlace ? (
+      <View style={styles.actionsRow}>
         <Pressable
-          onPress={onViewPlace}
-          style={({ pressed }) => [styles.placeRow, pressed && styles.placeRowPressed]}
+          onPress={onOpenMap}
+          style={({ pressed }) => [
+            styles.secondaryBtn,
+            !canViewPlace && styles.secondaryBtnFull,
+            pressed && styles.secondaryBtnPressed,
+          ]}
           accessibilityRole="button"
-          accessibilityLabel={GUIDANCE_COPY.viewPlace}
+          accessibilityLabel={GUIDANCE_COPY.openMap}
         >
-          <Ionicons name="document-text-outline" size={18} color={colors.primary} />
-          <Text style={styles.placeRowText}>{GUIDANCE_COPY.viewPlace}</Text>
-          <Ionicons name="chevron-forward" size={16} color={colors.muted} />
+          <Ionicons name="map-outline" size={18} color={colors.ink} />
+          <Text style={styles.secondaryBtnText} numberOfLines={1}>
+            {GUIDANCE_COPY.openMapShort}
+          </Text>
         </Pressable>
-      ) : null}
+
+        {canViewPlace ? (
+          <Pressable
+            onPress={onViewPlace}
+            style={({ pressed }) => [styles.secondaryBtn, pressed && styles.secondaryBtnPressed]}
+            accessibilityRole="button"
+            accessibilityLabel={GUIDANCE_COPY.viewPlace}
+          >
+            <Ionicons name="document-text-outline" size={18} color={colors.ink} />
+            <Text style={styles.secondaryBtnText} numberOfLines={1}>
+              {GUIDANCE_COPY.viewPlaceShort}
+            </Text>
+          </Pressable>
+        ) : null}
+      </View>
     </View>
   );
 }
@@ -151,41 +159,53 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFill,
   },
-  mapOverlay: {
+  expandHint: {
     ...StyleSheet.absoluteFill,
+    alignItems: 'flex-end',
     justifyContent: 'flex-end',
+    padding: spacing.sm,
   },
-  mapCtaBar: {
+  expandBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.full,
+    backgroundColor: colors.canvas,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.hairline,
+    ...elevation.card,
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md,
+  },
+  secondaryBtn: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.primary,
-  },
-  mapCtaText: {
-    ...textStyle('buttonSm'),
-    color: colors.onPrimary,
-    fontWeight: '600',
-    flex: 1,
-  },
-  placeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.hairline,
+    gap: spacing.xs,
     minHeight: componentSizes.buttonPrimaryHeight,
-  },
-  placeRowPressed: {
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
     backgroundColor: colors.canvas,
   },
-  placeRowText: {
+  secondaryBtnFull: {
+    flex: 0,
+    flexGrow: 1,
+  },
+  secondaryBtnPressed: {
+    backgroundColor: colors.surfaceSoft,
+  },
+  secondaryBtnText: {
     ...textStyle('buttonSm'),
-    color: colors.primary,
-    flex: 1,
+    color: colors.ink,
+    flexShrink: 1,
   },
 });

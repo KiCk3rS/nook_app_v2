@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ItineraryRouteMapPreview } from '../../../../components/itinerary/ItineraryRouteMapPreview';
 import { ItineraryStepRow } from '../../../../components/itinerary/ItineraryStepRow';
 import {
   PLACE_CONTENT_OVERLAP,
@@ -39,7 +40,11 @@ import {
   textStyle,
 } from '../../../../constants/theme';
 import { usePremium } from '../../../../contexts/PremiumContext';
-import { trackEditorialItineraryViewed } from '../../../../lib/analytics';
+import {
+  trackEditorialItineraryMapTapped,
+  trackEditorialItineraryViewed,
+} from '../../../../lib/analytics';
+import { buildFocusItineraryParam, resolveItineraryPlaces } from '../../../../lib/itineraryMap';
 
 const FREE_STEPS_PREVIEW = 2;
 
@@ -56,6 +61,10 @@ export default function EditorialItineraryScreen() {
   const itinerary = useMemo(
     () => (typeof id === 'string' ? getItineraryById(id) : undefined),
     [id],
+  );
+  const itineraryPlaces = useMemo(
+    () => (itinerary ? resolveItineraryPlaces(itinerary.stepPoiIds) : []),
+    [itinerary],
   );
 
   const { isUnlocked } = usePremium();
@@ -109,10 +118,11 @@ export default function EditorialItineraryScreen() {
   }
 
   function handleMapCta() {
-    if (!city) return;
+    if (!itinerary) return;
+    trackEditorialItineraryMapTapped(itinerary.id);
     router.push({
       pathname: '/(tabs)',
-      params: { focusCity: city.slug },
+      params: { focusItinerary: buildFocusItineraryParam(itinerary.id) },
     });
   }
 
@@ -155,11 +165,16 @@ export default function EditorialItineraryScreen() {
         style={styles.scroll}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingTop: scrollTopInset, paddingBottom: insets.bottom + 100 },
+          { paddingTop: scrollTopInset },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.body, { minHeight: bodyMinHeight }]}>
+        <View
+          style={[
+            styles.body,
+            { minHeight: bodyMinHeight, paddingBottom: insets.bottom + 100 },
+          ]}
+        >
           <View style={styles.badges}>
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{categoryLabel}</Text>
@@ -189,15 +204,10 @@ export default function EditorialItineraryScreen() {
             />
           </View>
 
-          <Pressable
+          <ItineraryRouteMapPreview
+            places={itineraryPlaces}
             onPress={handleMapCta}
-            style={({ pressed }) => [styles.mapLink, pressed && styles.linkPressed]}
-            accessibilityRole="button"
-            accessibilityLabel={ITINERARY_COPY.mapCta}
-          >
-            <Ionicons name="map-outline" size={18} color={colors.primary} />
-            <Text style={styles.mapLinkText}>{ITINERARY_COPY.mapCta}</Text>
-          </Pressable>
+          />
 
           <Text style={styles.sectionTitle}>{ITINERARY_COPY.stepsSection}</Text>
           {itinerary.stepPoiIds.map((poiId, index) => {
@@ -324,15 +334,6 @@ const styles = StyleSheet.create({
   summaryLabel: {
     ...textStyle('bodySm'),
     color: colors.muted,
-  },
-  mapLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  mapLinkText: {
-    ...textStyle('buttonSm'),
-    color: colors.primary,
   },
   sectionTitle: {
     ...textStyle('titleMd'),

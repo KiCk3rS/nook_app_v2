@@ -54,6 +54,11 @@ export const ITINERARY_COPY = {
   saveCta: 'Enregistrer dans mes parcours',
   saveSuccess: 'Parcours ajouté à votre liste',
   mapCta: 'Voir sur la carte',
+  mapModeKicker: 'Parcours sur la carte',
+  mapModeOpenDetail: 'Voir le détail du parcours',
+  mapModeClose: 'Quitter la vue parcours',
+  mapModeStep: (current: number, total: number, name: string) =>
+    `Étape ${current} sur ${total} — ${name}`,
   lockedStep: 'Étape verrouillée',
   notFoundTitle: 'Parcours introuvable',
   notFoundBody: 'Ce parcours n’existe pas ou n’est plus disponible.',

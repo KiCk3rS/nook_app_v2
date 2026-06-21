@@ -33,6 +33,7 @@ import {
   estimateWalkMinutes,
   formatDistanceMeters,
 } from '../../lib/geo';
+import { buildFocusItineraryParam } from '../../lib/itineraryMap';
 import {
   clearGuidanceProgress,
   getGuidanceProgress,
@@ -258,14 +259,12 @@ export function GuidanceExperience({
 
   function handleMap() {
     trackGuidanceMapTapped(sourceType, itineraryId, stepIndex);
-    if (citySlug) {
-      router.push({
-        pathname: '/(tabs)',
-        params: { focusCity: citySlug },
-      });
-      return;
-    }
-    router.push('/(tabs)');
+    router.push({
+      pathname: '/(tabs)',
+      params: {
+        focusItinerary: buildFocusItineraryParam(itineraryId, stepIndex),
+      },
+    });
   }
 
   function goToStep(nextIndex: number) {

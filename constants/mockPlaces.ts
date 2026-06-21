@@ -101,7 +101,9 @@ export const mockPlaces: MockPlace[] = [
     imageUrl:
       'https://images.unsplash.com/photo-1758204570486-8f49ab989f56?w=800&q=80',
     description:
-      'Chef-d\'œuvre de l\'architecture gothique, Notre-Dame domine l\'Île de la Cité depuis le XIIe siècle.',
+      'Chef-d\'œuvre de l\'architecture gothique, Notre-Dame domine l\'Île de la Cité depuis le XIIe siècle.\n\n' +
+      'Sa façade occidentale, ses rosaces et ses gargouilles en font un symbole reconnu dans le monde entier.\n\n' +
+      'Après l\'incendie de 2019, la cathédrale fait l\'objet d\'un chantier de restauration d\'envergure, ouvert aux visiteurs selon les périodes.',
     audioGuides: [
       {
         id: '1-a',

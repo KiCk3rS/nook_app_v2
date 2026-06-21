@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AudioGuideList } from '../../components/place/AudioGuideList';
 import { AssociatedPlacesCarousel } from '../../components/place/AssociatedPlacesCarousel';
 import { ParentPlaceLink } from '../../components/place/ParentPlaceLink';
+import { PlaceDescription } from '../../components/place/PlaceDescription';
 import {
   PLACE_CONTENT_OVERLAP,
   PLACE_HERO_HEIGHT,
@@ -128,11 +129,16 @@ export default function PlaceDetailScreen() {
         style={styles.scroll}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingTop: scrollTopInset, paddingBottom: insets.bottom + spacing.xxl },
+          { paddingTop: scrollTopInset },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.body, { minHeight: bodyMinHeight }]}>
+        <View
+          style={[
+            styles.body,
+            { minHeight: bodyMinHeight, paddingBottom: insets.bottom + spacing.xxl },
+          ]}
+        >
           <Text style={styles.title} accessibilityRole="header">
             {place.name}
           </Text>
@@ -149,7 +155,7 @@ export default function PlaceDetailScreen() {
           {parentPlace ? <ParentPlaceLink parent={parentPlace} /> : null}
 
           <Text style={styles.sectionTitle}>Description</Text>
-          <Text style={styles.description}>{place.description}</Text>
+          <PlaceDescription description={place.description} />
 
           <AudioGuideList
             guides={place.audioGuides}
@@ -184,7 +190,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
     paddingHorizontal: spacing.base,
     paddingTop: spacing.lg,
-    paddingBottom: spacing.xxl,
     gap: spacing.md,
   },
   title: {
@@ -206,10 +211,6 @@ const styles = StyleSheet.create({
     ...textStyle('titleMd'),
     color: colors.ink,
     marginTop: spacing.lg,
-  },
-  description: {
-    ...textStyle('bodyMd'),
-    color: colors.body,
   },
   notFound: {
     flex: 1,

@@ -151,6 +151,20 @@ export function trackEditorialItineraryViewed(
   // editorial_itinerary_viewed
 }
 
+export function trackEditorialItineraryMapTapped(_itineraryId: string): void {
+  // editorial_itinerary_map_tapped
+}
+
+export type ItineraryMapSource = 'itinerary_detail' | 'guidance';
+
+export function trackItineraryMapViewed(
+  _itineraryId: string,
+  _source: ItineraryMapSource,
+  _stepIndex?: number,
+): void {
+  // itinerary_map_viewed
+}
+
 export function trackPremiumPaywallViewed(
   _itineraryId: string,
   _sourceScreen: string,
