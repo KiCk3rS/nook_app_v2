@@ -132,9 +132,13 @@ Ces écrans répondent à la problématique **éditoriale et opérationnelle** d
 - **A4.4** : hub pays (P2) — réutilise le pattern **A4.3** — spec [`ecran-A4.4-hub-pays.md`](./ecran-A4.4-hub-pays.md).
 - **A4.5** : hub quartier — critères contenu (itinéraires dédiés + POI curatés) ; défaut quartier = **A3.1** — spec [`ecran-A4.5-hub-quartier.md`](./ecran-A4.5-hub-quartier.md). MVP : Le Marais (`/city/paris/district/le-marais`).  
 - **A5.5** : mode guidage pas-à-pas — spec [`ecran-A5.5-mode-guidage.md`](./ecran-A5.5-mode-guidage.md). Partagé parcours utilisateur et itinéraires éditoriaux ; entrée depuis **A5.6** ou **A5.1**.
+- **A5.1** : liste parcours enregistrés — spec [`ecran-A5.1-liste-parcours.md`](./ecran-A5.1-liste-parcours.md). Entrée depuis **A6.4** ; auth obligatoire.
 - **A5.6** : détail itinéraire éditorial — spec [`ecran-A5.6-detail-itineraire-editorial.md`](./ecran-A5.6-detail-itineraire-editorial.md). Distinct des parcours utilisateur **A5.5**.  
 - **A5.7** : liste itinéraires par catégorie depuis le hub — spec [`ecran-A5.7-liste-itineraires-categorie.md`](./ecran-A5.7-liste-itineraires-categorie.md).  
 - **A8.3** : paywall premium — spec [`ecran-A8.3-paywall-premium.md`](./ecran-A8.3-paywall-premium.md).  
+- **A6.4** : profil / Mon compte — hub compte depuis bottom nav — spec [`ecran-A6.4-profil.md`](./ecran-A6.4-profil.md).  
+- **A6.1** / **A6.2** / **A6.3** : authentification (connexion, inscription, reset MDP) — spec fusionnée [`ecran-A6.1-authentification.md`](./ecran-A6.1-authentification.md).  
+- **A6.7** : paramètres (+ action déconnexion **A6.8**) — spec [`ecran-A6.7-parametres.md`](./ecran-A6.7-parametres.md).  
 - Plusieurs IDs peuvent être **fusionnés** en une seule vue (ex. recherche + filtres + carte en onglets ou split).  
 - Le **lecteur audio** peut être un composant persistant (mini-player) plutôt qu’un « écran » à part entière ; l’important est de couvrir **reprise de lecture** et **contexte lieu**.  
 - L’alignement **liste / carte** (§3.2) impose des règles UX et techniques communes, quel que soit le nombre de vues physiques.  

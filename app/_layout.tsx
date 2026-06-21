@@ -16,6 +16,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { colors, fontFamilyForWeight, typography } from '../constants/theme';
 import { GlobalAudioChrome } from '../components/audio/GlobalAudioChrome';
 import { AudioPlaybackProvider } from '../contexts/AudioPlaybackContext';
+import { AuthProvider } from '../contexts/AuthContext';
 import { FavoritesProvider } from '../contexts/FavoritesContext';
 import { PremiumProvider } from '../contexts/PremiumContext';
 
@@ -43,6 +44,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <AudioPlaybackProvider>
+          <AuthProvider>
           <FavoritesProvider>
           <PremiumProvider>
           <StatusBar style="dark" />
@@ -53,6 +55,34 @@ export default function RootLayout() {
             }}
           >
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="auth"
+              options={{
+                headerShown: false,
+                presentation: 'modal',
+              }}
+            />
+            <Stack.Screen
+              name="settings"
+              options={{
+                headerShown: false,
+                presentation: 'card',
+              }}
+            />
+            <Stack.Screen
+              name="itineraries"
+              options={{
+                headerShown: false,
+                presentation: 'card',
+              }}
+            />
+            <Stack.Screen
+              name="itinerary"
+              options={{
+                headerShown: false,
+                presentation: 'card',
+              }}
+            />
             <Stack.Screen
               name="city/[slug]"
               options={{
@@ -86,10 +116,28 @@ export default function RootLayout() {
                 contentStyle: { backgroundColor: colors.canvas },
               }}
             />
+            <Stack.Screen
+              name="cgu"
+              options={{
+                headerShown: true,
+                title: "Conditions d'utilisation",
+                presentation: 'card',
+                headerStyle: { backgroundColor: colors.canvas },
+                headerTintColor: colors.ink,
+                headerTitleStyle: {
+                  fontFamily: fontFamilyForWeight(typography.weight.semibold),
+                  fontSize: typography.titleMd.fontSize,
+                  fontWeight: typography.weight.semibold,
+                  color: colors.ink,
+                },
+                contentStyle: { backgroundColor: colors.canvas },
+              }}
+            />
           </Stack>
           <GlobalAudioChrome />
           </PremiumProvider>
           </FavoritesProvider>
+          </AuthProvider>
         </AudioPlaybackProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

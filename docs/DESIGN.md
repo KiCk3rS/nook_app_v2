@@ -485,19 +485,19 @@ Dérivé de [ecrans.md](./ecrans.md). Mettre à jour au fil de l’eau.
 | A3.3 | Ajout au parcours | P1 | Non démarré | — | — |
 | A4.1 | Fil de découverte | P0 | Non démarré | — | — |
 | A4.2 | Recommandations | Évolution | N/A | — | — |
-| A5.1 | Liste parcours | P1 | Non démarré | — | — |
+| A5.1 | Liste parcours | P1 | Non démarré | — | [`ecran-A5.1-liste-parcours.md`](./ecran-A5.1-liste-parcours.md) |
 | A5.2 | Création / édition parcours | P1 | Non démarré | — | — |
 | A5.3 | Modèles de parcours | P2 | Non démarré | — | — |
 | A5.4 | Parcours sur carte | P1 | Non démarré | — | — |
 | A5.5 | Détail parcours (guidage) | P1 | Implémenté (éditorial) | — | [`ecran-A5.5-mode-guidage.md`](./ecran-A5.5-mode-guidage.md) |
-| A6.1 | Connexion | P1 | Non démarré | — | — |
-| A6.2 | Inscription | P1 | Non démarré | — | — |
-| A6.3 | Réinitialisation MDP | P1 | Non démarré | — | — |
-| A6.4 | Profil | P1 | Non démarré | — | — |
+| A6.1 | Connexion | P1 | Non démarré | — | [`ecran-A6.1-authentification.md`](./ecran-A6.1-authentification.md) |
+| A6.2 | Inscription | P1 | Non démarré | — | [`ecran-A6.1-authentification.md`](./ecran-A6.1-authentification.md) |
+| A6.3 | Réinitialisation MDP | P1 | Non démarré | — | [`ecran-A6.1-authentification.md`](./ecran-A6.1-authentification.md) |
+| A6.4 | Profil | P1 | Non démarré | — | [`ecran-A6.4-profil.md`](./ecran-A6.4-profil.md) |
 | A6.5 | Favoris | P2 | Non démarré | — | — |
 | A6.6 | Historique d’écoute | P2 | Non démarré | — | — |
-| A6.7 | Paramètres | P1 | Non démarré | — | — |
-| A6.8 | Déconnexion | P1 | Non démarré | — | — |
+| A6.7 | Paramètres | P1 | Non démarré | — | [`ecran-A6.7-parametres.md`](./ecran-A6.7-parametres.md) |
+| A6.8 | Déconnexion | P1 | Non démarré | — | [`ecran-A6.7-parametres.md`](./ecran-A6.7-parametres.md) · [`ecran-A6.4-profil.md`](./ecran-A6.4-profil.md) |
 | A7.1 | Dialogue guide | Évolution | N/A | — | — |
 | A8.1 | Légal / confidentialité | P1 | Non démarré | — | — |
 | A8.2 | CGU | P1 | Non démarré | — | — |

@@ -19,6 +19,7 @@ module.exports = {
     },
     extra: {
       ...appJson.expo.extra,
+      apiBaseUrl: process.env.API_BASE_URL ?? '',
       eas: {
         projectId: 'bde6503d-b255-4390-8c1f-4a9dd8f8dd51',
       },

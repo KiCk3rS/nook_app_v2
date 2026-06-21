@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { FavoriteItineraryRow } from '../../components/favorites/FavoriteItineraryRow';
 import { FavoritePlaceRow } from '../../components/favorites/FavoritePlaceRow';
-import { PlaceholderScreen } from '../../components/PlaceholderScreen';
+import { FavoritesEmptyState } from '../../components/favorites/FavoritesEmptyState';
 import { UndoSnackbar } from '../../components/ui/UndoSnackbar';
 import { FAVORITES_COPY } from '../../constants/favoritesCopy';
 import { colors, spacing, textStyle } from '../../constants/theme';
@@ -111,12 +111,7 @@ export default function FavorisScreen() {
   }
 
   if (isEmpty) {
-    return (
-      <PlaceholderScreen
-        title={FAVORITES_COPY.emptyTitle}
-        description={FAVORITES_COPY.emptyBody}
-      />
-    );
+    return <FavoritesEmptyState />;
   }
 
   function isPlacePending(placeId: string) {

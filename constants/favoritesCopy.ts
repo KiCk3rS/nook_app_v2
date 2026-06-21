@@ -4,7 +4,15 @@ export const FAVORITES_COPY = {
   title: 'Favoris',
   emptyTitle: 'Aucun favori pour le moment',
   emptyBody:
-    'Ajoutez des lieux ou des parcours en touchant le cœur sur une fiche ou un itinéraire.',
+    'Enregistrez les lieux et parcours que vous voulez retrouver rapidement — idéal pour préparer une visite ou reprendre plus tard.',
+  emptyHowTitle: 'Comment ça marche',
+  emptyTipMap: 'Explorez la carte ou un parcours thématique',
+  emptyTipHeart: 'Touchez le cœur sur une fiche lieu ou un itinéraire',
+  emptyTipHere: 'Retrouvez tout ici, prêt à repartir',
+  emptyCtaMap: 'Explorer la carte',
+  emptyCtaCity: (city: string) => `Découvrir ${city}`,
+  emptySuggestionsTitle: 'Idées à enregistrer',
+  emptyAddFavorite: 'Ajouter aux favoris',
   itinerariesSection: 'Parcours',
   placesSection: 'Lieux',
   removePlace: 'Retirer des favoris',
@@ -14,4 +22,11 @@ export const FAVORITES_COPY = {
   undo: 'Annuler',
   openPlace: (name: string) => `Ouvrir ${name}`,
   openItinerary: (title: string) => `Ouvrir ${title}`,
+} as const;
+
+/** Suggestions éditoriales pour l’état vide — MVP Paris. */
+export const FAVORITES_EMPTY_SUGGESTIONS = {
+  citySlug: 'paris',
+  placeIds: ['1', '2'],
+  itineraryIds: ['itin-paris-highlights'],
 } as const;
