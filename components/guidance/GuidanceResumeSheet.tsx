@@ -1,7 +1,7 @@
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { GUIDANCE_COPY } from '../../constants/guidanceCopy';
 import {
   colors,
   componentSizes,
@@ -25,30 +25,30 @@ export function GuidanceResumeSheet({
   onResume,
   onRestart,
 }: GuidanceResumeSheetProps) {
+  const { t } = useTranslation('guidance');
   const insets = useSafeAreaInsets();
+  const resumeLabel = t('resumeCta', { step: stepNumber, name: stepName });
 
   return (
     <Modal visible={visible} transparent animationType="fade" statusBarTranslucent>
       <View style={styles.backdrop}>
         <View style={[styles.sheet, { paddingBottom: insets.bottom + spacing.lg }]}>
-          <Text style={styles.title}>{GUIDANCE_COPY.resumeTitle}</Text>
+          <Text style={styles.title}>{t('resumeTitle')}</Text>
           <Pressable
             style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryPressed]}
             onPress={onResume}
             accessibilityRole="button"
-            accessibilityLabel={GUIDANCE_COPY.resumeCta(stepNumber, stepName)}
+            accessibilityLabel={resumeLabel}
           >
-            <Text style={styles.primaryText}>
-              {GUIDANCE_COPY.resumeCta(stepNumber, stepName)}
-            </Text>
+            <Text style={styles.primaryText}>{resumeLabel}</Text>
           </Pressable>
           <Pressable
             style={({ pressed }) => [styles.secondaryBtn, pressed && styles.secondaryPressed]}
             onPress={onRestart}
             accessibilityRole="button"
-            accessibilityLabel={GUIDANCE_COPY.restartCta}
+            accessibilityLabel={t('restartCta')}
           >
-            <Text style={styles.secondaryText}>{GUIDANCE_COPY.restartCta}</Text>
+            <Text style={styles.secondaryText}>{t('restartCta')}</Text>
           </Pressable>
         </View>
       </View>

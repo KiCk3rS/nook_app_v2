@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import type { AffiliateExperienceItem } from '../../constants/mockCities';
-import { HUB_COPY } from '../../constants/hubCopy';
 import {
   colors,
   elevation,
@@ -21,6 +21,8 @@ const CARD_WIDTH = 220;
 const IMAGE_HEIGHT = 120;
 
 export function ExperienceCard({ item, onPress }: ExperienceCardProps) {
+  const { t } = useTranslation('hub');
+
   return (
     <Pressable
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
@@ -50,7 +52,7 @@ export function ExperienceCard({ item, onPress }: ExperienceCardProps) {
         {item.duration ? (
           <Text style={styles.duration}>{item.duration}</Text>
         ) : null}
-        <Text style={styles.footer}>{HUB_COPY.experienceFooter(item.provider)}</Text>
+        <Text style={styles.footer}>{t('experienceFooter', { partner: item.provider })}</Text>
       </View>
     </Pressable>
   );

@@ -8,6 +8,7 @@ import {
 } from 'react';
 
 import type { AudioGuide, MockPlace } from '../constants/mockPlaces';
+import type { SleepTimerValue } from '../constants/audioPlayerOptions';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
 
 export type AudioPlayerViewMode = 'idle' | 'mini' | 'expanded';
@@ -29,6 +30,14 @@ interface AudioPlaybackContextValue {
   seekTo: (ms: number) => void;
   skipBack: () => void;
   skipForward: () => void;
+  playbackRate: number;
+  voiceBoostEnabled: boolean;
+  trimSilencesEnabled: boolean;
+  sleepTimer: SleepTimerValue;
+  cyclePlaybackRate: () => void;
+  setVoiceBoostEnabled: (enabled: boolean) => void;
+  setTrimSilencesEnabled: (enabled: boolean) => void;
+  setSleepTimer: (value: SleepTimerValue) => void;
 }
 
 const AudioPlaybackContext = createContext<AudioPlaybackContextValue | null>(null);
@@ -51,6 +60,14 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
     seekTo,
     skipBack,
     skipForward,
+    playbackRate,
+    voiceBoostEnabled,
+    trimSilencesEnabled,
+    sleepTimer,
+    cyclePlaybackRate,
+    setVoiceBoostEnabled,
+    setTrimSilencesEnabled,
+    setSleepTimer,
   } = playback;
 
   const startPlayback = useCallback(
@@ -102,6 +119,14 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
       seekTo,
       skipBack,
       skipForward,
+      playbackRate,
+      voiceBoostEnabled,
+      trimSilencesEnabled,
+      sleepTimer,
+      cyclePlaybackRate,
+      setVoiceBoostEnabled,
+      setTrimSilencesEnabled,
+      setSleepTimer,
     }),
     [
       place,
@@ -115,6 +140,14 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
       seekTo,
       skipBack,
       skipForward,
+      playbackRate,
+      voiceBoostEnabled,
+      trimSilencesEnabled,
+      sleepTimer,
+      cyclePlaybackRate,
+      setVoiceBoostEnabled,
+      setTrimSilencesEnabled,
+      setSleepTimer,
       startPlayback,
       minimize,
       expand,

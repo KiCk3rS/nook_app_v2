@@ -1,11 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GuidanceExperience } from '../../../components/guidance/GuidanceExperience';
-import { GUIDANCE_COPY } from '../../../constants/guidanceCopy';
-import { HUB_COPY } from '../../../constants/hubCopy';
 import { getMockUserItineraryById } from '../../../constants/mockUserItineraries';
 import {
   colors,
@@ -21,6 +20,7 @@ import { isApiConfigured } from '../../../lib/config';
 import type { UserItineraryDetail } from '../../../lib/api/itineraries';
 
 export default function UserGuidanceScreen() {
+  const { t } = useTranslation(['guidance', 'common']);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { id, step } = useLocalSearchParams<{ id: string; step?: string }>();
@@ -85,15 +85,15 @@ export default function UserGuidanceScreen() {
   if (loadError || !itinerary || itinerary.poiIds.length < 2) {
     return (
       <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
-        <Text style={styles.notFoundTitle}>{GUIDANCE_COPY.notFoundTitle}</Text>
-        <Text style={styles.notFoundBody}>{GUIDANCE_COPY.notFoundBody}</Text>
+        <Text style={styles.notFoundTitle}>{t('guidance:notFoundTitle')}</Text>
+        <Text style={styles.notFoundBody}>{t('guidance:notFoundBody')}</Text>
         <Pressable
           style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryPressed]}
           onPress={() => router.back()}
           accessibilityRole="button"
-          accessibilityLabel={GUIDANCE_COPY.back}
+          accessibilityLabel={t('common:back')}
         >
-          <Text style={styles.primaryText}>{HUB_COPY.back}</Text>
+          <Text style={styles.primaryText}>{t('common:back')}</Text>
         </Pressable>
       </View>
     );

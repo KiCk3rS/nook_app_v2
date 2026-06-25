@@ -1,12 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { PromotedCityCard } from '../city/PromotedCityCard';
 import { PopularCityCard } from '../city/PopularCityCard';
 import {
   popularCitySlugs,
   promotedCitySlugs,
-  SEARCH_DISCOVERY_COPY,
   SEARCH_SHEET_GUTTER,
 } from '../../constants/searchDiscovery';
 import { getCityBySlug } from '../../constants/mockCities';
@@ -29,6 +29,7 @@ export function SearchDiscoveryView({
   onHidePromoted,
   onSelectCity,
 }: SearchDiscoveryViewProps) {
+  const { t } = useTranslation('search');
   const promotedCities = promotedCitySlugs
     .map((slug) => getCityBySlug(slug))
     .filter((city): city is NonNullable<typeof city> => city !== undefined);
@@ -47,8 +48,8 @@ export function SearchDiscoveryView({
       {showPromoted && promotedCities.length > 0 ? (
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{SEARCH_DISCOVERY_COPY.promotedSectionTitle}</Text>
-            <PressableHideLink onPress={onHidePromoted} />
+            <Text style={styles.sectionTitle}>{t('promotedSectionTitle')}</Text>
+            <PressableHideLink label={t('hidePromoted')} onPress={onHidePromoted} />
           </View>
           {promotedCities.map((city) => (
             <PromotedCityCard
@@ -62,7 +63,7 @@ export function SearchDiscoveryView({
 
       {popularCities.length > 0 ? (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{SEARCH_DISCOVERY_COPY.popularSectionTitle}</Text>
+          <Text style={styles.sectionTitle}>{t('popularSectionTitle')}</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -83,31 +84,31 @@ export function SearchDiscoveryView({
       <View
         style={styles.teaser}
         accessibilityRole="text"
-        accessibilityLabel={`${SEARCH_DISCOVERY_COPY.missingPlaceTitle} — ${SEARCH_DISCOVERY_COPY.missingPlaceFooter}`}
+        accessibilityLabel={`${t('missingPlaceTitle')} — ${t('missingPlaceFooter')}`}
         accessibilityState={{ disabled: true }}
       >
         <View style={styles.teaserIconWrap}>
           <Ionicons name="location-outline" size={22} color={colors.primary} />
         </View>
         <View style={styles.teaserBody}>
-          <Text style={styles.teaserTitle}>{SEARCH_DISCOVERY_COPY.missingPlaceTitle}</Text>
-          <Text style={styles.teaserText}>{SEARCH_DISCOVERY_COPY.missingPlaceBody}</Text>
-          <Text style={styles.teaserFooter}>{SEARCH_DISCOVERY_COPY.missingPlaceFooter}</Text>
+          <Text style={styles.teaserTitle}>{t('missingPlaceTitle')}</Text>
+          <Text style={styles.teaserText}>{t('missingPlaceBody')}</Text>
+          <Text style={styles.teaserFooter}>{t('missingPlaceFooter')}</Text>
         </View>
       </View>
     </ScrollView>
   );
 }
 
-function PressableHideLink({ onPress }: { onPress: () => void }) {
+function PressableHideLink({ label, onPress }: { label: string; onPress: () => void }) {
   return (
     <Text
       style={styles.hideLink}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={SEARCH_DISCOVERY_COPY.hidePromoted}
+      accessibilityLabel={label}
     >
-      {SEARCH_DISCOVERY_COPY.hidePromoted}
+      {label}
     </Text>
   );
 }

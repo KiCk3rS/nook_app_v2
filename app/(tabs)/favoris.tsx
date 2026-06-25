@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,7 +8,6 @@ import { FavoriteItineraryRow } from '../../components/favorites/FavoriteItinera
 import { FavoritePlaceRow } from '../../components/favorites/FavoritePlaceRow';
 import { FavoritesEmptyState } from '../../components/favorites/FavoritesEmptyState';
 import { UndoSnackbar } from '../../components/ui/UndoSnackbar';
-import { FAVORITES_COPY } from '../../constants/favoritesCopy';
 import { colors, spacing, textStyle } from '../../constants/theme';
 import { useFavorites } from '../../contexts/FavoritesContext';
 import { getPlaceHref } from '../../lib/placeNavigation';
@@ -19,6 +19,7 @@ type PendingRemoval =
   | { kind: 'itinerary'; id: string };
 
 export default function FavorisScreen() {
+  const { t } = useTranslation(['favorites', 'common']);
   const router = useRouter();
   const {
     isReady,
@@ -129,12 +130,12 @@ export default function FavorisScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.pageTitle} accessibilityRole="header">
-          {FAVORITES_COPY.title}
+          {t('favorites:title')}
         </Text>
 
         {favoriteItineraries.length > 0 ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{FAVORITES_COPY.itinerariesSection}</Text>
+            <Text style={styles.sectionTitle}>{t('favorites:itinerariesSection')}</Text>
             <View style={styles.list}>
               {favoriteItineraries.map((itinerary) => (
                 <FavoriteItineraryRow
@@ -147,7 +148,7 @@ export default function FavorisScreen() {
                   onRemove={() =>
                     requestRemoval(
                       { kind: 'itinerary', id: itinerary.id },
-                      FAVORITES_COPY.removedItinerary,
+                      t('favorites:removedItinerary'),
                     )
                   }
                 />
@@ -158,7 +159,7 @@ export default function FavorisScreen() {
 
         {favoritePlaces.length > 0 ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{FAVORITES_COPY.placesSection}</Text>
+            <Text style={styles.sectionTitle}>{t('favorites:placesSection')}</Text>
             <View style={styles.list}>
               {favoritePlaces.map((place) => (
                 <FavoritePlaceRow
@@ -169,7 +170,7 @@ export default function FavorisScreen() {
                   onRemove={() =>
                     requestRemoval(
                       { kind: 'place', id: place.id },
-                      FAVORITES_COPY.removedPlace,
+                      t('favorites:removedPlace'),
                     )
                   }
                 />
@@ -182,7 +183,7 @@ export default function FavorisScreen() {
       <UndoSnackbar
         visible={snackbarMessage != null}
         message={snackbarMessage ?? ''}
-        undoLabel={FAVORITES_COPY.undo}
+        undoLabel={t('common:undo')}
         onUndo={handleUndo}
         bottomInset={spacing.base}
       />

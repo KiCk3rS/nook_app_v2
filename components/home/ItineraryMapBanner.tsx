@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
-import { ITINERARY_COPY } from '../../constants/hubCopy';
 import { colors, componentSizes, radius, spacing, textStyle } from '../../constants/theme';
 
 interface ItineraryMapBannerProps {
@@ -17,17 +17,19 @@ export function ItineraryMapBanner({
   onPress,
   onClose,
 }: ItineraryMapBannerProps) {
+  const { t } = useTranslation('hub');
+
   return (
     <View style={styles.container}>
       <Pressable
         onPress={onPress}
         style={({ pressed }) => [styles.content, pressed && styles.contentPressed]}
         accessibilityRole="button"
-        accessibilityLabel={`${ITINERARY_COPY.mapModeOpenDetail} — ${title}`}
+        accessibilityLabel={`${t('itineraryMapModeOpenDetail')} — ${title}`}
       >
         <Ionicons name="map-outline" size={18} color={colors.primary} />
         <View style={styles.textBlock}>
-          <Text style={styles.kicker}>{ITINERARY_COPY.mapModeKicker}</Text>
+          <Text style={styles.kicker}>{t('itineraryMapModeKicker')}</Text>
           <Text style={styles.title} numberOfLines={1}>
             {title}
           </Text>
@@ -39,7 +41,7 @@ export function ItineraryMapBanner({
         onPress={onClose}
         style={({ pressed }) => [styles.closeBtn, pressed && styles.closePressed]}
         accessibilityRole="button"
-        accessibilityLabel={ITINERARY_COPY.mapModeClose}
+        accessibilityLabel={t('itineraryMapModeClose')}
         hitSlop={8}
       >
         <Ionicons name="close" size={20} color={colors.ink} />

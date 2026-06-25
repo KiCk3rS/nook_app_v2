@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -13,7 +14,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ListenHistoryEmptyState } from '../../components/listenHistory/ListenHistoryEmptyState';
 import { ListenHistoryRow } from '../../components/listenHistory/ListenHistoryRow';
-import { LISTEN_HISTORY_COPY } from '../../constants/listenHistoryCopy';
 import {
   getMockListenHistory,
   groupListenHistory,
@@ -23,6 +23,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRequireAuth } from '../../hooks/useRequireAuth';
 
 export default function ListenHistoryScreen() {
+  const { t } = useTranslation(['listenHistory', 'common']);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { isReady } = useRequireAuth('/listen-history');
@@ -51,12 +52,12 @@ export default function ListenHistoryScreen() {
           onPress={() => router.back()}
           style={styles.backBtn}
           accessibilityRole="button"
-          accessibilityLabel="Retour"
+          accessibilityLabel={t('common:back')}
         >
           <Ionicons name="chevron-back" size={24} color={colors.ink} />
         </Pressable>
         <Text style={styles.headerTitle} accessibilityRole="header">
-          {LISTEN_HISTORY_COPY.title}
+          {t('listenHistory:title')}
         </Text>
         <View style={styles.backBtn} />
       </View>

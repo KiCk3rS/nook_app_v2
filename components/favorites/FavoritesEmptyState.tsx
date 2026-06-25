@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -9,10 +10,7 @@ import {
   buildPlaceSuggestionSubtitle,
   FavoriteSuggestionRow,
 } from './FavoriteSuggestionRow';
-import {
-  FAVORITES_COPY,
-  FAVORITES_EMPTY_SUGGESTIONS,
-} from '../../constants/favoritesCopy';
+import { FAVORITES_EMPTY_SUGGESTIONS } from '../../constants/favoritesEmptySuggestions';
 import { getCityBySlug } from '../../constants/mockCities';
 import { getItineraryById } from '../../constants/mockItineraries';
 import { getPlaceById } from '../../constants/mockPlaces';
@@ -28,13 +26,14 @@ import { useFavorites } from '../../contexts/FavoritesContext';
 import { getPlaceHref } from '../../lib/placeNavigation';
 
 const TIPS = [
-  { icon: 'map-outline' as const, text: FAVORITES_COPY.emptyTipMap },
-  { icon: 'heart-outline' as const, text: FAVORITES_COPY.emptyTipHeart },
-  { icon: 'bookmark-outline' as const, text: FAVORITES_COPY.emptyTipHere },
+  { icon: 'map-outline' as const, key: 'emptyTipMap' as const },
+  { icon: 'heart-outline' as const, key: 'emptyTipHeart' as const },
+  { icon: 'bookmark-outline' as const, key: 'emptyTipHere' as const },
 ];
 
 export function FavoritesEmptyState() {
   const router = useRouter();
+  const { t } = useTranslation('favorites');
   const { togglePlaceFavorite, toggleItineraryFavorite } = useFavorites();
 
   const city = useMemo(
@@ -65,25 +64,25 @@ export function FavoritesEmptyState() {
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.pageTitle} accessibilityRole="header">
-          {FAVORITES_COPY.title}
+          {t('title')}
         </Text>
 
         <View style={styles.hero}>
           <View style={styles.heroIconWrap}>
             <Ionicons name="heart-outline" size={32} color={colors.primary} />
           </View>
-          <Text style={styles.heroTitle}>{FAVORITES_COPY.emptyTitle}</Text>
-          <Text style={styles.heroBody}>{FAVORITES_COPY.emptyBody}</Text>
+          <Text style={styles.heroTitle}>{t('emptyTitle')}</Text>
+          <Text style={styles.heroBody}>{t('emptyBody')}</Text>
         </View>
 
         <View style={styles.tipsCard}>
-          <Text style={styles.tipsTitle}>{FAVORITES_COPY.emptyHowTitle}</Text>
+          <Text style={styles.tipsTitle}>{t('emptyHowTitle')}</Text>
           {TIPS.map((tip) => (
-            <View key={tip.text} style={styles.tipRow}>
+            <View key={tip.key} style={styles.tipRow}>
               <View style={styles.tipIcon}>
                 <Ionicons name={tip.icon} size={18} color={colors.primary} />
               </View>
-              <Text style={styles.tipText}>{tip.text}</Text>
+              <Text style={styles.tipText}>{t(tip.key)}</Text>
             </View>
           ))}
         </View>
@@ -93,10 +92,10 @@ export function FavoritesEmptyState() {
             style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryPressed]}
             onPress={() => router.push('/(tabs)')}
             accessibilityRole="button"
-            accessibilityLabel={FAVORITES_COPY.emptyCtaMap}
+            accessibilityLabel={t('emptyCtaMap')}
           >
             <Ionicons name="map-outline" size={20} color={colors.onPrimary} />
-            <Text style={styles.primaryText}>{FAVORITES_COPY.emptyCtaMap}</Text>
+            <Text style={styles.primaryText}>{t('emptyCtaMap')}</Text>
           </Pressable>
 
           {city ? (
@@ -107,11 +106,11 @@ export function FavoritesEmptyState() {
               ]}
               onPress={() => router.push(`/city/${city.slug}`)}
               accessibilityRole="button"
-              accessibilityLabel={FAVORITES_COPY.emptyCtaCity(city.name)}
+              accessibilityLabel={t('emptyCtaCity', { city: city.name })}
             >
               <Ionicons name="compass-outline" size={20} color={colors.ink} />
               <Text style={styles.secondaryText}>
-                {FAVORITES_COPY.emptyCtaCity(city.name)}
+                {t('emptyCtaCity', { city: city.name })}
               </Text>
             </Pressable>
           ) : null}
@@ -120,7 +119,7 @@ export function FavoritesEmptyState() {
         {suggestedPlaces.length > 0 || suggestedItineraries.length > 0 ? (
           <View style={styles.suggestions}>
             <Text style={styles.suggestionsTitle}>
-              {FAVORITES_COPY.emptySuggestionsTitle}
+              {t('emptySuggestionsTitle')}
             </Text>
             <View style={styles.suggestionsList}>
               {suggestedItineraries.map((itinerary) => (

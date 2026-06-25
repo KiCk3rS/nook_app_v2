@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Image,
@@ -15,8 +16,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { PROFILE_COPY } from '../../constants/profileCopy';
 import { MOCK_PROFILE_INSIGHTS } from '../../constants/mockProfileInsights';
+import { formatStepsCount } from '../../lib/i18n/formatters';
 import {
   colors,
   componentSizes,
@@ -153,6 +154,7 @@ export function ProfileAuthenticatedView({
   onEditProfile,
 }: ProfileAuthenticatedViewProps) {
   const router = useRouter();
+  const { t } = useTranslation(['profile', 'common']);
   const { logout } = useAuth();
   const { hasSubscription } = usePremium();
   const { height: windowHeight } = useWindowDimensions();
@@ -173,41 +175,41 @@ export function ProfileAuthenticatedView({
   const shortcuts: ShortcutItem[] = [
     {
       icon: 'map-outline',
-      label: PROFILE_COPY.myRoutes,
+      label: t('profile:myRoutes'),
       onPress: () => router.push('/itineraries'),
     },
     {
       icon: 'heart-outline',
-      label: PROFILE_COPY.favorites,
+      label: t('profile:favorites'),
       onPress: () => router.push('/(tabs)/favoris'),
     },
     {
       icon: 'navigate-outline',
-      label: PROFILE_COPY.exploreMap,
+      label: t('profile:exploreMap'),
       onPress: () => router.push('/(tabs)'),
     },
     {
       icon: 'compass-outline',
-      label: PROFILE_COPY.discover,
+      label: t('profile:discover'),
       onPress: () => router.push('/(tabs)/decouvrir'),
     },
     {
       icon: 'settings-outline',
-      label: PROFILE_COPY.settings,
+      label: t('profile:settings'),
       onPress: () => router.push('/settings'),
     },
     {
       icon: hasSubscription ? 'star' : 'star-outline',
-      label: PROFILE_COPY.premiumCardTitle,
+      label: t('profile:premiumCardTitle'),
       onPress: () => router.push('/(tabs)/decouvrir'),
     },
   ];
 
   function confirmLogout() {
-    Alert.alert(PROFILE_COPY.logoutTitle, PROFILE_COPY.logoutBody, [
-      { text: PROFILE_COPY.cancel, style: 'cancel' },
+    Alert.alert(t('profile:logoutTitle'), t('profile:logoutBody'), [
+      { text: t('common:cancel'), style: 'cancel' },
       {
-        text: PROFILE_COPY.logoutConfirm,
+        text: t('profile:logoutConfirm'),
         style: 'destructive',
         onPress: () => void logout(),
       },
@@ -225,7 +227,7 @@ export function ProfileAuthenticatedView({
         <SafeAreaView edges={['top']}>
           <View style={styles.heroTopBar}>
             <Text style={styles.heroTitle} accessibilityRole="header">
-              {PROFILE_COPY.title}
+              {t('profile:title')}
             </Text>
             <View style={styles.heroIconBtn}>
               <Ionicons name="settings-outline" size={22} color={colors.onDark} />
@@ -246,25 +248,25 @@ export function ProfileAuthenticatedView({
             <Text style={styles.heroMember}>{memberLabel}</Text>
             <View style={styles.editPill}>
               <Ionicons name="create-outline" size={14} color={colors.onDark} />
-              <Text style={styles.editPillText}>{PROFILE_COPY.editProfile}</Text>
+              <Text style={styles.editPillText}>{t('profile:editProfile')}</Text>
             </View>
           </View>
 
           <View style={styles.statsCard}>
             <StatColumn
               value={String(stats.routesCount)}
-              label={PROFILE_COPY.statRoutes}
+              label={t('profile:statRoutes')}
               highlight
             />
             <View style={styles.statDivider} />
             <StatColumn
               value={String(stats.favoritesCount)}
-              label={PROFILE_COPY.statFavorites}
+              label={t('profile:statFavorites')}
             />
             <View style={styles.statDivider} />
             <StatColumn
               value={String(stats.listenCount)}
-              label={PROFILE_COPY.statListens}
+              label={t('profile:statListens')}
             />
           </View>
         </SafeAreaView>
@@ -297,12 +299,12 @@ export function ProfileAuthenticatedView({
             <View style={styles.errorBanner}>
               <Text style={styles.errorText}>{loadError}</Text>
               <Pressable onPress={onRefresh} accessibilityRole="button">
-                <Text style={styles.retry}>{PROFILE_COPY.retry}</Text>
+                <Text style={styles.retry}>{t('common:retry')}</Text>
               </Pressable>
             </View>
           ) : null}
 
-          <Text style={styles.sectionTitle}>{PROFILE_COPY.shortcutsTitle}</Text>
+          <Text style={styles.sectionTitle}>{t('profile:shortcutsTitle')}</Text>
           <View style={styles.shortcutGrid}>
             {shortcuts.map((item) => (
               <ShortcutTile key={item.label} {...item} />
@@ -312,12 +314,12 @@ export function ProfileAuthenticatedView({
           {recentRoutes.length > 0 ? (
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionHeading}>{PROFILE_COPY.recentRoutesTitle}</Text>
+                <Text style={styles.sectionHeading}>{t('profile:recentRoutesTitle')}</Text>
                 <Pressable
                   onPress={() => router.push('/itineraries')}
                   accessibilityRole="button"
                 >
-                  <Text style={styles.sectionLink}>{PROFILE_COPY.recentRoutesSeeAll}</Text>
+                  <Text style={styles.sectionLink}>{t('profile:recentRoutesSeeAll')}</Text>
                 </Pressable>
               </View>
               <ScrollView
@@ -343,7 +345,7 @@ export function ProfileAuthenticatedView({
                       {route.title}
                     </Text>
                     <Text style={styles.routeCardMeta}>
-                      {PROFILE_COPY.steps(route.stepCount ?? route.poiIds?.length ?? 0)}
+                      {formatStepsCount(route.stepCount ?? route.poiIds?.length ?? 0)}
                       {route.estimatedDurationMinutes
                         ? ` · ${formatDurationMinutes(route.estimatedDurationMinutes)}`
                         : ''}
@@ -357,12 +359,12 @@ export function ProfileAuthenticatedView({
           {recentListens.length > 0 ? (
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionHeading}>{PROFILE_COPY.recentListensTitle}</Text>
+                <Text style={styles.sectionHeading}>{t('profile:recentListensTitle')}</Text>
                 <Pressable
                   onPress={() => router.push('/listen-history')}
                   accessibilityRole="button"
                 >
-                  <Text style={styles.sectionLink}>{PROFILE_COPY.recentListensSeeAll}</Text>
+                  <Text style={styles.sectionLink}>{t('profile:recentListensSeeAll')}</Text>
                 </Pressable>
               </View>
               <View style={styles.listenList}>
@@ -409,12 +411,12 @@ export function ProfileAuthenticatedView({
             </View>
             <View style={styles.premiumTextBlock}>
               <Text style={styles.premiumTitle}>
-                {hasSubscription ? PROFILE_COPY.premiumActive : PROFILE_COPY.premiumCardTitle}
+                {hasSubscription ? t('profile:premiumActive') : t('profile:premiumCardTitle')}
               </Text>
               <Text style={styles.premiumSubtitle}>
                 {hasSubscription
-                  ? PROFILE_COPY.premiumCardBodyActive
-                  : PROFILE_COPY.premiumCardBodyInactive}
+                  ? t('profile:premiumCardBodyActive')
+                  : t('profile:premiumCardBodyInactive')}
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.mutedSoft} />
@@ -423,19 +425,19 @@ export function ProfileAuthenticatedView({
           <View style={styles.sheetMenuGroup}>
             <SheetMenuRow
               icon="map-outline"
-              label={PROFILE_COPY.myRoutes}
+              label={t('profile:myRoutes')}
               subtitle={`${stats.routesCount} enregistrés`}
               onPress={() => router.push('/itineraries')}
             />
             <SheetMenuRow
               icon="heart-outline"
-              label={PROFILE_COPY.favorites}
+              label={t('profile:favorites')}
               subtitle={`${stats.favoritesCount} lieux`}
               onPress={() => router.push('/(tabs)/favoris')}
             />
             <SheetMenuRow
               icon="time-outline"
-              label={PROFILE_COPY.history}
+              label={t('profile:history')}
               subtitle={`${stats.listenCount} guides écoutés`}
               onPress={() => router.push('/listen-history')}
             />
@@ -445,10 +447,10 @@ export function ProfileAuthenticatedView({
             style={({ pressed }) => [styles.logoutBtn, pressed && styles.logoutPressed]}
             onPress={confirmLogout}
             accessibilityRole="button"
-            accessibilityLabel={PROFILE_COPY.logout}
+            accessibilityLabel={t('profile:logout')}
           >
             <Ionicons name="log-out-outline" size={18} color={colors.error} />
-            <Text style={styles.logoutText}>{PROFILE_COPY.logout}</Text>
+            <Text style={styles.logoutText}>{t('profile:logout')}</Text>
           </Pressable>
         </View>
       </ScrollView>
@@ -464,13 +466,13 @@ export function ProfileAuthenticatedView({
               importantForAccessibility="no"
               pointerEvents="none"
             >
-              {PROFILE_COPY.title}
+              {t('profile:title')}
             </Text>
             <Pressable
               onPress={() => router.push('/settings')}
               style={styles.heroIconBtn}
               accessibilityRole="button"
-              accessibilityLabel={PROFILE_COPY.settings}
+              accessibilityLabel={t('profile:settings')}
             >
               <Ionicons name="settings-outline" size={22} color={colors.onDark} />
             </Pressable>
@@ -498,26 +500,26 @@ export function ProfileAuthenticatedView({
               ]}
               onPress={onEditProfile}
               accessibilityRole="button"
-              accessibilityLabel={PROFILE_COPY.editProfile}
+              accessibilityLabel={t('profile:editProfile')}
             >
               <Ionicons name="create-outline" size={14} color={colors.onDark} />
-              <Text style={styles.editPillText}>{PROFILE_COPY.editProfile}</Text>
+              <Text style={styles.editPillText}>{t('profile:editProfile')}</Text>
             </Pressable>
             <View style={[styles.statsCard, styles.heroControlGhost]} pointerEvents="none">
               <StatColumn
                 value={String(stats.routesCount)}
-                label={PROFILE_COPY.statRoutes}
+                label={t('profile:statRoutes')}
                 highlight
               />
               <View style={styles.statDivider} />
               <StatColumn
                 value={String(stats.favoritesCount)}
-                label={PROFILE_COPY.statFavorites}
+                label={t('profile:statFavorites')}
               />
               <View style={styles.statDivider} />
               <StatColumn
                 value={String(stats.listenCount)}
-                label={PROFILE_COPY.statListens}
+                label={t('profile:statListens')}
               />
             </View>
           </View>

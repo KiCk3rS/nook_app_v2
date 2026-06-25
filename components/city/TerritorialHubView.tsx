@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Linking,
   Pressable,
@@ -27,7 +28,6 @@ import {
 } from '../place/PlaceHero';
 import { PaywallSheet } from '../paywall/PaywallSheet';
 import type { AffiliateExperienceItem, TouristPassItem } from '../../constants/mockCities';
-import { HUB_COPY } from '../../constants/hubCopy';
 import { itineraryCategories } from '../../constants/itineraryCategories';
 import {
   countItinerariesByCategory,
@@ -87,6 +87,7 @@ export function TerritorialHubView({
   notFoundBody,
   paywallSource,
 }: TerritorialHubViewProps) {
+  const { t } = useTranslation(['hub', 'common']);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
@@ -133,8 +134,11 @@ export function TerritorialHubView({
   async function handleShare() {
     if (!config) return;
     const message = config.districtSlug
-      ? HUB_COPY.districtShareMessage(config.name, config.parentCityName ?? config.citySlug)
-      : HUB_COPY.shareMessage(config.name);
+      ? t('hub:districtShareMessage', {
+          district: config.name,
+          city: config.parentCityName ?? config.citySlug,
+        })
+      : t('hub:shareMessage', { name: config.name });
     await Share.share({ message });
   }
 
@@ -210,9 +214,9 @@ export function TerritorialHubView({
           style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryPressed]}
           onPress={handleBack}
           accessibilityRole="button"
-          accessibilityLabel={HUB_COPY.back}
+          accessibilityLabel={t('common:back')}
         >
-          <Text style={styles.primaryText}>{HUB_COPY.back}</Text>
+          <Text style={styles.primaryText}>{t('common:back')}</Text>
         </Pressable>
       </View>
     );
@@ -232,8 +236,8 @@ export function TerritorialHubView({
   );
 
   const recommendedTitle = config.districtSlug
-    ? HUB_COPY.districtPopularFallback(config.name)
-    : HUB_COPY.popularFallback(config.name);
+    ? t('hub:districtPopularFallback', { district: config.name })
+    : t('hub:popularFallback', { city: config.name });
 
   const touristPasses = config.touristPasses ?? [];
 
@@ -266,11 +270,11 @@ export function TerritorialHubView({
               style={({ pressed }) => [styles.parentLink, pressed && styles.parentLinkPressed]}
               onPress={handleParentCityPress}
               accessibilityRole="link"
-              accessibilityLabel={HUB_COPY.parentCityLink(config.parentCityName)}
+              accessibilityLabel={t('hub:parentCityLink', { city: config.parentCityName })}
             >
               <Ionicons name="chevron-back" size={16} color={colors.primary} />
               <Text style={styles.parentLinkText}>
-                {HUB_COPY.parentCityLink(config.parentCityName)}
+                {t('hub:parentCityLink', { city: config.parentCityName })}
               </Text>
             </Pressable>
           ) : null}
@@ -284,15 +288,15 @@ export function TerritorialHubView({
             style={({ pressed }) => [styles.mapCta, pressed && styles.primaryPressed]}
             onPress={handleMapCta}
             accessibilityRole="button"
-            accessibilityLabel={HUB_COPY.mapCta}
+            accessibilityLabel={t('hub:mapCta')}
           >
             <Ionicons name="map-outline" size={20} color={colors.onPrimary} />
-            <Text style={styles.mapCtaText}>{HUB_COPY.mapCta}</Text>
+            <Text style={styles.mapCtaText}>{t('hub:mapCta')}</Text>
           </Pressable>
 
           {visibleCategories.length > 0 ? (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{HUB_COPY.categoriesSection}</Text>
+              <Text style={styles.sectionTitle}>{t('hub:categoriesSection')}</Text>
               <View style={styles.categoryGrid}>
                 {visibleCategories.map((cat) => (
                   <CategoryTile
@@ -312,7 +316,7 @@ export function TerritorialHubView({
 
           {featuredItinerary ? (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{HUB_COPY.premiumSection}</Text>
+              <Text style={styles.sectionTitle}>{t('hub:premiumSection')}</Text>
               <PremiumItineraryCard
                 itinerary={featuredItinerary}
                 isLocked={!isUnlocked(featuredItinerary.id, featuredItinerary.isPremium)}
@@ -323,7 +327,7 @@ export function TerritorialHubView({
 
           {mustSeePlaces.length > 0 ? (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{HUB_COPY.mustSeeSection}</Text>
+              <Text style={styles.sectionTitle}>{t('hub:mustSeeSection')}</Text>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -361,7 +365,7 @@ export function TerritorialHubView({
 
           {touristPasses.length > 0 ? (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{HUB_COPY.touristPassesSection}</Text>
+              <Text style={styles.sectionTitle}>{t('hub:touristPassesSection')}</Text>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -387,7 +391,7 @@ export function TerritorialHubView({
 
           {config.affiliateExperiences.length > 0 ? (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{HUB_COPY.experiencesSection}</Text>
+              <Text style={styles.sectionTitle}>{t('hub:experiencesSection')}</Text>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}

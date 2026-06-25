@@ -1,5 +1,6 @@
 import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -9,7 +10,6 @@ import {
 
 import { AuthFormField } from '../../components/auth/AuthFormField';
 import { AuthScreenLayout } from '../../components/auth/AuthScreenLayout';
-import { AUTH_COPY } from '../../constants/authCopy';
 import {
   colors,
   componentSizes,
@@ -24,6 +24,7 @@ function isValidEmail(value: string): boolean {
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
+  const { t } = useTranslation('auth');
   const [email, setEmail] = useState('');
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,7 +36,7 @@ export default function ForgotPasswordScreen() {
 
   async function handleSubmit() {
     if (!isValidEmail(email)) {
-      setFieldError(AUTH_COPY.invalidEmail);
+      setFieldError(t('invalidEmail'));
       return;
     }
     setFieldError(null);
@@ -47,11 +48,11 @@ export default function ForgotPasswordScreen() {
 
   if (sent) {
     return (
-      <AuthScreenLayout title={AUTH_COPY.resetTitle} onClose={handleClose}>
-        <Text style={styles.body}>{AUTH_COPY.resetSent}</Text>
+      <AuthScreenLayout title={t('resetTitle')} onClose={handleClose}>
+        <Text style={styles.body}>{t('resetSent')}</Text>
         <Link href="/auth/login" asChild>
           <Pressable style={styles.primaryBtn} accessibilityRole="button">
-            <Text style={styles.primaryText}>{AUTH_COPY.backToLogin}</Text>
+            <Text style={styles.primaryText}>{t('backToLogin')}</Text>
           </Pressable>
         </Link>
       </AuthScreenLayout>
@@ -60,12 +61,12 @@ export default function ForgotPasswordScreen() {
 
   return (
     <AuthScreenLayout
-      title={AUTH_COPY.resetTitle}
-      subtitle={AUTH_COPY.resetSubtitle}
+      title={t('resetTitle')}
+      subtitle={t('resetSubtitle')}
       onClose={handleClose}
     >
       <AuthFormField
-        label={AUTH_COPY.emailLabel}
+        label={t('emailLabel')}
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -84,12 +85,12 @@ export default function ForgotPasswordScreen() {
         onPress={() => void handleSubmit()}
         disabled={isSubmitting}
         accessibilityRole="button"
-        accessibilityLabel={AUTH_COPY.resetCta}
+        accessibilityLabel={t('resetCta')}
       >
         {isSubmitting ? (
           <ActivityIndicator color={colors.onPrimary} />
         ) : (
-          <Text style={styles.primaryText}>{AUTH_COPY.resetCta}</Text>
+          <Text style={styles.primaryText}>{t('resetCta')}</Text>
         )}
       </Pressable>
     </AuthScreenLayout>

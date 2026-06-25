@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
-import { FAVORITES_COPY } from '../../constants/favoritesCopy';
 import { getCategoryLabel, type MockPlace } from '../../constants/mockPlaces';
 import type { EditorialItinerary } from '../../constants/mockItineraries';
 import { formatItineraryDuration } from '../../constants/mockItineraries';
@@ -30,6 +30,8 @@ export function FavoriteSuggestionRow({
   onPress,
   onAdd,
 }: FavoriteSuggestionRowProps) {
+  const { t } = useTranslation('favorites');
+
   return (
     <View style={styles.row}>
       <Pressable
@@ -68,7 +70,7 @@ export function FavoriteSuggestionRow({
         onPress={onAdd}
         style={({ pressed }) => [styles.addBtn, pressed && styles.addBtnPressed]}
         accessibilityRole="button"
-        accessibilityLabel={FAVORITES_COPY.emptyAddFavorite}
+        accessibilityLabel={t('emptyAddFavorite')}
         hitSlop={8}
       >
         <Ionicons name="heart-outline" size={22} color={colors.primary} />

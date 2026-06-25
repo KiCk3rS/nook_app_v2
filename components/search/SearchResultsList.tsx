@@ -1,6 +1,7 @@
 import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
-import { SEARCH_DISCOVERY_COPY, SEARCH_SHEET_GUTTER } from '../../constants/searchDiscovery';
+import { SEARCH_SHEET_GUTTER } from '../../constants/searchDiscovery';
 import type { SearchResult } from '../../lib/searchPlaces';
 import { colors, spacing, textStyle } from '../../constants/theme';
 
@@ -20,11 +21,13 @@ export function SearchResultsList({
   onSelectPlace,
   onSelectCity,
 }: SearchResultsListProps) {
+  const { t } = useTranslation('search');
+
   if (results.length === 0) {
     return (
       <View style={styles.empty}>
-        <Text style={styles.emptyTitle}>{SEARCH_DISCOVERY_COPY.emptyResultsTitle(query)}</Text>
-        <Text style={styles.emptyHint}>{SEARCH_DISCOVERY_COPY.emptyResultsHint}</Text>
+        <Text style={styles.emptyTitle}>{t('emptyResultsTitle', { query })}</Text>
+        <Text style={styles.emptyHint}>{t('emptyResultsHint')}</Text>
       </View>
     );
   }

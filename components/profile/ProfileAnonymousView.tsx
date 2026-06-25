@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { PROFILE_COPY } from '../../constants/profileCopy';
 import {
   colors,
   componentSizes,
@@ -12,11 +13,6 @@ import {
   surfaceCardBorder,
   textStyle,
 } from '../../constants/theme';
-
-const BENEFITS = [
-  { icon: 'map-outline' as const, text: PROFILE_COPY.benefitRoutes },
-  { icon: 'cloud-outline' as const, text: PROFILE_COPY.benefitSync },
-];
 
 interface ProfileAnonymousViewProps {
   onLogin: () => void;
@@ -32,6 +28,15 @@ export function ProfileAnonymousView({
   showDemoLogin = false,
 }: ProfileAnonymousViewProps) {
   const router = useRouter();
+  const { t } = useTranslation('profile');
+
+  const benefits = useMemo(
+    () => [
+      { icon: 'map-outline' as const, text: t('benefitRoutes') },
+      { icon: 'cloud-outline' as const, text: t('benefitSync') },
+    ],
+    [t],
+  );
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -40,18 +45,18 @@ export function ProfileAnonymousView({
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.pageTitle} accessibilityRole="header">
-          {PROFILE_COPY.title}
+          {t('title')}
         </Text>
 
         <View style={styles.hero}>
           <View style={styles.heroIconWrap}>
             <Ionicons name="person-outline" size={32} color={colors.primary} />
           </View>
-          <Text style={styles.heroBody}>{PROFILE_COPY.welcomeAnonymous}</Text>
+          <Text style={styles.heroBody}>{t('welcomeAnonymous')}</Text>
         </View>
 
         <View style={styles.tipsCard}>
-          {BENEFITS.map((item) => (
+          {benefits.map((item) => (
             <View key={item.text} style={styles.tipRow}>
               <View style={styles.tipIcon}>
                 <Ionicons name={item.icon} size={18} color={colors.primary} />
@@ -66,9 +71,9 @@ export function ProfileAnonymousView({
             style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryPressed]}
             onPress={onLogin}
             accessibilityRole="button"
-            accessibilityLabel={PROFILE_COPY.loginCta}
+            accessibilityLabel={t('loginCta')}
           >
-            <Text style={styles.primaryText}>{PROFILE_COPY.loginCta}</Text>
+            <Text style={styles.primaryText}>{t('loginCta')}</Text>
           </Pressable>
 
           <Pressable
@@ -78,17 +83,17 @@ export function ProfileAnonymousView({
             ]}
             onPress={onRegister}
             accessibilityRole="button"
-            accessibilityLabel={PROFILE_COPY.registerCta}
+            accessibilityLabel={t('registerCta')}
           >
-            <Text style={styles.secondaryText}>{PROFILE_COPY.registerCta}</Text>
+            <Text style={styles.secondaryText}>{t('registerCta')}</Text>
           </Pressable>
 
           <Pressable
             onPress={() => router.push('/(tabs)')}
             accessibilityRole="button"
-            accessibilityLabel={PROFILE_COPY.continueWithoutAccount}
+            accessibilityLabel={t('continueWithoutAccount')}
           >
-            <Text style={styles.link}>{PROFILE_COPY.continueWithoutAccount}</Text>
+            <Text style={styles.link}>{t('continueWithoutAccount')}</Text>
           </Pressable>
 
           {showDemoLogin && onDemoLogin ? (
@@ -99,10 +104,10 @@ export function ProfileAnonymousView({
               ]}
               onPress={onDemoLogin}
               accessibilityRole="button"
-              accessibilityLabel={PROFILE_COPY.demoLoginCta}
+              accessibilityLabel={t('demoLoginCta')}
             >
               <Ionicons name="flask-outline" size={18} color={colors.primary} />
-              <Text style={styles.demoBtnText}>{PROFILE_COPY.demoLoginCta}</Text>
+              <Text style={styles.demoBtnText}>{t('demoLoginCta')}</Text>
             </Pressable>
           ) : null}
         </View>

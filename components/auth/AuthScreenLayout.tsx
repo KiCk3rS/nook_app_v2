@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import {
   KeyboardAvoidingView,
@@ -28,6 +29,7 @@ export function AuthScreenLayout({
   footer,
 }: AuthScreenLayoutProps) {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation('common');
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
@@ -36,7 +38,7 @@ export function AuthScreenLayout({
           onPress={onClose}
           style={styles.closeBtn}
           accessibilityRole="button"
-          accessibilityLabel="Fermer"
+          accessibilityLabel={t('close')}
         >
           <Ionicons name="close" size={24} color={colors.ink} />
         </Pressable>

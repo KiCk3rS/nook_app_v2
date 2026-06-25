@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import type { EditorialItinerary } from '../../constants/mockItineraries';
 import { formatItineraryDuration } from '../../constants/mockItineraries';
-import { HUB_COPY } from '../../constants/hubCopy';
+import { formatItineraryStepMeta } from '../../lib/i18n/formatters';
 import {
   colors,
   elevation,
@@ -26,8 +27,9 @@ export function PremiumItineraryCard({
   isLocked,
   onPress,
 }: PremiumItineraryCardProps) {
+  const { t } = useTranslation('hub');
   const duration = formatItineraryDuration(itinerary.durationMinutes);
-  const steps = `${itinerary.stepPoiIds.length} étapes`;
+  const stepsMeta = formatItineraryStepMeta(duration, itinerary.stepPoiIds.length);
 
   return (
     <Pressable
@@ -45,7 +47,7 @@ export function PremiumItineraryCard({
         />
         <View style={styles.badgeRow}>
           <View style={styles.premiumBadge}>
-            <Text style={styles.premiumText}>{HUB_COPY.premiumBadge}</Text>
+            <Text style={styles.premiumText}>{t('premiumBadge')}</Text>
           </View>
           {isLocked ? (
             <View style={styles.lockBadge}>
@@ -59,7 +61,7 @@ export function PremiumItineraryCard({
           {itinerary.title}
         </Text>
         <Text style={styles.meta}>
-          {duration} · {steps}
+          {stepsMeta}
           {isLocked && itinerary.priceLabel ? ` · ${itinerary.priceLabel}` : ''}
         </Text>
       </View>

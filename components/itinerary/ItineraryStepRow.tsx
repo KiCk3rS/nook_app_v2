@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
-import { ITINERARY_COPY } from '../../constants/hubCopy';
 import type { MockPlace } from '../../constants/mockPlaces';
 import { getCategoryLabel } from '../../constants/mockPlaces';
 import {
@@ -25,9 +25,9 @@ export function ItineraryStepRow({
   isLocked,
   onPress,
 }: ItineraryStepRowProps) {
-  const label = isLocked
-    ? ITINERARY_COPY.lockedStep
-    : (place?.name ?? ITINERARY_COPY.lockedStep);
+  const { t } = useTranslation('hub');
+  const lockedLabel = t('itineraryLockedStep');
+  const label = isLocked ? lockedLabel : (place?.name ?? lockedLabel);
   const category = place ? getCategoryLabel(place.categoryId) : null;
 
   return (

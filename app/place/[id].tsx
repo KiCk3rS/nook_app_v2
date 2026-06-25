@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Pressable,
   ScrollView,
@@ -35,6 +36,7 @@ import {
 
 export default function PlaceDetailScreen() {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -97,10 +99,8 @@ export default function PlaceDetailScreen() {
   if (!place) {
     return (
       <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
-        <Text style={styles.notFoundTitle}>Lieu introuvable</Text>
-        <Text style={styles.notFoundBody}>
-          Ce lieu n'existe pas ou n'est plus disponible.
-        </Text>
+        <Text style={styles.notFoundTitle}>{t('placeNotFoundTitle')}</Text>
+        <Text style={styles.notFoundBody}>{t('placeNotFoundBody')}</Text>
         <Pressable
           style={({ pressed }) => [
             styles.notFoundButton,
@@ -108,9 +108,9 @@ export default function PlaceDetailScreen() {
           ]}
           onPress={handleBack}
           accessibilityRole="button"
-          accessibilityLabel="Retour"
+          accessibilityLabel={t('back')}
         >
-          <Text style={styles.primaryText}>Retour</Text>
+          <Text style={styles.primaryText}>{t('back')}</Text>
         </Pressable>
       </View>
     );

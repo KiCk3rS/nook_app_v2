@@ -1,21 +1,11 @@
 /** Fil de découverte A4.1 — mock éditorial (MVP). */
 
+import {
+  formatLatestGuideSubtitle,
+  formatListenCount,
+} from '../lib/i18n/formatters';
 import { getPlaceById, type MockPlace } from './mockPlaces';
 import { popularCitySlugs, promotedCitySlugs } from './searchDiscovery';
-
-export const DISCOVERY_FEED_COPY = {
-  title: 'Découvrir',
-  promotedSectionTitle: 'Destinations promues',
-  hidePromoted: 'Masquer',
-  popularCitiesSectionTitle: 'Destinations populaires',
-  latestSectionTitle: 'Derniers guides',
-  popularSectionTitle: 'Les plus écoutés',
-  topRatedSectionTitle: 'Les mieux notés',
-  missingPlaceTitle: 'Il vous manque un lieu ?',
-  missingPlaceBody:
-    'Les guides locaux et les autorités peuvent publier du contenu sur NOOK.',
-  missingPlaceFooter: 'Bientôt disponible',
-} as const;
 
 export { promotedCitySlugs, popularCitySlugs };
 
@@ -46,19 +36,10 @@ function getBestReadyRating(place: MockPlace): number | null {
   return Math.max(...ratings);
 }
 
-function formatListenCount(count: number): string {
-  if (count >= 1000) {
-    const rounded = Math.round(count / 100) / 10;
-    return `${rounded.toString().replace('.', ',')} k écoutes`;
-  }
-  return `${count} écoutes`;
-}
-
 function getLatestSubtitle(place: MockPlace): string {
   const readyGuides = place.audioGuides.filter((guide) => guide.status === 'ready');
   const latest = readyGuides[0];
-  if (!latest?.publishedAt) return 'Nouveau guide';
-  return `Publié le ${latest.publishedAt}`;
+  return formatLatestGuideSubtitle(latest?.publishedAt);
 }
 
 export function getLatestDiscoveryPlaces(): DiscoveryPlaceItem[] {

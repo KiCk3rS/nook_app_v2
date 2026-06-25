@@ -1,13 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
-import { FAVORITES_COPY } from '../../constants/favoritesCopy';
-import { HUB_COPY } from '../../constants/hubCopy';
 import type { EditorialItinerary } from '../../constants/mockItineraries';
 import {
   difficultyLabels,
   formatItineraryDuration,
 } from '../../constants/mockItineraries';
+import { formatItineraryStepMeta } from '../../lib/i18n/formatters';
 import {
   colors,
   componentSizes,
@@ -32,10 +32,11 @@ export function FavoriteItineraryRow({
   onPress,
   onRemove,
 }: FavoriteItineraryRowProps) {
+  const { t } = useTranslation(['favorites', 'hub', 'common']);
   const { isUnlocked } = usePremium();
   const unlocked = isUnlocked(itinerary.id, itinerary.isPremium);
   const duration = formatItineraryDuration(itinerary.durationMinutes);
-  const steps = `${itinerary.stepPoiIds.length} étapes`;
+  const stepsMeta = formatItineraryStepMeta(duration, itinerary.stepPoiIds.length);
 
   return (
     <View style={[styles.row, isPendingRemoval && styles.rowPending]}>
@@ -44,7 +45,7 @@ export function FavoriteItineraryRow({
         onPress={onPress}
         disabled={isPendingRemoval}
         accessibilityRole="button"
-        accessibilityLabel={FAVORITES_COPY.openItinerary(itinerary.title)}
+        accessibilityLabel={t('favorites:openItinerary', { title: itinerary.title })}
         accessibilityState={{ disabled: isPendingRemoval }}
       >
         <Image
@@ -60,12 +61,12 @@ export function FavoriteItineraryRow({
             </Text>
             {itinerary.isPremium ? (
               <View style={styles.premiumBadge}>
-                <Text style={styles.premiumText}>{HUB_COPY.premiumBadge}</Text>
+                <Text style={styles.premiumText}>{t('hub:premiumBadge')}</Text>
               </View>
             ) : null}
           </View>
           <Text style={styles.meta}>
-            {duration} · {steps} · {difficultyLabels[itinerary.difficulty]}
+            {stepsMeta} · {difficultyLabels[itinerary.difficulty]}
             {!unlocked && itinerary.isPremium ? ' · Verrouillé' : ''}
           </Text>
         </View>
@@ -80,7 +81,7 @@ export function FavoriteItineraryRow({
         style={({ pressed }) => [styles.heartBtn, pressed && styles.heartBtnPressed]}
         accessibilityRole="button"
         accessibilityLabel={
-          isPendingRemoval ? FAVORITES_COPY.undo : FAVORITES_COPY.removeItinerary
+          isPendingRemoval ? t('common:undo') : t('favorites:removeItinerary')
         }
         hitSlop={8}
       >

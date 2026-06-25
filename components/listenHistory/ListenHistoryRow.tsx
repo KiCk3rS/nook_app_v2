@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
-import { LISTEN_HISTORY_COPY } from '../../constants/listenHistoryCopy';
 import type { ListenHistoryItem } from '../../constants/mockListenHistory';
 import {
   colors,
@@ -19,10 +19,11 @@ interface ListenHistoryRowProps {
 }
 
 export function ListenHistoryRow({ item, onPress }: ListenHistoryRowProps) {
+  const { t } = useTranslation('listenHistory');
   const completed = item.progressPercent >= 100;
   const statusLabel = completed
-    ? LISTEN_HISTORY_COPY.completed
-    : LISTEN_HISTORY_COPY.progress(item.progressPercent);
+    ? t('completed')
+    : t('progress', { percent: item.progressPercent });
 
   const meta = [item.durationLabel, item.listenedAtLabel, statusLabel]
     .filter(Boolean)
@@ -53,7 +54,7 @@ export function ListenHistoryRow({ item, onPress }: ListenHistoryRowProps) {
           {!completed ? (
             <View
               style={styles.progressTrack}
-              accessibilityLabel={LISTEN_HISTORY_COPY.progress(item.progressPercent)}
+              accessibilityLabel={t('progress', { percent: item.progressPercent })}
             >
               <View
                 style={[styles.progressFill, { width: `${item.progressPercent}%` }]}

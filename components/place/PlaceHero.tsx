@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -49,6 +50,7 @@ export function PlaceHeroControls({
   onShare,
 }: PlaceHeroControlsProps) {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation('common');
 
   return (
     <View
@@ -60,7 +62,7 @@ export function PlaceHeroControls({
           style={styles.iconButton}
           onPress={onBack}
           accessibilityRole="button"
-          accessibilityLabel="Retour"
+          accessibilityLabel={t('back')}
           hitSlop={8}
         >
           <Ionicons name="chevron-back" size={22} color={colors.ink} />
@@ -70,9 +72,7 @@ export function PlaceHeroControls({
             style={styles.iconButton}
             onPress={onToggleFavorite}
             accessibilityRole="button"
-            accessibilityLabel={
-              isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'
-            }
+            accessibilityLabel={isFavorite ? t('removeFavorite') : t('addFavorite')}
             hitSlop={8}
           >
             <Ionicons
@@ -85,7 +85,7 @@ export function PlaceHeroControls({
             style={styles.iconButton}
             onPress={onShare}
             accessibilityRole="button"
-            accessibilityLabel="Partager ce lieu"
+            accessibilityLabel={t('sharePlace')}
             hitSlop={8}
           >
             <Ionicons name="share-outline" size={20} color={colors.ink} />

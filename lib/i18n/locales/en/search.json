@@ -1,0 +1,10 @@
+{
+  "promotedSectionTitle": "Promoted destinations",
+  "hidePromoted": "Hide",
+  "popularSectionTitle": "Popular destinations",
+  "missingPlaceTitle": "Missing a place?",
+  "missingPlaceBody": "Local guides and authorities can publish content on NOOK.",
+  "missingPlaceFooter": "Coming soon",
+  "emptyResultsTitle": "No places for \"{{query}}\"",
+  "emptyResultsHint": "Try another keyword"
+}

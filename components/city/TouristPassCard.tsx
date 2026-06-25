@@ -1,7 +1,7 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import type { TouristPassItem } from '../../constants/mockCities';
-import { HUB_COPY } from '../../constants/hubCopy';
 import {
   colors,
   elevation,
@@ -20,6 +20,8 @@ const CARD_WIDTH = 220;
 const IMAGE_HEIGHT = 120;
 
 export function TouristPassCard({ item, onPress }: TouristPassCardProps) {
+  const { t } = useTranslation('hub');
+
   return (
     <Pressable
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
@@ -35,7 +37,7 @@ export function TouristPassCard({ item, onPress }: TouristPassCardProps) {
           accessibilityIgnoresInvertColors
         />
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>{HUB_COPY.partnerBadge}</Text>
+          <Text style={styles.badgeText}>{t('partnerBadge')}</Text>
         </View>
       </View>
       <View style={styles.body}>
@@ -49,7 +51,7 @@ export function TouristPassCard({ item, onPress }: TouristPassCardProps) {
         {item.savingsHint ? (
           <Text style={styles.savings}>{item.savingsHint}</Text>
         ) : null}
-        <Text style={styles.footer}>{HUB_COPY.touristPassFooter(item.partnerName)}</Text>
+        <Text style={styles.footer}>{t('touristPassFooter', { partner: item.partnerName })}</Text>
       </View>
     </Pressable>
   );

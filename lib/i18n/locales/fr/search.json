@@ -1,0 +1,10 @@
+{
+  "promotedSectionTitle": "Destinations promues",
+  "hidePromoted": "Masquer",
+  "popularSectionTitle": "Destinations populaires",
+  "missingPlaceTitle": "Il vous manque un lieu ?",
+  "missingPlaceBody": "Les guides locaux et les autorités peuvent publier du contenu sur NOOK.",
+  "missingPlaceFooter": "Bientôt disponible",
+  "emptyResultsTitle": "Aucun lieu pour « {{query}} »",
+  "emptyResultsHint": "Essayez un autre mot-clé"
+}

@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   BackHandler,
@@ -14,11 +15,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {
-  PERMISSION_CARDS,
-  PERMISSION_SHEET_COPY,
-  type PermissionType,
-} from '../../constants/permissions';
+import { type PermissionType } from '../../constants/permissions';
 import type { LocationPermissionStatus } from '../../hooks/useLocationPermission';
 import {
   trackPermissionSheetDismissed,
@@ -56,9 +53,23 @@ export function PermissionSheet({
   onClose,
   onRequestPermission,
 }: PermissionSheetProps) {
+  const { t } = useTranslation(['permissions', 'common']);
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const hasTrackedOpen = useRef(false);
+
+  const permissionCards = useMemo(
+    () => [
+      {
+        type: 'location_when_in_use' as const,
+        icon: 'location-outline' as const,
+        title: t('permissions:cardLocationTitle'),
+        description: t('permissions:cardLocationDescription'),
+        cta: t('permissions:cardLocationCta'),
+      },
+    ],
+    [t],
+  );
 
   const handleClose = useCallback(() => {
     trackPermissionSheetDismissed();
@@ -90,7 +101,7 @@ export function PermissionSheet({
     }
   }, [visible, locationStatus, handleClose]);
 
-  const pendingCards = PERMISSION_CARDS.filter((card) => {
+  const pendingCards = permissionCards.filter((card) => {
     if (card.type === 'location_when_in_use') {
       return locationStatus !== 'granted';
     }
@@ -114,7 +125,7 @@ export function PermissionSheet({
           style={styles.scrim}
           onPress={handleClose}
           accessibilityRole="button"
-          accessibilityLabel="Fermer la feuille d’autorisations"
+          accessibilityLabel={t('common:closePermissionSheet')}
         />
         <View
           style={[
@@ -122,13 +133,13 @@ export function PermissionSheet({
             { paddingBottom: Math.max(insets.bottom, spacing.base) },
           ]}
           accessibilityRole="none"
-          accessibilityLabel={PERMISSION_SHEET_COPY.title}
+          accessibilityLabel={t('permissions:sheetTitle')}
         >
           <View style={styles.handleWrap}>
             <Pressable
               onPress={handleClose}
               accessibilityRole="button"
-              accessibilityLabel="Fermer la feuille"
+              accessibilityLabel={t('common:closeSheet')}
               hitSlop={12}
             >
               <View style={styles.handle} />
@@ -141,8 +152,8 @@ export function PermissionSheet({
             contentContainerStyle={styles.scrollContent}
           >
             <View style={styles.headerGroup}>
-              <Text style={styles.title}>{PERMISSION_SHEET_COPY.title}</Text>
-              <Text style={styles.subtitle}>{PERMISSION_SHEET_COPY.subtitle}</Text>
+              <Text style={styles.title}>{t('permissions:sheetTitle')}</Text>
+              <Text style={styles.subtitle}>{t('permissions:sheetSubtitle')}</Text>
             </View>
 
             <View style={styles.cards}>
@@ -165,10 +176,12 @@ export function PermissionSheet({
                         <Pressable
                           onPress={openAppSettings}
                           accessibilityRole="link"
-                          accessibilityLabel={`${PERMISSION_SHEET_COPY.blockedHint} — ouvrir les paramètres`}
+                          accessibilityLabel={t('common:blockedHintOpenSettings', {
+                            hint: t('permissions:blockedHint'),
+                          })}
                         >
                           <Text style={styles.blockedHint}>
-                            {PERMISSION_SHEET_COPY.blockedHint}
+                            {t('permissions:blockedHint')}
                           </Text>
                         </Pressable>
                       ) : null}
@@ -194,7 +207,7 @@ export function PermissionSheet({
                           <ActivityIndicator size="small" color={colors.onPrimary} />
                         ) : (
                           <Text style={styles.ctaText}>
-                            {isBlocked ? 'Ouvrir les paramètres' : card.cta}
+                            {isBlocked ? t('common:openSettingsShort') : card.cta}
                           </Text>
                         )}
                       </Pressable>
@@ -205,23 +218,23 @@ export function PermissionSheet({
             </View>
 
             <Text style={styles.footer}>
-              Vous pouvez modifier ces autorisations à tout moment dans les{' '}
+              {t('permissions:sheetFooterPrefix')}
               <Text
                 style={styles.footerLink}
                 onPress={openAppSettings}
                 accessibilityRole="link"
-                accessibilityLabel="Ouvrir les paramètres de l’appareil"
+                accessibilityLabel={t('common:openDeviceSettings')}
               >
-                {PERMISSION_SHEET_COPY.footerSettingsLink}
+                {t('common:deviceSettings')}
               </Text>
-              . Nous prenons votre vie privée au sérieux — consultez notre{' '}
+              {t('permissions:sheetFooterSuffix')}
               <Text
                 style={styles.footerLink}
                 onPress={handlePrivacyPress}
                 accessibilityRole="link"
-                accessibilityLabel={PERMISSION_SHEET_COPY.privacyLink}
+                accessibilityLabel={t('permissions:privacyLink')}
               >
-                {PERMISSION_SHEET_COPY.privacyLink}
+                {t('permissions:privacyLink')}
               </Text>
               .
             </Text>

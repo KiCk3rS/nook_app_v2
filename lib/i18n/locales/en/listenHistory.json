@@ -1,0 +1,11 @@
+{
+  "title": "Listening history",
+  "emptyTitle": "No listens yet",
+  "emptyBody": "Your listened audio guides will appear here. Explore the map to discover a place.",
+  "emptyExplore": "Explore the map",
+  "emptyDiscover": "Discover places",
+  "loadError": "Unable to load your history.",
+  "completed": "Completed",
+  "resume": "Resume",
+  "progress": "{{percent}}% listened"
+}

@@ -1,0 +1,21 @@
+{
+  "title": "Favorites",
+  "emptyTitle": "No favorites yet",
+  "emptyBody": "Save places and routes you want to find quickly — ideal for planning a visit or picking up later.",
+  "emptyHowTitle": "How it works",
+  "emptyTipMap": "Explore the map or a themed route",
+  "emptyTipHeart": "Tap the heart on a place or route page",
+  "emptyTipHere": "Find everything here, ready to go",
+  "emptyCtaMap": "Explore the map",
+  "emptyCtaCity": "Discover {{city}}",
+  "emptySuggestionsTitle": "Ideas to save",
+  "emptyAddFavorite": "Add to favorites",
+  "itinerariesSection": "Routes",
+  "placesSection": "Places",
+  "removePlace": "Remove from favorites",
+  "removeItinerary": "Remove from favorites",
+  "removedPlace": "Place removed from favorites",
+  "removedItinerary": "Route removed from favorites",
+  "openPlace": "Open {{name}}",
+  "openItinerary": "Open {{title}}"
+}

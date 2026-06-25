@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { StyleSheet, View } from 'react-native';
 
@@ -26,7 +27,6 @@ import { SearchSheet } from '../../components/search/SearchSheet';
 
 import type { PermissionType } from '../../constants/permissions';
 
-import { ITINERARY_COPY } from '../../constants/hubCopy';
 import { getPlaceById } from '../../constants/mockPlaces';
 import { getCityBySlug } from '../../constants/mockCities';
 import { getDistrictBySlug } from '../../constants/mockDistricts';
@@ -53,7 +53,7 @@ const poiCardMargin = spacing.base;
 
 
 export default function CarteScreen() {
-
+  const { t } = useTranslation('hub');
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const mapRef = useRef<HomeMapHandle>(null);
@@ -174,11 +174,11 @@ export default function CarteScreen() {
 
   const itineraryStepLabel =
     itineraryMapSession?.stepIndex != null
-      ? ITINERARY_COPY.mapModeStep(
-          itineraryMapSession.stepIndex + 1,
-          itineraryMapSession.places.length,
-          itineraryMapSession.places[itineraryMapSession.stepIndex]?.name ?? '',
-        )
+      ? t('itineraryMapModeStep', {
+          current: itineraryMapSession.stepIndex + 1,
+          total: itineraryMapSession.places.length,
+          name: itineraryMapSession.places[itineraryMapSession.stepIndex]?.name ?? '',
+        })
       : undefined;
 
   function handleCloseItineraryMap() {

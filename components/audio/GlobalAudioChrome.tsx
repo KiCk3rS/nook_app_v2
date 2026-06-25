@@ -23,6 +23,14 @@ export function GlobalAudioChrome() {
     skipBack,
     skipForward,
     seekTo,
+    playbackRate,
+    voiceBoostEnabled,
+    trimSilencesEnabled,
+    sleepTimer,
+    cyclePlaybackRate,
+    setVoiceBoostEnabled,
+    setTrimSilencesEnabled,
+    setSleepTimer,
   } = useAudioPlayback();
 
   const isInTabs = segments[0] === '(tabs)';
@@ -58,11 +66,19 @@ export function GlobalAudioChrome() {
           isPlaying={isPlaying}
           positionMs={positionMs}
           durationMs={durationMs}
+          playbackRate={playbackRate}
+          voiceBoostEnabled={voiceBoostEnabled}
+          trimSilencesEnabled={trimSilencesEnabled}
+          sleepTimer={sleepTimer}
           onMinimize={minimize}
           onTogglePlay={togglePlay}
           onSkipBack={skipBack}
           onSkipForward={skipForward}
           onSeek={seekTo}
+          onCyclePlaybackRate={cyclePlaybackRate}
+          onVoiceBoostChange={setVoiceBoostEnabled}
+          onTrimSilencesChange={setTrimSilencesEnabled}
+          onSleepTimerChange={setSleepTimer}
         />
       ) : null}
     </>

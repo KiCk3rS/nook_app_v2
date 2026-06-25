@@ -1,7 +1,7 @@
+import { formatListenHistorySectionKey } from '../lib/i18n/formatters';
 import { formatAudioDuration, getPlaceById } from './mockPlaces';
-import { LISTEN_HISTORY_COPY } from './listenHistoryCopy';
 
-export type ListenHistorySectionKey = keyof typeof LISTEN_HISTORY_COPY.sections;
+export type ListenHistorySectionKey = 'today' | 'yesterday' | 'thisWeek' | 'earlier';
 
 export const LISTEN_HISTORY_SECTION_ORDER: ListenHistorySectionKey[] = [
   'today',
@@ -142,7 +142,7 @@ export interface ListenHistorySection {
 export function groupListenHistory(items: ListenHistoryItem[]): ListenHistorySection[] {
   return LISTEN_HISTORY_SECTION_ORDER.map((key) => ({
     key,
-    title: LISTEN_HISTORY_COPY.sections[key],
+    title: formatListenHistorySectionKey(key),
     items: items.filter((item) => item.sectionKey === key),
   })).filter((section) => section.items.length > 0);
 }

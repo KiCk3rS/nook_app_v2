@@ -1,0 +1,16 @@
+{
+  "sheetTitle": "Allow location to explore around you",
+  "sheetSubtitle": "NOOK uses your position to show nearby places and guide you on the map.",
+  "sheetFooter": "You can change these permissions at any time in your device settings. We take your privacy seriously — see our Privacy policy.",
+  "sheetFooterPrefix": "You can change these permissions at any time in your ",
+  "sheetFooterSuffix": ". We take your privacy seriously — see our ",
+  "privacyLink": "Privacy policy",
+  "blockedHint": "Enable in device settings",
+  "authorizedLabel": "Allowed",
+  "cardLocationTitle": "Location",
+  "cardLocationDescription": "Share where you are to see places around you and center the map.",
+  "cardLocationCta": "Allow location",
+  "geolocNormal": "Show my position on the map",
+  "geolocAttention": "Allow location — required to show your position on the map",
+  "geolocMissingBadge": "Location permission missing"
+}

@@ -1,16 +1,15 @@
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
   StyleSheet,
   Text,
-  View,
 } from 'react-native';
 
 import { AuthFormField } from '../../components/auth/AuthFormField';
 import { AuthScreenLayout } from '../../components/auth/AuthScreenLayout';
-import { AUTH_COPY } from '../../constants/authCopy';
 import {
   colors,
   componentSizes,
@@ -26,20 +25,9 @@ function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
 
-function resolveRegisterError(error: unknown): string {
-  if (error instanceof ApiError) {
-    if (error.statusCode === 0) return AUTH_COPY.errorApiNotConfigured;
-    if (ApiError.isConflict(error)) return AUTH_COPY.error409;
-    if (ApiError.isRateLimited(error)) return AUTH_COPY.error429;
-    if (error.details?.email?.[0]) return error.details.email[0];
-    if (error.details?.password?.[0]) return error.details.password[0];
-    return error.message || AUTH_COPY.errorGeneric;
-  }
-  return AUTH_COPY.errorNetwork;
-}
-
 export default function RegisterScreen() {
   const router = useRouter();
+  const { t } = useTranslation(['auth', 'common']);
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { register } = useAuth();
 
@@ -55,16 +43,28 @@ export default function RegisterScreen() {
     ? returnTo
     : '/(tabs)/profil';
 
+  function resolveRegisterError(error: unknown): string {
+    if (error instanceof ApiError) {
+      if (error.statusCode === 0) return t('auth:errorApiNotConfigured');
+      if (ApiError.isConflict(error)) return t('auth:error409');
+      if (ApiError.isRateLimited(error)) return t('auth:error429');
+      if (error.details?.email?.[0]) return error.details.email[0];
+      if (error.details?.password?.[0]) return error.details.password[0];
+      return error.message || t('common:errorGeneric');
+    }
+    return t('auth:errorNetwork');
+  }
+
   function handleClose() {
     router.back();
   }
 
   function validate(): boolean {
     const next: Record<string, string> = {};
-    if (!isValidEmail(email)) next.email = AUTH_COPY.invalidEmail;
-    if (password.length < 8) next.password = AUTH_COPY.passwordTooShort;
+    if (!isValidEmail(email)) next.email = t('auth:invalidEmail');
+    if (password.length < 8) next.password = t('auth:passwordTooShort');
     if (password !== passwordConfirm) {
-      next.passwordConfirm = AUTH_COPY.passwordMismatch;
+      next.passwordConfirm = t('auth:passwordMismatch');
     }
     setFieldErrors(next);
     return Object.keys(next).length === 0;
@@ -74,7 +74,7 @@ export default function RegisterScreen() {
     setFormError(null);
     if (!validate()) return;
     if (!isApiConfigured()) {
-      setFormError(AUTH_COPY.errorApiNotConfigured);
+      setFormError(t('auth:errorApiNotConfigured'));
       return;
     }
 
@@ -93,12 +93,12 @@ export default function RegisterScreen() {
 
   return (
     <AuthScreenLayout
-      title={AUTH_COPY.registerTitle}
-      subtitle={AUTH_COPY.registerSubtitle}
+      title={t('auth:registerTitle')}
+      subtitle={t('auth:registerSubtitle')}
       onClose={handleClose}
     >
       <AuthFormField
-        label={AUTH_COPY.emailLabel}
+        label={t('auth:emailLabel')}
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -108,13 +108,13 @@ export default function RegisterScreen() {
         error={fieldErrors.email}
       />
       <AuthFormField
-        label={AUTH_COPY.displayNameLabel}
+        label={t('auth:displayNameLabel')}
         value={displayName}
         onChangeText={setDisplayName}
         autoComplete="name"
       />
       <AuthFormField
-        label={AUTH_COPY.passwordLabel}
+        label={t('auth:passwordLabel')}
         value={password}
         onChangeText={setPassword}
         secureToggle
@@ -123,7 +123,7 @@ export default function RegisterScreen() {
         error={fieldErrors.password}
       />
       <AuthFormField
-        label={AUTH_COPY.confirmPasswordLabel}
+        label={t('auth:confirmPasswordLabel')}
         value={passwordConfirm}
         onChangeText={setPasswordConfirm}
         secureToggle
@@ -133,9 +133,9 @@ export default function RegisterScreen() {
       />
 
       <Text style={styles.terms}>
-        {AUTH_COPY.termsPrefix}
+        {t('auth:termsPrefix')}
         <Link href="/cgu" style={styles.termsLink}>
-          {AUTH_COPY.termsLink}
+          {t('auth:termsLink')}
         </Link>
         .
       </Text>
@@ -151,12 +151,12 @@ export default function RegisterScreen() {
         onPress={() => void handleSubmit()}
         disabled={isSubmitting}
         accessibilityRole="button"
-        accessibilityLabel={AUTH_COPY.registerCta}
+        accessibilityLabel={t('auth:registerCta')}
       >
         {isSubmitting ? (
           <ActivityIndicator color={colors.onPrimary} />
         ) : (
-          <Text style={styles.primaryText}>{AUTH_COPY.registerCta}</Text>
+          <Text style={styles.primaryText}>{t('auth:registerCta')}</Text>
         )}
       </Pressable>
 
@@ -168,7 +168,7 @@ export default function RegisterScreen() {
         asChild
       >
         <Pressable accessibilityRole="link">
-          <Text style={styles.link}>{AUTH_COPY.goLogin}</Text>
+          <Text style={styles.link}>{t('auth:goLogin')}</Text>
         </Pressable>
       </Link>
     </AuthScreenLayout>

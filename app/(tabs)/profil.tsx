@@ -1,5 +1,6 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
 
 import { ProfileAnonymousView } from '../../components/profile/ProfileAnonymousView';
@@ -15,7 +16,6 @@ import {
 } from '../../constants/mockProfileInsights';
 import { MOCK_SAVED_ROUTES_COUNT } from '../../constants/mockUser';
 import { MOCK_USER_ITINERARIES } from '../../constants/mockUserItineraries';
-import { PROFILE_COPY } from '../../constants/profileCopy';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFavorites } from '../../contexts/FavoritesContext';
 import { fetchItineraries } from '../../lib/api/itineraries';
@@ -23,6 +23,7 @@ import { isApiConfigured, shouldShowDemoLogin } from '../../lib/config';
 import { ApiError } from '../../types/api';
 
 export default function ProfilScreen() {
+  const { t } = useTranslation('profile');
   const router = useRouter();
   const {
     user,
@@ -91,9 +92,9 @@ export default function ProfilScreen() {
     } catch (error) {
       if (isMockSession) return;
       if (ApiError.isUnauthorized(error)) {
-        Alert.alert('', PROFILE_COPY.sessionExpired);
+        Alert.alert('', t('sessionExpired'));
       } else {
-        setLoadError(PROFILE_COPY.loadError);
+        setLoadError(t('loadError'));
       }
     }
   }, [isAuthenticated, isMockSession, loadRoutesCount, refreshProfile]);
@@ -122,7 +123,7 @@ export default function ProfilScreen() {
   }
 
   function handleSaved() {
-    Alert.alert('', PROFILE_COPY.updateSuccess);
+    Alert.alert('', t('updateSuccess'));
   }
 
   async function handleDemoLogin() {

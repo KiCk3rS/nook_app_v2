@@ -39,6 +39,7 @@ Document **dérivé** du [brief produit](./brief.md). Il sert de **source unique
 |----|--------|----------|------------|----------|
 | A3.1 | **Fiche lieu (détail point d’intérêt)** | Texte, médias visuels, métadonnées utiles (durée, distance, signaux qualité/popularité). | §3.3 | P0 |
 | A3.2 | **Lecteur audio intégré** (sur la fiche ou barre globale) | Lecture du guide dans l’app ; reprise de position ; métadonnées durée / langue. | §3.3, §5.4 | P0 |
+| A3.3 | **Création guide audio IA** (utilisateur) | Formulaire depuis la fiche lieu : source Wikipedia, palier durée (Court / Normal / Détaillé → 1 / 2 / 3 crédits) ; guide **privé à l’auteur** ; quota abonnement + crédits. | §4.2, §5.2 | P1 |
 
 ### A4. Découverte (fil / vitrine)
 
@@ -86,7 +87,8 @@ Document **dérivé** du [brief produit](./brief.md). Il sert de **source unique
 |----|--------|----------|------------|----------|
 | A8.1 | **Informations légales / confidentialité** | Transparence sur l’usage des données (peut être webview ou pages natives). | §5.2 | P1 |
 | A8.2 | **Conditions d’utilisation** (si requis) | Acceptation ou consultation. | §5.2 | P1 |
-| A8.3 | **Paywall premium** (déblocage contenu) | Feuille achat à l’unité ou abonnement pour itinéraires premium. | §5.2 | P1 |
+| A8.3 | **Paywall premium** (déblocage contenu) | Feuille achat à l’unité ou abonnement pour itinéraires premium ; inclut un **quota mensuel** de générations guide IA. | §5.2 | P1 |
+| A8.4 | **Achat pack crédits** (in-app) | Recharge de crédits pour génération guide IA (1 / 2 / 3 par palier) ; déclenché depuis **A3.3** ou profil. | §5.2 | P1 |
 
 ---
 
@@ -101,7 +103,7 @@ Ces écrans répondent à la problématique **éditoriale et opérationnelle** d
 | B3 | **Édition fiche lieu** | Création, modification, retrait ; champs descriptifs et publication. | §4.1 | Admin |
 | B4 | **Gestion des médias du lieu** | Images et métadonnées associées à une fiche. | §4.1 | Admin |
 | B5 | **Gestion de la taxonomie (catégories)** | Organiser les lieux et alimenter les filtres côté app. | §4.1 | Admin |
-| B6 | **Lancement génération guide audio** | Saisie source stable (URL ou équivalent), validation, paramètres script (durée, langue, ton). | §4.2 | Admin |
+| B6 | **Lancement génération guide audio** | Saisie source stable (URL ou équivalent), validation, paramètres script (durée, langue, ton). **Admin / production** — distinct de **A3.3** (utilisateur, crédits). | §4.2 | Admin |
 | B7 | **Suivi des jobs de génération** | États (en attente, en cours, terminé, erreur) ; identifiant de traitement ; reprise / nouvelle tentative. | §4.2, §5.5 | Admin |
 | B8 | **Détail d’un job / journal de traitement** | Traçabilité opérationnelle sans exposer de secrets ; messages d’erreur compréhensibles. | §4.2, §5.5 | Admin |
 
@@ -109,7 +111,7 @@ Ces écrans répondent à la problématique **éditoriale et opérationnelle** d
 
 ## Synthèse des flux principaux (pour le design)
 
-1. **Découverte spatiale** : A1.1 → A1.4 → A3.1 → A3.2.  
+1. **Découverte spatiale** : A1.1 → A1.4 → A3.1 → A3.2 ; **création guide** : A3.1 → **A3.3** → (A8.4 / A8.3 si besoin) → A3.1 (`pending` → `ready`).  
 2. **Découverte éditoriale** : A4.1 → A3.1 → A3.2.  
 3. **Découverte territoriale** : A2.1 / A4.1 → **A4.3** → A5.7 / **A5.6** → A3.1 / A1.1 ; **A4.4** → A4.3 (pays → ville, P2) ; **A4.3** → **A4.5** (ville → quartier hub, si contenu éditorial).  
 4. **Recherche ciblée** : A2.1 ± A2.2 → A2.3 ou A2.4 → A3.1 ou **A4.3** (ville).  
@@ -125,6 +127,8 @@ Ces écrans répondent à la problématique **éditoriale et opérationnelle** d
 - **A1.1** concentre l’ancien « accueil / hub » et la **carte principale** : une seule vue racine, mobile first.  
 - **A1.2** : feuille permissions depuis le contrôle géoloc sur la carte (pas d’onboarding bloquant) — spec [`ecran-A1.2-permissions.md`](./ecran-A1.2-permissions.md).  
 - **A3.1** : fiche lieu plein écran depuis l’aperçu carte (**A1.4**) — spec [`ecran-A3.1-fiche-lieu.md`](./ecran-A3.1-fiche-lieu.md).
+- **A3.2** : lecteur audio intégré (mini-player, options, **Discussion** chat guide IA F-016) — spec [`ecran-A3.2-lecteur-audio.md`](./ecran-A3.2-lecteur-audio.md).
+- **A3.3** : création guide audio IA (utilisateur, crédits, privé auteur) — spec [`ecran-A3.3-creation-guide-audio-ia.md`](./ecran-A3.3-creation-guide-audio-ia.md). Entrée : CTA « Ajouter un guide » sur **A3.1**.
 - **A2.1** : recherche textuelle en feuille depuis la barre carte (**A1.1**) — découverte (promu, populaires) + résultats — spec [`ecran-A2.1-recherche-textuelle.md`](./ecran-A2.1-recherche-textuelle.md). Les cartes « destination » représentant une **ville** mènent vers **A4.3** ; les **POI** unitaires restent **A3.1**.  
 - **A4.3** : hub ville — vitrine territoriale (itinéraires, premium, affiliation) — spec [`ecran-A4.3-hub-ville.md`](./ecran-A4.3-hub-ville.md). Couche entre recherche/fil et fiche lieu.  
 - **A4.4** : hub pays (P2) — réutilise le pattern **A4.3** — spec [`ecran-A4.4-hub-pays.md`](./ecran-A4.4-hub-pays.md).
@@ -134,6 +138,7 @@ Ces écrans répondent à la problématique **éditoriale et opérationnelle** d
 - **A5.6** : détail itinéraire éditorial — spec [`ecran-A5.6-detail-itineraire-editorial.md`](./ecran-A5.6-detail-itineraire-editorial.md). Distinct des parcours utilisateur **A5.5**.  
 - **A5.7** : liste itinéraires par catégorie depuis le hub — spec [`ecran-A5.7-liste-itineraires-categorie.md`](./ecran-A5.7-liste-itineraires-categorie.md).  
 - **A8.3** : paywall premium — spec [`ecran-A8.3-paywall-premium.md`](./ecran-A8.3-paywall-premium.md).  
+- **A8.4** : pack crédits in-app (génération guide IA) — spec [`ecran-A8.4-pack-credits.md`](./ecran-A8.4-pack-credits.md).  
 - **A6.4** : profil / Mon compte — hub compte depuis bottom nav — spec [`ecran-A6.4-profil.md`](./ecran-A6.4-profil.md).  
 - **A6.1** / **A6.2** / **A6.3** : authentification (connexion, inscription, reset MDP) — spec fusionnée [`ecran-A6.1-authentification.md`](./ecran-A6.1-authentification.md).  
 - **A6.7** : paramètres (+ action déconnexion **A6.8**) — spec [`ecran-A6.7-parametres.md`](./ecran-A6.7-parametres.md).  

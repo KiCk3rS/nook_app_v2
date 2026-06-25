@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
-import { GUIDANCE_COPY } from '../../constants/guidanceCopy';
 import type { MockPlace } from '../../constants/mockPlaces';
 import {
   colors,
@@ -34,6 +34,8 @@ export function GuidanceMapSection({
   onViewPlace,
   canViewPlace,
 }: GuidanceMapSectionProps) {
+  const { t } = useTranslation('guidance');
+
   if (places.length === 0) {
     return null;
   }
@@ -48,13 +50,16 @@ export function GuidanceMapSection({
 
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{GUIDANCE_COPY.mapSection}</Text>
+      <Text style={styles.sectionTitle}>{t('mapSection')}</Text>
 
       <Pressable
         onPress={onOpenMap}
         style={({ pressed }) => [styles.mapCard, pressed && styles.mapCardPressed]}
         accessibilityRole="button"
-        accessibilityLabel={GUIDANCE_COPY.a11yMap(currentStepIndex + 1, stepName)}
+        accessibilityLabel={t('a11yMap', {
+          step: currentStepIndex + 1,
+          name: stepName,
+        })}
       >
         <View style={styles.mapClip}>
           <MapView
@@ -101,11 +106,11 @@ export function GuidanceMapSection({
             pressed && styles.secondaryBtnPressed,
           ]}
           accessibilityRole="button"
-          accessibilityLabel={GUIDANCE_COPY.openMap}
+          accessibilityLabel={t('openMap')}
         >
           <Ionicons name="map-outline" size={18} color={colors.ink} />
           <Text style={styles.secondaryBtnText} numberOfLines={1}>
-            {GUIDANCE_COPY.openMapShort}
+            {t('openMapShort')}
           </Text>
         </Pressable>
 
@@ -114,11 +119,11 @@ export function GuidanceMapSection({
             onPress={onViewPlace}
             style={({ pressed }) => [styles.secondaryBtn, pressed && styles.secondaryBtnPressed]}
             accessibilityRole="button"
-            accessibilityLabel={GUIDANCE_COPY.viewPlace}
+            accessibilityLabel={t('viewPlace')}
           >
             <Ionicons name="document-text-outline" size={18} color={colors.ink} />
             <Text style={styles.secondaryBtnText} numberOfLines={1}>
-              {GUIDANCE_COPY.viewPlaceShort}
+              {t('viewPlaceShort')}
             </Text>
           </Pressable>
         ) : null}

@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Pressable,
   ScrollView,
@@ -22,7 +23,6 @@ import {
 } from '../../../../components/place/PlaceHero';
 import { PaywallSheet } from '../../../../components/paywall/PaywallSheet';
 import { getCategoryLabel } from '../../../../constants/itineraryCategories';
-import { HUB_COPY, ITINERARY_COPY } from '../../../../constants/hubCopy';
 import { getCityBySlug } from '../../../../constants/mockCities';
 import {
   difficultyLabels,
@@ -30,6 +30,7 @@ import {
   formatItineraryDuration,
   getItineraryById,
 } from '../../../../constants/mockItineraries';
+import { formatStepsCount } from '../../../../lib/i18n/formatters';
 import { getPlaceById } from '../../../../constants/mockPlaces';
 import {
   colors,
@@ -49,6 +50,7 @@ import { buildFocusItineraryParam, resolveItineraryPlaces } from '../../../../li
 const FREE_STEPS_PREVIEW = 2;
 
 export default function EditorialItineraryScreen() {
+  const { t } = useTranslation(['hub', 'common']);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
@@ -130,15 +132,15 @@ export default function EditorialItineraryScreen() {
   if (!itinerary || !city) {
     return (
       <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
-        <Text style={styles.notFoundTitle}>{ITINERARY_COPY.notFoundTitle}</Text>
-        <Text style={styles.notFoundBody}>{ITINERARY_COPY.notFoundBody}</Text>
+        <Text style={styles.notFoundTitle}>{t('hub:itineraryNotFoundTitle')}</Text>
+        <Text style={styles.notFoundBody}>{t('hub:itineraryNotFoundBody')}</Text>
         <Pressable
           style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryPressed]}
           onPress={handleBack}
           accessibilityRole="button"
-          accessibilityLabel={HUB_COPY.back}
+          accessibilityLabel={t('common:back')}
         >
-          <Text style={styles.primaryText}>{HUB_COPY.back}</Text>
+          <Text style={styles.primaryText}>{t('common:back')}</Text>
         </Pressable>
       </View>
     );
@@ -178,7 +180,7 @@ export default function EditorialItineraryScreen() {
             </View>
             {itinerary.isPremium ? (
               <View style={[styles.badge, styles.badgePremium]}>
-                <Text style={styles.badgeTextPremium}>{HUB_COPY.premiumBadge}</Text>
+                <Text style={styles.badgeTextPremium}>{t('hub:premiumBadge')}</Text>
               </View>
             ) : null}
           </View>
@@ -197,7 +199,7 @@ export default function EditorialItineraryScreen() {
             />
             <SummaryItem
               icon="list-outline"
-              label={`${itinerary.stepPoiIds.length} étapes`}
+              label={formatStepsCount(itinerary.stepPoiIds.length)}
             />
           </View>
 
@@ -206,7 +208,7 @@ export default function EditorialItineraryScreen() {
             onPress={handleMapCta}
           />
 
-          <Text style={styles.sectionTitle}>{ITINERARY_COPY.stepsSection}</Text>
+          <Text style={styles.sectionTitle}>{t('hub:itineraryStepsSection')}</Text>
           {itinerary.stepPoiIds.map((poiId, index) => {
             const place = getPlaceById(poiId);
             const stepLocked =
@@ -230,10 +232,10 @@ export default function EditorialItineraryScreen() {
           style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryPressed]}
           onPress={handlePrimaryCta}
           accessibilityRole="button"
-          accessibilityLabel={unlocked ? ITINERARY_COPY.startCta : ITINERARY_COPY.unlockCta}
+          accessibilityLabel={unlocked ? t('hub:itineraryStartCta') : t('hub:itineraryUnlockCta')}
         >
           <Text style={styles.primaryText}>
-            {unlocked ? ITINERARY_COPY.startCta : ITINERARY_COPY.unlockCta}
+            {unlocked ? t('hub:itineraryStartCta') : t('hub:itineraryUnlockCta')}
           </Text>
         </Pressable>
       </View>

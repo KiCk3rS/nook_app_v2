@@ -1,0 +1,17 @@
+{
+  "title": "My routes",
+  "follow": "Follow route",
+  "viewMap": "View on map",
+  "delete": "Delete",
+  "deleteTitle": "Delete this route?",
+  "deleteBody": "\"{{title}}\" will be permanently deleted.",
+  "deleteConfirm": "Delete",
+  "emptyTitle": "No routes yet",
+  "emptyBody": "Explore the map or NOOK routes to get started.",
+  "emptyExplore": "Explore the map",
+  "emptyDiscover": "Discover routes",
+  "incompleteBadge": "Incomplete",
+  "deletedToast": "Route deleted",
+  "loadError": "Unable to load your routes.",
+  "tooShort": "This route cannot be started at the moment."
+}

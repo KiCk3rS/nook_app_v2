@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import {
   Image,
@@ -45,6 +46,7 @@ export function AudioMiniPlayer({
   onTogglePlay,
   onDismiss,
 }: AudioMiniPlayerProps) {
+  const { t } = useTranslation('common');
   const progress = durationMs > 0 ? positionMs / durationMs : 0;
   const positionLabel = formatAudioDurationClock(Math.floor(positionMs / 1000));
   const durationLabel = formatAudioDurationClock(Math.floor(durationMs / 1000));
@@ -70,7 +72,7 @@ export function AudioMiniPlayer({
           style={({ pressed }) => [styles.mainArea, pressed && styles.mainAreaPressed]}
           onPress={onExpand}
           accessibilityRole="button"
-          accessibilityLabel="Ouvrir le lecteur"
+          accessibilityLabel={t('openPlayer')}
         >
           <Image
             source={{ uri: place.imageUrl }}
@@ -92,7 +94,7 @@ export function AudioMiniPlayer({
           style={({ pressed }) => [styles.playButton, pressed && styles.playButtonPressed]}
           onPress={onTogglePlay}
           accessibilityRole="button"
-          accessibilityLabel={isPlaying ? 'Mettre en pause' : 'Lire le guide'}
+          accessibilityLabel={isPlaying ? t('pauseGuide') : t('playGuide')}
         >
           <Ionicons
             name={isPlaying ? 'pause' : 'play'}
@@ -106,7 +108,7 @@ export function AudioMiniPlayer({
           style={({ pressed }) => [styles.dismissButton, pressed && styles.dismissPressed]}
           onPress={onDismiss}
           accessibilityRole="button"
-          accessibilityLabel="Fermer le lecteur"
+          accessibilityLabel={t('closePlayer')}
           hitSlop={8}
         >
           <Ionicons name="close" size={22} color={colors.muted} />

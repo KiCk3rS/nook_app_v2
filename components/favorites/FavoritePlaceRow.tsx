@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
-import { FAVORITES_COPY } from '../../constants/favoritesCopy';
 import { getCategoryLabel, type MockPlace } from '../../constants/mockPlaces';
 import {
   colors,
@@ -26,6 +26,7 @@ export function FavoritePlaceRow({
   onPress,
   onRemove,
 }: FavoritePlaceRowProps) {
+  const { t } = useTranslation(['favorites', 'common']);
   const categoryLabel = getCategoryLabel(place.categoryId);
 
   return (
@@ -35,7 +36,7 @@ export function FavoritePlaceRow({
         onPress={onPress}
         disabled={isPendingRemoval}
         accessibilityRole="button"
-        accessibilityLabel={FAVORITES_COPY.openPlace(place.name)}
+        accessibilityLabel={t('favorites:openPlace', { name: place.name })}
         accessibilityState={{ disabled: isPendingRemoval }}
       >
         <Image
@@ -59,7 +60,7 @@ export function FavoritePlaceRow({
         style={({ pressed }) => [styles.heartBtn, pressed && styles.heartBtnPressed]}
         accessibilityRole="button"
         accessibilityLabel={
-          isPendingRemoval ? FAVORITES_COPY.undo : FAVORITES_COPY.removePlace
+          isPendingRemoval ? t('common:undo') : t('favorites:removePlace')
         }
         hitSlop={8}
       >

@@ -1,7 +1,7 @@
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { HUB_COPY } from '../../constants/hubCopy';
 import {
   colors,
   componentSizes,
@@ -23,6 +23,7 @@ export function ExternalLinkSheet({
   onContinue,
   onCancel,
 }: ExternalLinkSheetProps) {
+  const { t } = useTranslation(['hub', 'common']);
   const insets = useSafeAreaInsets();
 
   return (
@@ -38,24 +39,24 @@ export function ExternalLinkSheet({
           style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, spacing.lg) }]}
           onPress={(e) => e.stopPropagation()}
         >
-          <Text style={styles.title}>{HUB_COPY.externalTitle}</Text>
-          <Text style={styles.body}>{HUB_COPY.externalBody(partnerName)}</Text>
+          <Text style={styles.title}>{t('hub:externalTitle')}</Text>
+          <Text style={styles.body}>{t('hub:externalBody', { partner: partnerName })}</Text>
           <View style={styles.actions}>
             <Pressable
               style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
               onPress={onCancel}
               accessibilityRole="button"
-              accessibilityLabel={HUB_COPY.externalCancel}
+              accessibilityLabel={t('common:cancel')}
             >
-              <Text style={styles.secondaryText}>{HUB_COPY.externalCancel}</Text>
+              <Text style={styles.secondaryText}>{t('common:cancel')}</Text>
             </Pressable>
             <Pressable
               style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryPressed]}
               onPress={onContinue}
               accessibilityRole="button"
-              accessibilityLabel={HUB_COPY.externalContinue}
+              accessibilityLabel={t('hub:externalContinue')}
             >
-              <Text style={styles.primaryText}>{HUB_COPY.externalContinue}</Text>
+              <Text style={styles.primaryText}>{t('hub:externalContinue')}</Text>
             </Pressable>
           </View>
         </Pressable>

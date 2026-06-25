@@ -1,7 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView, BlurTargetView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   BackHandler,
   Image,
@@ -15,6 +16,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import type { SleepTimerValue } from '../../constants/audioPlayerOptions';
+import { useKeyboardHeight } from '../../hooks/useKeyboardHeight';
 import { formatAudioDurationClock, type AudioGuide, type MockPlace } from '../../constants/mockPlaces';
 import {
   colors,
@@ -24,18 +27,20 @@ import {
   spacing,
   textStyle,
 } from '../../constants/theme';
+import { AudioDiscussionPanel } from './AudioDiscussionPanel';
+import { AudioOptionsPanel } from './AudioOptionsPanel';
 
 type PlayerMenuId = 'content' | 'options' | 'discussion' | 'themes';
 
 const PLAYER_MENU: Array<{
   id: PlayerMenuId;
-  label: string;
+  labelKey: 'menuContent' | 'menuOptions' | 'menuDiscussion' | 'menuThemes';
   icon: keyof typeof Ionicons.glyphMap;
 }> = [
-  { id: 'content', label: 'Contenu', icon: 'document-text-outline' },
-  { id: 'options', label: 'Options', icon: 'settings-outline' },
-  { id: 'discussion', label: 'Discussion', icon: 'chatbubble-outline' },
-  { id: 'themes', label: 'Thématiques', icon: 'sparkles-outline' },
+  { id: 'content', labelKey: 'menuContent', icon: 'document-text-outline' },
+  { id: 'options', labelKey: 'menuOptions', icon: 'settings-outline' },
+  { id: 'discussion', labelKey: 'menuDiscussion', icon: 'chatbubble-outline' },
+  { id: 'themes', labelKey: 'menuThemes', icon: 'sparkles-outline' },
 ];
 
 const ARTWORK_SIZE = 220;
@@ -60,11 +65,19 @@ interface AudioPlayerSheetProps {
   isPlaying: boolean;
   positionMs: number;
   durationMs: number;
+  playbackRate: number;
+  voiceBoostEnabled: boolean;
+  trimSilencesEnabled: boolean;
+  sleepTimer: SleepTimerValue;
   onMinimize: () => void;
   onTogglePlay: () => void;
   onSkipBack: () => void;
   onSkipForward: () => void;
   onSeek: (ms: number) => void;
+  onCyclePlaybackRate: () => void;
+  onVoiceBoostChange: (enabled: boolean) => void;
+  onTrimSilencesChange: (enabled: boolean) => void;
+  onSleepTimerChange: (value: SleepTimerValue) => void;
 }
 
 export function AudioPlayerSheet({
@@ -74,13 +87,23 @@ export function AudioPlayerSheet({
   isPlaying,
   positionMs,
   durationMs,
+  playbackRate,
+  voiceBoostEnabled,
+  trimSilencesEnabled,
+  sleepTimer,
   onMinimize,
   onTogglePlay,
   onSkipBack,
   onSkipForward,
   onSeek,
+  onCyclePlaybackRate,
+  onVoiceBoostChange,
+  onTrimSilencesChange,
+  onSleepTimerChange,
 }: AudioPlayerSheetProps) {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation(['common', 'audioPlayer']);
+  const [activeMenuId, setActiveMenuId] = useState<PlayerMenuId | null>(null);
   const trackWidthRef = useRef(0);
   const blurTargetRef = useRef<RNView | null>(null);
   const progress = durationMs > 0 ? positionMs / durationMs : 0;
@@ -103,10 +126,37 @@ export function AudioPlayerSheet({
     [durationMs, onSeek],
   );
 
+  useEffect(() => {
+    if (!visible) {
+      setActiveMenuId(null);
+    }
+  }, [visible]);
+
   function handleMenuPress(menuId: PlayerMenuId) {
-    // MVP : entrées de menu à brancher (contenu, réglages, discussion, thèmes).
-    void menuId;
+    if (menuId === 'content') {
+      setActiveMenuId(null);
+      return;
+    }
+
+    if (menuId === 'options') {
+      setActiveMenuId((current) => (current === 'options' ? null : 'options'));
+      return;
+    }
+
+    if (menuId === 'discussion') {
+      setActiveMenuId((current) => (current === 'discussion' ? null : 'discussion'));
+      return;
+    }
+
+    setActiveMenuId(null);
   }
+
+  const showOptionsPanel = activeMenuId === 'options';
+  const showDiscussionPanel = activeMenuId === 'discussion';
+  const showPlayerControls = !showOptionsPanel && !showDiscussionPanel;
+  const keyboardHeight = useKeyboardHeight(showDiscussionPanel);
+  const keyboardOffset = Math.max(0, keyboardHeight - insets.bottom);
+  const compactHero = showDiscussionPanel && keyboardOffset > 0;
 
   return (
     <Modal
@@ -151,14 +201,14 @@ export function AudioPlayerSheet({
             style={({ pressed }) => [styles.dismissButton, pressed && styles.dismissPressed]}
             onPress={onMinimize}
             accessibilityRole="button"
-            accessibilityLabel="Réduire le lecteur"
+            accessibilityLabel={t('minimizePlayer')}
             hitSlop={8}
           >
             <Ionicons name="chevron-down" size={22} color={colors.onDark} />
           </Pressable>
 
-          <View style={styles.hero}>
-            <View style={styles.artworkWrap}>
+          <View style={[styles.hero, compactHero && styles.heroCompact]}>
+            <View style={[styles.artworkWrap, compactHero && styles.artworkWrapCompact]}>
               <Image
                 source={{ uri: place.imageUrl }}
                 style={styles.artwork}
@@ -175,90 +225,135 @@ export function AudioPlayerSheet({
           <View
             style={[
               styles.panel,
-              { paddingBottom: Math.max(insets.bottom, spacing.lg) },
+              showDiscussionPanel && styles.panelDiscussion,
+              {
+                paddingBottom: Math.max(insets.bottom, spacing.lg),
+                marginBottom: keyboardOffset,
+              },
             ]}
           >
-            <View style={styles.timelineBlock}>
-              <Pressable
-                style={styles.progressTrack}
-                onLayout={(event) => {
-                  trackWidthRef.current = event.nativeEvent.layout.width;
-                }}
-                onPress={(event) => handleSeekPress(event.nativeEvent.locationX)}
-                accessibilityRole="adjustable"
-                accessibilityLabel="Position dans le guide audio"
-                accessibilityValue={{
-                  min: 0,
-                  max: durationMs,
-                  now: positionMs,
-                  text: `${formatAudioDurationClock(Math.floor(positionMs / 1000))} sur ${formatAudioDurationClock(Math.floor(durationMs / 1000))}`,
-                }}
-              >
-                <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
-                <View style={[styles.progressThumb, { left: `${progress * 100}%` }]} />
-              </Pressable>
-              <View style={styles.timeRow}>
-                <Text style={styles.timeText}>
-                  {formatAudioDurationClock(Math.floor(positionMs / 1000))}
-                </Text>
-                <Text style={styles.timeText}>
-                  {formatAudioDurationClock(Math.floor(durationMs / 1000))}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.controlsRow}>
-              <Pressable
-                style={styles.skipButton}
-                onPress={onSkipBack}
-                accessibilityRole="button"
-                accessibilityLabel="Reculer de 15 secondes"
-              >
-                <Ionicons name="play-back" size={28} color={colors.ink} />
-                <Text style={styles.skipLabel}>15 s</Text>
-              </Pressable>
-
-              <Pressable
-                style={({ pressed }) => [
-                  styles.playButton,
-                  pressed && styles.playButtonPressed,
-                ]}
-                onPress={onTogglePlay}
-                accessibilityRole="button"
-                accessibilityLabel={isPlaying ? 'Mettre en pause' : 'Lire le guide'}
-              >
-                <Ionicons
-                  name={isPlaying ? 'pause' : 'play'}
-                  size={32}
-                  color={colors.onPrimary}
-                  style={!isPlaying ? styles.playIconOffset : undefined}
+            {showOptionsPanel ? (
+              <AudioOptionsPanel
+                playbackRate={playbackRate}
+                voiceBoostEnabled={voiceBoostEnabled}
+                trimSilencesEnabled={trimSilencesEnabled}
+                sleepTimer={sleepTimer}
+                onCyclePlaybackRate={onCyclePlaybackRate}
+                onVoiceBoostChange={onVoiceBoostChange}
+                onTrimSilencesChange={onTrimSilencesChange}
+                onSleepTimerChange={onSleepTimerChange}
+              />
+            ) : showDiscussionPanel ? (
+              <View style={styles.discussionWrap}>
+                <AudioDiscussionPanel
+                  poiId={place.id}
+                  poiName={place.name}
+                  guideTitle={guide.title}
+                  enabled={showDiscussionPanel}
                 />
-              </Pressable>
+              </View>
+            ) : showPlayerControls ? (
+              <>
+                <View style={styles.timelineBlock}>
+                  <Pressable
+                    style={styles.progressTrack}
+                    onLayout={(event) => {
+                      trackWidthRef.current = event.nativeEvent.layout.width;
+                    }}
+                    onPress={(event) => handleSeekPress(event.nativeEvent.locationX)}
+                    accessibilityRole="adjustable"
+                    accessibilityLabel={t('common:audioPosition')}
+                    accessibilityValue={{
+                      min: 0,
+                      max: durationMs,
+                      now: positionMs,
+                      text: `${formatAudioDurationClock(Math.floor(positionMs / 1000))} sur ${formatAudioDurationClock(Math.floor(durationMs / 1000))}`,
+                    }}
+                  >
+                    <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+                    <View style={[styles.progressThumb, { left: `${progress * 100}%` }]} />
+                  </Pressable>
+                  <View style={styles.timeRow}>
+                    <Text style={styles.timeText}>
+                      {formatAudioDurationClock(Math.floor(positionMs / 1000))}
+                    </Text>
+                    <Text style={styles.timeText}>
+                      {formatAudioDurationClock(Math.floor(durationMs / 1000))}
+                    </Text>
+                  </View>
+                </View>
 
-              <Pressable
-                style={styles.skipButton}
-                onPress={onSkipForward}
-                accessibilityRole="button"
-                accessibilityLabel="Avancer de 30 secondes"
-              >
-                <Ionicons name="play-forward" size={28} color={colors.ink} />
-                <Text style={styles.skipLabel}>30 s</Text>
-              </Pressable>
-            </View>
+                <View style={styles.controlsRow}>
+                  <Pressable
+                    style={styles.skipButton}
+                    onPress={onSkipBack}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('common:rewind15')}
+                  >
+                    <Ionicons name="play-back" size={28} color={colors.ink} />
+                    <Text style={styles.skipLabel}>15 s</Text>
+                  </Pressable>
+
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.playButton,
+                      pressed && styles.playButtonPressed,
+                    ]}
+                    onPress={onTogglePlay}
+                    accessibilityRole="button"
+                    accessibilityLabel={isPlaying ? t('common:pauseGuide') : t('common:playGuide')}
+                  >
+                    <Ionicons
+                      name={isPlaying ? 'pause' : 'play'}
+                      size={32}
+                      color={colors.onPrimary}
+                      style={!isPlaying ? styles.playIconOffset : undefined}
+                    />
+                  </Pressable>
+
+                  <Pressable
+                    style={styles.skipButton}
+                    onPress={onSkipForward}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('common:forward30')}
+                  >
+                    <Ionicons name="play-forward" size={28} color={colors.ink} />
+                    <Text style={styles.skipLabel}>30 s</Text>
+                  </Pressable>
+                </View>
+              </>
+            ) : null}
 
             <View style={styles.menuRow}>
-              {PLAYER_MENU.map((item) => (
-                <Pressable
-                  key={item.id}
-                  style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
-                  onPress={() => handleMenuPress(item.id)}
-                  accessibilityRole="button"
-                  accessibilityLabel={item.label}
-                >
-                  <Ionicons name={item.icon} size={22} color={colors.muted} />
-                  <Text style={styles.menuLabel}>{item.label}</Text>
-                </Pressable>
-              ))}
+              {PLAYER_MENU.map((item) => {
+                const isActive =
+                  item.id === 'content' ? activeMenuId === null : activeMenuId === item.id;
+                const label = t(`audioPlayer:${item.labelKey}`);
+
+                return (
+                  <Pressable
+                    key={item.id}
+                    style={({ pressed }) => [
+                      styles.menuItem,
+                      isActive && styles.menuItemActive,
+                      pressed && styles.menuItemPressed,
+                    ]}
+                    onPress={() => handleMenuPress(item.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel={label}
+                    accessibilityState={{ selected: isActive }}
+                  >
+                    <Ionicons
+                      name={item.icon}
+                      size={22}
+                      color={isActive ? colors.primary : colors.muted}
+                    />
+                    <Text style={[styles.menuLabel, isActive && styles.menuLabelActive]}>
+                      {label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
             </View>
           </View>
         </View>
@@ -322,12 +417,20 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     marginTop: spacing.lg,
   },
+  heroCompact: {
+    marginTop: spacing.sm,
+    gap: spacing.sm,
+  },
   artworkWrap: {
     width: ARTWORK_SIZE,
     height: ARTWORK_SIZE,
     borderRadius: radius.lg,
     overflow: 'hidden',
     ...elevation.card,
+  },
+  artworkWrapCompact: {
+    width: 120,
+    height: 120,
   },
   artwork: {
     width: '100%',
@@ -351,6 +454,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     gap: spacing.xl,
     ...elevation.sheet,
+  },
+  panelDiscussion: {
+    flex: 1,
+    gap: spacing.md,
+  },
+  discussionWrap: {
+    flex: 1,
+    minHeight: 0,
   },
   timelineBlock: {
     gap: spacing.sm,
@@ -426,6 +537,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.xs,
     paddingVertical: spacing.sm,
+    borderRadius: radius.md,
+  },
+  menuItemActive: {
+    backgroundColor: colors.primaryDisabled,
   },
   menuItemPressed: {
     opacity: 0.7,
@@ -434,5 +549,9 @@ const styles = StyleSheet.create({
     ...textStyle('captionSm'),
     color: colors.muted,
     textAlign: 'center',
+  },
+  menuLabelActive: {
+    color: colors.primary,
+    fontWeight: Platform.select({ ios: '600', default: '700' }),
   },
 });

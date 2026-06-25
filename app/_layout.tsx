@@ -11,18 +11,22 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { colors, fontFamilyForWeight, typography } from '../constants/theme';
 import { GlobalAudioChrome } from '../components/audio/GlobalAudioChrome';
+import { I18nSync } from '../components/I18nSync';
 import { AudioPlaybackProvider } from '../contexts/AudioPlaybackContext';
 import { AuthProvider } from '../contexts/AuthContext';
 import { FavoritesProvider } from '../contexts/FavoritesContext';
 import { PremiumProvider } from '../contexts/PremiumContext';
+import { colors, fontFamilyForWeight, typography } from '../constants/theme';
+import '../lib/i18n';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const { t } = useTranslation('common');
   const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
@@ -45,6 +49,7 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <AudioPlaybackProvider>
           <AuthProvider>
+          <I18nSync />
           <FavoritesProvider>
           <PremiumProvider>
           <StatusBar style="dark" />
@@ -110,7 +115,7 @@ export default function RootLayout() {
               name="confidentialite"
               options={{
                 headerShown: true,
-                title: 'Confidentialité',
+                title: t('privacyTitle'),
                 presentation: 'card',
                 headerStyle: { backgroundColor: colors.canvas },
                 headerTintColor: colors.ink,
@@ -127,7 +132,7 @@ export default function RootLayout() {
               name="cgu"
               options={{
                 headerShown: true,
-                title: "Conditions d'utilisation",
+                title: t('termsTitle'),
                 presentation: 'card',
                 headerStyle: { backgroundColor: colors.canvas },
                 headerTintColor: colors.ink,

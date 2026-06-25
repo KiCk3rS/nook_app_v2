@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import type { MockPlace } from '../../constants/mockPlaces';
-import { ITINERARY_COPY } from '../../constants/hubCopy';
 import {
   colors,
   componentSizes,
@@ -27,8 +27,11 @@ export function ItineraryRouteMapPreview({
   places,
   currentStepIndex,
   onPress,
-  accessibilityLabel = ITINERARY_COPY.mapCta,
+  accessibilityLabel,
 }: ItineraryRouteMapPreviewProps) {
+  const { t } = useTranslation('hub');
+  const mapCtaLabel = accessibilityLabel ?? t('itineraryMapCta');
+
   if (places.length === 0) {
     return null;
   }
@@ -81,7 +84,7 @@ export function ItineraryRouteMapPreview({
         <View style={styles.overlay} pointerEvents="none">
           <View style={styles.ctaBar}>
             <Ionicons name="map-outline" size={18} color={colors.onPrimary} />
-            <Text style={styles.ctaText}>{ITINERARY_COPY.mapCta}</Text>
+            <Text style={styles.ctaText}>{mapCtaLabel}</Text>
             <Ionicons name="chevron-forward" size={16} color={colors.onPrimary} />
           </View>
         </View>

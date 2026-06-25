@@ -1,9 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { PAYWALL_COPY } from '../../constants/hubCopy';
 import type { EditorialItinerary } from '../../constants/mockItineraries';
 import { usePremium } from '../../contexts/PremiumContext';
 import {
@@ -39,6 +38,7 @@ export function PaywallSheet({
   onClose,
   onUnlocked,
 }: PaywallSheetProps) {
+  const { t } = useTranslation(['hub', 'common']);
   const insets = useSafeAreaInsets();
   const { unlockItinerary, unlockSubscription, restorePurchases } = usePremium();
   const [selectedOffer, setSelectedOffer] = useState<OfferType>('subscription');
@@ -89,8 +89,8 @@ export function PaywallSheet({
 
   const ctaLabel =
     selectedOffer === 'unit'
-      ? PAYWALL_COPY.buyCta(unitPrice)
-      : PAYWALL_COPY.subscribeCta(subscriptionPrice);
+      ? t('hub:paywallBuyCta', { price: unitPrice })
+      : t('hub:paywallSubscribeCta', { price: subscriptionPrice });
 
   return (
     <Modal
@@ -106,7 +106,7 @@ export function PaywallSheet({
             onPress={handleDismiss}
             style={styles.closeBtn}
             accessibilityRole="button"
-            accessibilityLabel={PAYWALL_COPY.close}
+            accessibilityLabel={t('common:close')}
           >
             <Ionicons name="close" size={24} color={colors.ink} />
           </Pressable>
@@ -119,13 +119,13 @@ export function PaywallSheet({
             resizeMode="cover"
             accessibilityIgnoresInvertColors
           />
-          <Text style={styles.title}>{PAYWALL_COPY.title}</Text>
+          <Text style={styles.title}>{t('hub:paywallTitle')}</Text>
           <Text style={styles.itineraryName}>{itinerary.title}</Text>
 
           <View style={styles.benefits}>
-            <Benefit text={PAYWALL_COPY.benefit1} />
-            <Benefit text={PAYWALL_COPY.benefit2} />
-            <Benefit text={PAYWALL_COPY.benefit3} />
+            <Benefit text={t('hub:paywallBenefit1')} />
+            <Benefit text={t('hub:paywallBenefit2')} />
+            <Benefit text={t('hub:paywallBenefit3')} />
           </View>
 
           <Pressable
@@ -139,13 +139,15 @@ export function PaywallSheet({
             accessibilityState={{ selected: selectedOffer === 'subscription' }}
           >
             <View style={styles.offerHeader}>
-              <Text style={styles.offerTitle}>{PAYWALL_COPY.subscriptionTitle}</Text>
+              <Text style={styles.offerTitle}>{t('hub:paywallSubscriptionTitle')}</Text>
               <View style={styles.bestValue}>
-                <Text style={styles.bestValueText}>{PAYWALL_COPY.bestValue}</Text>
+                <Text style={styles.bestValueText}>{t('hub:paywallBestValue')}</Text>
               </View>
             </View>
-            <Text style={styles.offerDesc}>{PAYWALL_COPY.subscriptionLabel}</Text>
-            <Text style={styles.offerPrice}>{PAYWALL_COPY.subscribeCta(subscriptionPrice)}</Text>
+            <Text style={styles.offerDesc}>{t('hub:paywallSubscriptionLabel')}</Text>
+            <Text style={styles.offerPrice}>
+              {t('hub:paywallSubscribeCta', { price: subscriptionPrice })}
+            </Text>
           </Pressable>
 
           <Pressable
@@ -159,8 +161,8 @@ export function PaywallSheet({
             accessibilityState={{ selected: selectedOffer === 'unit' }}
           >
             <Text style={styles.offerTitle}>{itinerary.title}</Text>
-            <Text style={styles.offerDesc}>{PAYWALL_COPY.unitLabel}</Text>
-            <Text style={styles.offerPrice}>{PAYWALL_COPY.buyCta(unitPrice)}</Text>
+            <Text style={styles.offerDesc}>{t('hub:paywallUnitLabel')}</Text>
+            <Text style={styles.offerPrice}>{t('hub:paywallBuyCta', { price: unitPrice })}</Text>
           </Pressable>
         </View>
 
@@ -181,9 +183,9 @@ export function PaywallSheet({
           <Pressable
             onPress={handleRestore}
             accessibilityRole="button"
-            accessibilityLabel={PAYWALL_COPY.restore}
+            accessibilityLabel={t('hub:paywallRestore')}
           >
-            <Text style={styles.restore}>{PAYWALL_COPY.restore}</Text>
+            <Text style={styles.restore}>{t('hub:paywallRestore')}</Text>
           </Pressable>
         </View>
       </View>

@@ -1,0 +1,16 @@
+{
+  "sheetTitle": "Autorisez la localisation pour explorer autour de vous",
+  "sheetSubtitle": "NOOK utilise votre position pour afficher les lieux à proximité et vous guider sur la carte.",
+  "sheetFooter": "Vous pouvez modifier ces autorisations à tout moment dans les paramètres de l'appareil. Nous prenons votre vie privée au sérieux — consultez notre Politique de confidentialité.",
+  "sheetFooterPrefix": "Vous pouvez modifier ces autorisations à tout moment dans les ",
+  "sheetFooterSuffix": ". Nous prenons votre vie privée au sérieux — consultez notre ",
+  "privacyLink": "Politique de confidentialité",
+  "blockedHint": "Activez dans les paramètres de l'appareil",
+  "authorizedLabel": "Autorisé",
+  "cardLocationTitle": "Localisation",
+  "cardLocationDescription": "Indiquez où vous vous trouvez pour voir les lieux autour de vous et centrer la carte.",
+  "cardLocationCta": "Autoriser la localisation",
+  "geolocNormal": "Afficher ma position sur la carte",
+  "geolocAttention": "Autoriser la localisation — requis pour vous situer sur la carte",
+  "geolocMissingBadge": "Autorisation de localisation manquante"
+}

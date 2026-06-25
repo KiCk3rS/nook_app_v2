@@ -480,8 +480,9 @@ Dérivé de [ecrans.md](./ecrans.md). Mettre à jour au fil de l’eau.
 | A2.2 | Panneau filtres | P1 | Non démarré | — | — |
 | A2.3 | Liste résultats | P1 | Non démarré | — | — |
 | A2.4 | Carte filtrée / résultats | P1 | Non démarré | — | — |
-| A3.1 | Fiche lieu | P0 | Non démarré | — | — |
+| A3.1 | Fiche lieu | P0 | Non démarré | — | [`ecran-A3.1-fiche-lieu.md`](./ecran-A3.1-fiche-lieu.md) |
 | A3.2 | Lecteur audio | P0 | Non démarré | — | — |
+| A3.3 | Création guide audio IA | P1 | Non démarré | — | [`ecran-A3.3-creation-guide-audio-ia.md`](./ecran-A3.3-creation-guide-audio-ia.md) |
 | A4.1 | Fil de découverte | P0 | Non démarré | — | — |
 | A4.2 | Recommandations | Évolution | N/A | — | — |
 | A5.1 | Liste parcours | P1 | Non démarré | — | [`ecran-A5.1-liste-parcours.md`](./ecran-A5.1-liste-parcours.md) |
@@ -499,6 +500,8 @@ Dérivé de [ecrans.md](./ecrans.md). Mettre à jour au fil de l’eau.
 | A7.1 | Dialogue guide | Évolution | N/A | — | — |
 | A8.1 | Légal / confidentialité | P1 | Non démarré | — | — |
 | A8.2 | CGU | P1 | Non démarré | — | — |
+| A8.3 | Paywall premium | P1 | Non démarré | — | [`ecran-A8.3-paywall-premium.md`](./ecran-A8.3-paywall-premium.md) |
+| A8.4 | Pack crédits | P1 | Non démarré | — | [`ecran-A8.4-pack-credits.md`](./ecran-A8.4-pack-credits.md) |
 
 ### Administration (partie B)
 

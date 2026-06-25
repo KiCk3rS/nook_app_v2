@@ -1,5 +1,7 @@
 /** Distance en mètres entre deux points (formule haversine). */
 
+export { formatDistanceMeters } from './i18n/formatters';
+
 export function distanceMeters(
   lat1: number,
   lon1: number,
@@ -14,14 +16,6 @@ export function distanceMeters(
     Math.sin(dLat / 2) ** 2 +
     Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-export function formatDistanceMeters(meters: number): string {
-  if (meters < 1000) {
-    return `${Math.round(meters)} m`;
-  }
-  const km = meters / 1000;
-  return `${km.toFixed(1).replace('.', ',')} km`;
 }
 
 /** Estimation ~5 km/h en marche urbaine. */

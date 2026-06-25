@@ -279,6 +279,38 @@ Implémentation : `src/guide-chat/guide-chat.controller.ts`.
 
 ---
 
+### Génération guide audio IA — utilisateur (F-015 user, spec A3.3)
+
+> **Statut :** contrat cible documenté pour l’app mobile ; endpoints `/me/…` à implémenter côté API (aujourd’hui seule la voie **admin** existe en annexe).
+
+| Méthode | Chemin | Auth | Description | Codes notables |
+|--------|--------|------|-------------|----------------|
+| GET | `/api/v1/me/credits` | Bearer | Solde crédits + quota générations abonnement (mois courant) | 200 ; 401 |
+| POST | `/api/v1/me/pois/:poiId/audio-guides/generate` | Bearer | Lance un job ; guide **privé auteur** | **202** + `jobId` ; 401 ; 422 ; **402** (`AUDIO_GUIDE_INSUFFICIENT_CREDITS`) ; 429 |
+| GET | `/api/v1/me/audio-guides/jobs/:jobId` | Bearer | Statut job (auteur uniquement) | 200 ; 404 ; 401 |
+
+**Corps POST proposé**
+
+```json
+{
+  "wikipediaUrl": "https://fr.wikipedia.org/wiki/Tour_Eiffel",
+  "durationTier": "normal",
+  "language": "fr"
+}
+```
+
+| `durationTier` | Crédits débités |
+|----------------|-----------------|
+| `short` | 1 |
+| `normal` | 2 |
+| `detailed` | 3 |
+
+Consommation proposée : **quota abonnement** en priorité, puis **crédits achetés** (packs in-app, spec **A8.4**). Voir [`ecran-A3.3-creation-guide-audio-ia.md`](./ecran-A3.3-creation-guide-audio-ia.md).
+
+Voie admin existante (production éditoriale) : voir [Annexe — Admin et génération audio](#annexe--admin-et-génération-audio).
+
+---
+
 ## Flux (diagrammes)
 
 ### Auth — inscription / session

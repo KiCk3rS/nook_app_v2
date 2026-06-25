@@ -7,8 +7,8 @@
 | ID produit | A3.1 |
 | Priorité | P0 |
 | Plateforme | Mobile iOS et Android (Expo) |
-| Dépendances | Brief §3.3 ; écrans liés : **A1.4**, **A3.2**, **A6.5**, **A4.1**, **A2.3** |
-| Document lié | [Inventaire écrans](./ecrans.md) · [Brief](./brief.md) · [Design](./DESIGN.md) |
+| Dépendances | Brief §3.3, §4.2 ; écrans liés : **A1.4**, **A3.2**, **A3.3**, **A6.1**, **A6.5**, **A4.1**, **A2.3** |
+| Document lié | [Inventaire écrans](./ecrans.md) · [Brief](./brief.md) · [Design](./DESIGN.md) · [Création guide A3.3](./ecran-A3.3-creation-guide-audio-ia.md) |
 
 ## Résumé
 
@@ -26,7 +26,7 @@
 | Sens | Détail |
 |------|--------|
 | **Arrivée depuis** | **A1.4** — CTA « Voir la fiche » ; **A4.1**, **A2.3/A2.4**, **A6.5** (favoris) — même route `/place/[id]`. |
-| **Sorties** | **A3.2** — tap play sur une piste ou CTA sticky « Écouter le guide » ; retour écran précédent. |
+| **Sorties** | **A3.2** — tap play sur une piste ou CTA sticky « Écouter le guide » ; **A3.3** — « Ajouter un nouveau guide audio » (auth requise) ; retour écran précédent. |
 | **Retour arrière** | Bouton retour en haut à gauche (sur l'image) ; geste OS back = même comportement. |
 
 **Lien profond :** `/place/[id]` — si `id` inconnu : écran « Lieu introuvable » + retour.
@@ -50,7 +50,8 @@
 | **Badge catégorie** | Contexte | Label taxonomie (ex. « Monument ») | Pill bas-gauche de l'image |
 | **Titre** | Identification | `name` | Token `display-lg` |
 | **Meta adresse** | Localisation | `address` | Icône pin + `body-sm` / `muted` |
-| **Section « Guides audio »** | CTA principal | `audioGuides[]` | Titre `display-md` ; lignes : titre, durée, langue, play |
+| **Section « Guides audio »** | CTA principal | `audioGuides[]` (publics + guides privés de l’utilisateur connecté) | Titre `display-md` ; lignes : titre, durée, langue, play ; badge « Mon guide » pour les guides privés auteur |
+| **CTA « Ajouter un guide »** | Création IA | Lien **A3.3** | Sous la liste ; auth → **A6.1** si anonyme |
 | **Section « À propos »** | Description | `description` | Corps `body-md` |
 | **Barre sticky bas** | CTA persistant | « Écouter le guide » | 48 px min ; safe area ; masquée si aucun guide |
 
@@ -61,7 +62,9 @@
 | Titre | texte | Titre éditorial de la piste |
 | Durée | secondes → « X min » | Affichage arrondi |
 | Langue | code ISO affiché | ex. « FR », « EN » |
-| Action | bouton play | Ouvre **A3.2** sur cette piste |
+| Action | bouton play | Ouvre **A3.2** sur cette piste (uniquement si `status: ready`) |
+| Statut | `ready` \| `pending` \| `error` | `pending` : « Génération en cours… », pas de play ; `error` : « Réessayer » → **A3.3** |
+| Visibilité | public \| privé auteur | Guides privés visibles **uniquement** par leur auteur (cf. **A3.3**) |
 
 ## Interactions et règles
 
@@ -70,6 +73,8 @@
 - **Partage :** sheet native OS avec titre + adresse du lieu (pas d'URL profonde obligatoire en MVP).
 - **Play :** une piste « active » à la fois ; CTA sticky et ligne liste cohérents.
 - **Règle métier :** ordre des guides = `order` croissant côté API ; mock : ordre du tableau.
+- **Création guide :** tap « Ajouter un nouveau guide audio » → **A3.3** (voir spec dédiée) ; retour avec ligne `pending` puis `ready` ou `error`.
+- **Guides privés :** l’API ne renvoie les guides privés que pour l’auteur ; les autres utilisateurs ne les voient pas.
 
 ## États
 
@@ -77,7 +82,8 @@
 |------|-------------|-----------|---------|
 | **Chargement** | Navigation vers fiche, données async | Skeleton hero + 2 lignes | — |
 | **Contenu OK** | Données lieu disponibles | Fiche complète | Play, favori, partage |
-| **Sans audio** | `audioGuides` vide | Message « Aucun guide audio disponible pour ce lieu pour le moment. » | Pas de CTA sticky play |
+| **Sans audio** | `audioGuides` vide (publics) | Message « Aucun guide audio disponible pour ce lieu pour le moment. » | Pas de CTA sticky play ; CTA « Ajouter un guide » toujours visible si connecté |
+| **Génération en cours** | Guide privé `pending` | Ligne avec spinner / texte « Génération en cours… » | Pas de play |
 | **Lieu introuvable** | `id` invalide | Titre + message + retour | Retour |
 | **Erreur réseau** | Échec fetch (futur API) | Bannière + réessayer | « Réessayer » |
 | **Hors ligne** | Pas de réseau | Texte + image cache si dispo | « Réessayer » |
@@ -112,6 +118,7 @@
 | `place_favorite_toggle` | Tap cœur |
 | `place_share` | Partage réussi |
 | `audio_guide_play_tap` | Tap play (piste id) |
+| `audio_guide_add_tap` | Tap « Ajouter un nouveau guide audio » |
 | `place_not_found` | Id invalide |
 
 ## Critères d'acceptation
@@ -121,6 +128,8 @@
 3. **Étant donné** **A3.1** ouvert, **quand** l'utilisateur tape retour, **alors** il revient à l'écran précédent (carte avec **A1.4** si applicable).
 4. **Étant donné** un lieu sans guide audio, **quand** la fiche s'affiche, **alors** la section audio montre le message vide et la barre sticky play est absente.
 5. **Étant donné** un `id` inconnu dans l'URL, **quand** la route est résolue, **alors** l'état « Lieu introuvable » s'affiche avec action retour.
+6. **Étant donné** un utilisateur connecté auteur d'un guide privé `ready`, **quand** un autre utilisateur ouvre la même fiche, **alors** ce guide n'apparaît pas dans sa liste.
+7. **Étant donné** **A3.1** avec au moins un guide `pending`, **quand** l'auteur consulte la fiche, **alors** la ligne affiche « Génération en cours… » sans bouton play.
 
 ## Open questions
 

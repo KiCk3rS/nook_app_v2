@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { Pressable, TextInput, View } from 'react-native';
 
 import { colors } from '../../constants/theme';
@@ -10,6 +11,8 @@ interface SearchHeaderProps {
 }
 
 export function SearchHeader({ onPress }: SearchHeaderProps) {
+  const { t } = useTranslation('common');
+
   return (
     <View style={mapSearchBarStyles.container}>
       <Pressable
@@ -20,14 +23,14 @@ export function SearchHeader({ onPress }: SearchHeaderProps) {
         onPress={onPress}
         disabled={!onPress}
         accessibilityRole="button"
-        accessibilityLabel="Rechercher un lieu"
-        accessibilityHint="Ouvre la recherche de destinations"
+        accessibilityLabel={t('searchLabel')}
+        accessibilityHint={t('searchHint')}
       >
         <TextInput
           style={mapSearchBarStyles.input}
-          placeholder="Rechercher un lieu…"
+          placeholder={t('searchPlaceholder')}
           placeholderTextColor={colors.mutedSoft}
-          accessibilityLabel="Rechercher un lieu"
+          accessibilityLabel={t('searchLabel')}
           editable={false}
           pointerEvents="none"
         />

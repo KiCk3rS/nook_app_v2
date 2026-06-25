@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next';
+
 import { getPlaceById } from '../../constants/mockPlaces';
-import { USER_ITINERARIES_COPY } from '../../constants/userItinerariesCopy';
 import { formatDurationMinutes, formatStepCount } from '../../lib/userDisplay';
 import type { UserItinerary } from '../../types/api';
 import { ItineraryRowWithAction } from '../itinerary/ItineraryRow';
@@ -21,6 +22,7 @@ export function UserItineraryCard({
   onPress,
   onDelete,
 }: UserItineraryCardProps) {
+  const { t } = useTranslation('userItineraries');
   const stepCount = itinerary.stepCount ?? itinerary.poiIds?.length ?? 0;
   const duration = formatDurationMinutes(itinerary.estimatedDurationMinutes);
   const meta = [duration, formatStepCount(stepCount)].filter(Boolean).join(' · ');
@@ -33,14 +35,14 @@ export function UserItineraryCard({
       meta={meta}
       badge={
         incomplete
-          ? { label: USER_ITINERARIES_COPY.incompleteBadge, variant: 'muted' }
+          ? { label: t('incompleteBadge'), variant: 'muted' }
           : undefined
       }
       onPress={onPress}
       disabled={incomplete}
       accessibilityLabel={`${itinerary.title}, ${meta}`}
       actionIcon="trash-outline"
-      actionLabel={USER_ITINERARIES_COPY.delete}
+      actionLabel={t('delete')}
       onAction={onDelete}
     />
   );

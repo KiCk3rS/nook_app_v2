@@ -1,13 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ItineraryListRow } from '../../../../../../components/itinerary/ItineraryListRow';
 import { PaywallSheet } from '../../../../../../components/paywall/PaywallSheet';
 import { getCategoryLabel } from '../../../../../../constants/itineraryCategories';
-import { HUB_COPY } from '../../../../../../constants/hubCopy';
 import { getCityBySlug } from '../../../../../../constants/mockCities';
 import { getDistrictBySlug } from '../../../../../../constants/mockDistricts';
 import {
@@ -24,6 +24,7 @@ import { usePremium } from '../../../../../../contexts/PremiumContext';
 import { trackItineraryCategoryListViewed } from '../../../../../../lib/analytics';
 
 export default function DistrictItineraryCategoryListScreen() {
+  const { t } = useTranslation(['hub', 'common']);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { slug, districtSlug, categorySlug } = useLocalSearchParams<{
@@ -89,7 +90,7 @@ export default function DistrictItineraryCategoryListScreen() {
           onPress={handleBack}
           style={styles.backBtn}
           accessibilityRole="button"
-          accessibilityLabel={HUB_COPY.back}
+          accessibilityLabel={t('common:back')}
         >
           <Ionicons name="chevron-back" size={24} color={colors.ink} />
         </Pressable>
@@ -103,7 +104,7 @@ export default function DistrictItineraryCategoryListScreen() {
 
       {itineraries.length === 0 ? (
         <View style={styles.empty}>
-          <Text style={styles.emptyText}>{HUB_COPY.emptyCategory}</Text>
+          <Text style={styles.emptyText}>{t('hub:emptyCategory')}</Text>
           <Pressable
             onPress={handleBack}
             accessibilityRole="button"

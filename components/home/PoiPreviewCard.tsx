@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import {
   Image,
   Pressable,
@@ -27,6 +28,7 @@ interface PoiPreviewCardProps {
 
 export function PoiPreviewCard({ place, onClose }: PoiPreviewCardProps) {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const { isPlaceFavorite, togglePlaceFavorite } = useFavorites();
   const isFavorite = isPlaceFavorite(place.id);
   const categoryLabel = getCategoryLabel(place.categoryId);
@@ -79,7 +81,7 @@ export function PoiPreviewCard({ place, onClose }: PoiPreviewCardProps) {
               onClose();
             }}
             accessibilityRole="button"
-            accessibilityLabel="Fermer l'aperçu"
+            accessibilityLabel={t('closePreview')}
             hitSlop={8}
           >
             <Ionicons name="close" size={22} color={colors.ink} />

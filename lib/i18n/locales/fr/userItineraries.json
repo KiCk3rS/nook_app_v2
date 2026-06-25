@@ -1,0 +1,17 @@
+{
+  "title": "Mes parcours",
+  "follow": "Suivre le parcours",
+  "viewMap": "Voir sur la carte",
+  "delete": "Supprimer",
+  "deleteTitle": "Supprimer ce parcours ?",
+  "deleteBody": "« {{title}} » sera définitivement supprimé.",
+  "deleteConfirm": "Supprimer",
+  "emptyTitle": "Aucun parcours pour l'instant",
+  "emptyBody": "Explorez la carte ou les parcours NOOK pour commencer.",
+  "emptyExplore": "Explorer la carte",
+  "emptyDiscover": "Découvrir les parcours",
+  "incompleteBadge": "Incomplet",
+  "deletedToast": "Parcours supprimé",
+  "loadError": "Impossible de charger vos parcours.",
+  "tooShort": "Ce parcours ne peut pas être démarré pour l'instant."
+}

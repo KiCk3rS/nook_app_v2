@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   BackHandler,
   KeyboardAvoidingView,
@@ -14,7 +15,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { mapSearchBarStyles } from '../home/mapSearchBarStyles';
-import { SEARCH_DISCOVERY_COPY } from '../../constants/searchDiscovery';
 import type { LocationPermissionStatus } from '../../hooks/useLocationPermission';
 import {
   trackHubCityViewed,
@@ -51,6 +51,7 @@ export function SearchSheet({
   userCoords: _userCoords,
   onClose,
 }: SearchSheetProps) {
+  const { t } = useTranslation('common');
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const inputRef = useRef<TextInput>(null);
@@ -162,7 +163,7 @@ export function SearchSheet({
                 pressed && styles.inBarClosePressed,
               ]}
               accessibilityRole="button"
-              accessibilityLabel="Fermer la recherche"
+              accessibilityLabel={t('closeSearch')}
               hitSlop={8}
             >
               <Ionicons name="chevron-down" size={22} color={colors.ink} />
@@ -172,9 +173,9 @@ export function SearchSheet({
               style={mapSearchBarStyles.input}
               value={query}
               onChangeText={setQuery}
-              placeholder={SEARCH_DISCOVERY_COPY.searchPlaceholder}
+              placeholder={t('searchPlaceholder')}
               placeholderTextColor={colors.mutedSoft}
-              accessibilityLabel={SEARCH_DISCOVERY_COPY.searchPlaceholder}
+              accessibilityLabel={t('searchPlaceholder')}
               returnKeyType="search"
               autoCorrect={false}
               autoCapitalize="none"
@@ -188,7 +189,7 @@ export function SearchSheet({
                   pressed && styles.clearButtonPressed,
                 ]}
                 accessibilityRole="button"
-                accessibilityLabel="Effacer la recherche"
+                accessibilityLabel={t('clearSearch')}
                 hitSlop={8}
               >
                 <Ionicons name="close-circle" size={22} color={colors.mutedSoft} />

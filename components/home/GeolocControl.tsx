@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
-import { GEOLOC_CONTROL_COPY } from '../../constants/permissions';
 import { colors, componentSizes, elevation, radius } from '../../constants/theme';
 
 const CONTROL_SIZE = componentSizes.iconControlSize;
@@ -13,9 +13,10 @@ interface GeolocControlProps {
 }
 
 export function GeolocControl({ isAttention, isLoading, onPress }: GeolocControlProps) {
+  const { t } = useTranslation('permissions');
   const accessibilityLabel = isAttention
-    ? GEOLOC_CONTROL_COPY.attention
-    : GEOLOC_CONTROL_COPY.normal;
+    ? t('geolocAttention')
+    : t('geolocNormal');
 
   return (
     <Pressable
@@ -40,7 +41,7 @@ export function GeolocControl({ isAttention, isLoading, onPress }: GeolocControl
         />
       )}
       {isAttention && !isLoading ? (
-        <View style={styles.badge} accessibilityLabel={GEOLOC_CONTROL_COPY.missingBadge}>
+        <View style={styles.badge} accessibilityLabel={t('geolocMissingBadge')}>
           <Ionicons name="help" size={10} color={colors.onPrimary} />
         </View>
       ) : null}

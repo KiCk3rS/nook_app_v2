@@ -1,8 +1,8 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { TerritorialHubView } from '../../../../../components/city/TerritorialHubView';
-import { HUB_COPY } from '../../../../../constants/hubCopy';
 import { getCityBySlug } from '../../../../../constants/mockCities';
 import { getDistrictBySlug } from '../../../../../constants/mockDistricts';
 import {
@@ -15,6 +15,7 @@ import {
 } from '../../../../../lib/analytics';
 
 export default function DistrictHubScreen() {
+  const { t } = useTranslation('hub');
   const { slug, districtSlug } = useLocalSearchParams<{
     slug: string;
     districtSlug: string;
@@ -62,8 +63,8 @@ export default function DistrictHubScreen() {
   return (
     <TerritorialHubView
       config={config}
-      notFoundTitle={HUB_COPY.districtNotFoundTitle}
-      notFoundBody={HUB_COPY.districtNotFoundBody}
+      notFoundTitle={t('districtNotFoundTitle')}
+      notFoundBody={t('districtNotFoundBody')}
       paywallSource="hub_district"
     />
   );

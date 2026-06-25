@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -19,44 +20,45 @@ import {
   SettingsRow,
   SettingsToggleRow,
 } from '../../components/settings/SettingsRow';
-import { SETTINGS_COPY } from '../../constants/settingsCopy';
 import { colors, spacing, textStyle } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePremium } from '../../contexts/PremiumContext';
+import { useAppLanguage } from '../../hooks/useAppLanguage';
 import { useRequireAuth } from '../../hooks/useRequireAuth';
 import { getAppVersion } from '../../lib/config';
 import { maskEmail } from '../../lib/userDisplay';
+import type { AppLocale } from '../../lib/i18n';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation(['settings', 'common']);
   const { isReady } = useRequireAuth('/settings');
   const { user, preferences, logout, updatePreferences } = useAuth();
   const { hasSubscription } = usePremium();
+  const { setLanguage } = useAppLanguage();
 
-  const [locationStatus, setLocationStatus] = useState<string>(
-    SETTINGS_COPY.locationDenied,
-  );
+  const [locationStatus, setLocationStatus] = useState('');
   const [isSavingPref, setIsSavingPref] = useState(false);
 
   const refreshLocationStatus = useCallback(async () => {
     const { status } = await Location.getForegroundPermissionsAsync();
     setLocationStatus(
       status === Location.PermissionStatus.GRANTED
-        ? SETTINGS_COPY.locationGranted
-        : SETTINGS_COPY.locationDenied,
+        ? t('settings:locationGranted')
+        : t('settings:locationDenied'),
     );
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (isReady) void refreshLocationStatus();
   }, [isReady, refreshLocationStatus]);
 
   function confirmLogout() {
-    Alert.alert(SETTINGS_COPY.logoutTitle, SETTINGS_COPY.logoutBody, [
-      { text: SETTINGS_COPY.cancel, style: 'cancel' },
+    Alert.alert(t('settings:logoutTitle'), t('settings:logoutBody'), [
+      { text: t('common:cancel'), style: 'cancel' },
       {
-        text: SETTINGS_COPY.logoutConfirm,
+        text: t('settings:logoutConfirm'),
         style: 'destructive',
         onPress: () => {
           void logout().then(() => router.replace('/(tabs)/profil'));
@@ -65,13 +67,13 @@ export default function SettingsScreen() {
     ]);
   }
 
-  async function handleLanguageChange(language: 'fr' | 'en') {
+  async function handleLanguageChange(language: AppLocale) {
     if (preferences.language === language) return;
     setIsSavingPref(true);
     try {
-      await updatePreferences({ language });
+      await setLanguage(language);
     } catch {
-      Alert.alert('', SETTINGS_COPY.saveError);
+      Alert.alert('', t('settings:saveError'));
     } finally {
       setIsSavingPref(false);
     }
@@ -84,7 +86,7 @@ export default function SettingsScreen() {
         notifications: { ...preferences.notifications, pushEnabled: enabled },
       });
     } catch {
-      Alert.alert('', SETTINGS_COPY.saveError);
+      Alert.alert('', t('settings:saveError'));
     } finally {
       setIsSavingPref(false);
     }
@@ -99,6 +101,7 @@ export default function SettingsScreen() {
   }
 
   const pushEnabled = preferences.notifications?.pushEnabled ?? false;
+  const currentLanguage = preferences.language ?? 'fr';
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
@@ -107,83 +110,83 @@ export default function SettingsScreen() {
           onPress={() => router.back()}
           style={styles.backBtn}
           accessibilityRole="button"
-          accessibilityLabel="Retour"
+          accessibilityLabel={t('common:back')}
         >
           <Ionicons name="chevron-back" size={24} color={colors.ink} />
         </Pressable>
         <Text style={styles.headerTitle} accessibilityRole="header">
-          {SETTINGS_COPY.title}
+          {t('settings:title')}
         </Text>
         <View style={styles.backBtn} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <SettingsGroup title={SETTINGS_COPY.sectionPreferences}>
+        <SettingsGroup title={t('settings:sectionPreferences')}>
           <SettingsRow
-            label={SETTINGS_COPY.language}
+            label={t('settings:language')}
             value={
-              preferences.language === 'en'
-                ? SETTINGS_COPY.languageEn
-                : SETTINGS_COPY.languageFr
+              currentLanguage === 'en'
+                ? t('settings:languageEn')
+                : t('settings:languageFr')
             }
             onPress={() =>
-              void handleLanguageChange(preferences.language === 'fr' ? 'en' : 'fr')
+              void handleLanguageChange(currentLanguage === 'fr' ? 'en' : 'fr')
             }
           />
         </SettingsGroup>
 
-        <SettingsGroup title={SETTINGS_COPY.sectionNotifications}>
+        <SettingsGroup title={t('settings:sectionNotifications')}>
           <SettingsToggleRow
-            label={SETTINGS_COPY.push}
-            description={SETTINGS_COPY.pushDescription}
+            label={t('settings:push')}
+            description={t('settings:pushDescription')}
             value={pushEnabled}
             onValueChange={(next) => void handlePushToggle(next)}
             disabled={isSavingPref}
           />
         </SettingsGroup>
 
-        <SettingsGroup title={SETTINGS_COPY.sectionAccount}>
+        <SettingsGroup title={t('settings:sectionAccount')}>
           <SettingsRow
-            label={SETTINGS_COPY.email}
+            label={t('settings:email')}
             value={maskEmail(user.email)}
             showChevron={false}
           />
           <SettingsRow
-            label={SETTINGS_COPY.password}
-            value={SETTINGS_COPY.changePasswordSoon}
+            label={t('settings:password')}
+            value={t('settings:changePasswordSoon')}
             showChevron={false}
             disabled
           />
           <SettingsRow
-            label={SETTINGS_COPY.premium}
+            label={t('settings:premium')}
             value={
               hasSubscription
-                ? SETTINGS_COPY.premiumActive
-                : SETTINGS_COPY.premiumInactive
+                ? t('settings:premiumActive')
+                : t('settings:premiumInactive')
             }
             onPress={() => router.push('/(tabs)/decouvrir')}
           />
         </SettingsGroup>
 
-        <SettingsGroup title={SETTINGS_COPY.sectionLegal}>
+        <SettingsGroup title={t('settings:sectionLegal')}>
           <SettingsRow
-            label={SETTINGS_COPY.privacy}
+            label={t('settings:privacy')}
             onPress={() => router.push('/confidentialite')}
           />
           <SettingsRow
-            label={SETTINGS_COPY.terms}
+            label={t('settings:terms')}
             onPress={() => router.push('/cgu')}
           />
         </SettingsGroup>
 
-        <SettingsGroup title={SETTINGS_COPY.sectionApp}>
+        <SettingsGroup title={t('settings:sectionApp')}>
           <SettingsRow
-            label={SETTINGS_COPY.location}
+            label={t('settings:location')}
             value={locationStatus}
             onPress={() => void Linking.openSettings()}
           />
           <SettingsRow
-            label="Version"
+            label={t('settings:versionLabel')}
             value={getAppVersion()}
             showChevron={false}
           />
@@ -193,9 +196,9 @@ export default function SettingsScreen() {
           style={({ pressed }) => [styles.logoutBtn, pressed && styles.logoutPressed]}
           onPress={confirmLogout}
           accessibilityRole="button"
-          accessibilityLabel={SETTINGS_COPY.logout}
+          accessibilityLabel={t('settings:logout')}
         >
-          <Text style={styles.logoutText}>{SETTINGS_COPY.logout}</Text>
+          <Text style={styles.logoutText}>{t('settings:logout')}</Text>
         </Pressable>
       </ScrollView>
     </View>

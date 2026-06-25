@@ -1,11 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GuidanceExperience } from '../../../../../components/guidance/GuidanceExperience';
-import { GUIDANCE_COPY } from '../../../../../constants/guidanceCopy';
-import { HUB_COPY } from '../../../../../constants/hubCopy';
 import { getCityBySlug } from '../../../../../constants/mockCities';
 import { getItineraryById } from '../../../../../constants/mockItineraries';
 import {
@@ -18,6 +17,7 @@ import {
 import { usePremium } from '../../../../../contexts/PremiumContext';
 
 export default function EditorialGuidanceScreen() {
+  const { t } = useTranslation(['guidance', 'common']);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { slug, id, step } = useLocalSearchParams<{
@@ -56,15 +56,15 @@ export default function EditorialGuidanceScreen() {
   if (!itinerary || !city) {
     return (
       <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
-        <Text style={styles.notFoundTitle}>{GUIDANCE_COPY.notFoundTitle}</Text>
-        <Text style={styles.notFoundBody}>{GUIDANCE_COPY.notFoundBody}</Text>
+        <Text style={styles.notFoundTitle}>{t('guidance:notFoundTitle')}</Text>
+        <Text style={styles.notFoundBody}>{t('guidance:notFoundBody')}</Text>
         <Pressable
           style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryPressed]}
           onPress={() => router.back()}
           accessibilityRole="button"
-          accessibilityLabel={GUIDANCE_COPY.back}
+          accessibilityLabel={t('common:back')}
         >
-          <Text style={styles.primaryText}>{HUB_COPY.back}</Text>
+          <Text style={styles.primaryText}>{t('common:back')}</Text>
         </Pressable>
       </View>
     );

@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -15,7 +16,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { UserItinerariesEmptyState } from '../../components/itineraries/UserItinerariesEmptyState';
 import { UserItineraryCard } from '../../components/itineraries/UserItineraryCard';
-import { USER_ITINERARIES_COPY } from '../../constants/userItinerariesCopy';
 import { MOCK_USER_ITINERARIES } from '../../constants/mockUserItineraries';
 import { colors, spacing, textStyle } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
@@ -25,6 +25,7 @@ import { isApiConfigured } from '../../lib/config';
 import type { UserItinerary } from '../../types/api';
 
 export default function UserItinerariesScreen() {
+  const { t } = useTranslation(['userItineraries', 'common']);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { isReady } = useRequireAuth('/itineraries');
@@ -47,7 +48,7 @@ export default function UserItinerariesScreen() {
       return;
     }
     if (!isApiConfigured()) {
-      setLoadError(USER_ITINERARIES_COPY.loadError);
+      setLoadError(t('userItineraries:loadError'));
       setItems([]);
       setIsLoading(false);
       setIsRefreshing(false);
@@ -60,7 +61,7 @@ export default function UserItinerariesScreen() {
       const data = await fetchItineraries({ limit: 100 });
       setItems(data);
     } catch {
-      setLoadError(USER_ITINERARIES_COPY.loadError);
+      setLoadError(t('userItineraries:loadError'));
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -74,7 +75,7 @@ export default function UserItinerariesScreen() {
   function handleFollow(itinerary: UserItinerary) {
     const stepCount = itinerary.stepCount ?? itinerary.poiIds?.length ?? 0;
     if (stepCount < 2) {
-      Alert.alert('', USER_ITINERARIES_COPY.tooShort);
+      Alert.alert('', t('userItineraries:tooShort'));
       return;
     }
     router.push(`/itinerary/${itinerary.id}/guide`);
@@ -82,26 +83,26 @@ export default function UserItinerariesScreen() {
 
   function handleDelete(itinerary: UserItinerary) {
     Alert.alert(
-      USER_ITINERARIES_COPY.deleteTitle,
-      USER_ITINERARIES_COPY.deleteBody(itinerary.title),
+      t('userItineraries:deleteTitle'),
+      t('userItineraries:deleteBody', { title: itinerary.title }),
       [
-        { text: USER_ITINERARIES_COPY.cancel, style: 'cancel' },
+        { text: t('common:cancel'), style: 'cancel' },
         {
-          text: USER_ITINERARIES_COPY.deleteConfirm,
+          text: t('userItineraries:deleteConfirm'),
           style: 'destructive',
           onPress: () => {
             if (isMockSession) {
               setItems((prev) => prev.filter((item) => item.id !== itinerary.id));
-              Alert.alert('', USER_ITINERARIES_COPY.deletedToast);
+              Alert.alert('', t('userItineraries:deletedToast'));
               return;
             }
             void (async () => {
               try {
                 await deleteItinerary(itinerary.id);
                 setItems((prev) => prev.filter((item) => item.id !== itinerary.id));
-                Alert.alert('', USER_ITINERARIES_COPY.deletedToast);
+                Alert.alert('', t('userItineraries:deletedToast'));
               } catch {
-                Alert.alert('', USER_ITINERARIES_COPY.loadError);
+                Alert.alert('', t('userItineraries:loadError'));
               }
             })();
           },
@@ -125,12 +126,12 @@ export default function UserItinerariesScreen() {
           onPress={() => router.back()}
           style={styles.backBtn}
           accessibilityRole="button"
-          accessibilityLabel="Retour"
+          accessibilityLabel={t('common:back')}
         >
           <Ionicons name="chevron-back" size={24} color={colors.ink} />
         </Pressable>
         <Text style={styles.headerTitle} accessibilityRole="header">
-          {USER_ITINERARIES_COPY.title}
+          {t('userItineraries:title')}
         </Text>
         <View style={styles.backBtn} />
       </View>
@@ -143,7 +144,7 @@ export default function UserItinerariesScreen() {
         <View style={styles.errorWrap}>
           <Text style={styles.errorText}>{loadError}</Text>
           <Pressable onPress={() => void load()} accessibilityRole="button">
-            <Text style={styles.retry}>{USER_ITINERARIES_COPY.retry}</Text>
+            <Text style={styles.retry}>{t('common:retry')}</Text>
           </Pressable>
         </View>
       ) : items.length === 0 ? (

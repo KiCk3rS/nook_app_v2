@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Image,
@@ -12,12 +13,12 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { GUIDANCE_COPY } from '../../constants/guidanceCopy';
 import {
   formatAudioDuration,
   getPlaceById,
   type MockPlace,
 } from '../../constants/mockPlaces';
+import { formatGuidanceWalkHint } from '../../lib/i18n/formatters';
 import {
   colors,
   componentSizes,
@@ -85,6 +86,7 @@ export function GuidanceExperience({
   cityName,
   initialStepParam,
 }: GuidanceExperienceProps) {
+  const { t } = useTranslation(['guidance', 'common']);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const startedRef = useRef(false);
@@ -221,15 +223,15 @@ export function GuidanceExperience({
       return;
     }
 
-    Alert.alert(GUIDANCE_COPY.quitTitle, GUIDANCE_COPY.quitBody, [
+    Alert.alert(t('guidance:quitTitle'), t('guidance:quitBody'), [
       {
-        text: GUIDANCE_COPY.quitCancel,
+        text: t('guidance:quitCancel'),
         style: 'cancel',
         onPress: () =>
           trackGuidanceQuitTapped(sourceType, itineraryId, stepIndex, false),
       },
       {
-        text: GUIDANCE_COPY.quitConfirm,
+        text: t('guidance:quitConfirm'),
         style: 'destructive',
         onPress: () => {
           trackGuidanceQuitTapped(sourceType, itineraryId, stepIndex, true);
@@ -325,7 +327,7 @@ export function GuidanceExperience({
   if (phase === 'loading') {
     return (
       <View style={[styles.screen, styles.centered, { paddingTop: insets.top }]}>
-        <Text style={styles.mutedText}>{GUIDANCE_COPY.progress(1, stepCount)}</Text>
+        <Text style={styles.mutedText}>{t('guidance:progress', { current: 1, total: stepCount })}</Text>
       </View>
     );
   }
@@ -342,27 +344,27 @@ export function GuidanceExperience({
         <View style={styles.completedIcon}>
           <Ionicons name="checkmark-circle" size={56} color={colors.primary} />
         </View>
-        <Text style={styles.completedTitle}>{GUIDANCE_COPY.completedTitle}</Text>
+        <Text style={styles.completedTitle}>{t('guidance:completedTitle')}</Text>
         <Text style={styles.completedSubtitle}>
-          {GUIDANCE_COPY.completedSubtitle(title)}
+          {t('guidance:completedSubtitle', { title })}
         </Text>
         <View style={styles.completedActions}>
           <Pressable
             style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryPressed]}
             onPress={handleBackToItinerary}
             accessibilityRole="button"
-            accessibilityLabel={GUIDANCE_COPY.backToItinerary}
+            accessibilityLabel={t('guidance:backToItinerary')}
           >
-            <Text style={styles.primaryText}>{GUIDANCE_COPY.backToItinerary}</Text>
+            <Text style={styles.primaryText}>{t('guidance:backToItinerary')}</Text>
           </Pressable>
           {cityName ? (
             <Pressable
               style={({ pressed }) => [styles.linkBtn, pressed && styles.linkPressed]}
               onPress={handleBackToCity}
               accessibilityRole="button"
-              accessibilityLabel={GUIDANCE_COPY.backToCity(cityName)}
+              accessibilityLabel={t('guidance:backToCity', { city: cityName })}
             >
-              <Text style={styles.linkText}>{GUIDANCE_COPY.backToCity(cityName)}</Text>
+              <Text style={styles.linkText}>{t('guidance:backToCity', { city: cityName })}</Text>
             </Pressable>
           ) : null}
         </View>
@@ -374,13 +376,13 @@ export function GuidanceExperience({
   const stepName = currentPlace?.name ?? 'Lieu introuvable';
 
   return (
-    <View style={styles.screen} accessibilityLabel={GUIDANCE_COPY.a11yScreen(title)}>
+    <View style={styles.screen} accessibilityLabel={t('guidance:a11yScreen', { title })}>
       <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
         <Pressable
           onPress={handleQuit}
           style={styles.iconButton}
           accessibilityRole="button"
-          accessibilityLabel={GUIDANCE_COPY.quit}
+          accessibilityLabel={t('guidance:quit')}
           hitSlop={8}
         >
           <Ionicons name="chevron-back" size={22} color={colors.ink} />
@@ -389,7 +391,7 @@ export function GuidanceExperience({
         <View style={styles.headerBody}>
           <Text style={styles.headerTitle} numberOfLines={2}>{title}</Text>
           <Text style={styles.progressLabel} accessibilityRole="text">
-            {GUIDANCE_COPY.progress(stepIndex + 1, stepCount)}
+            {t('guidance:progress', { current: stepIndex + 1, total: stepCount })}
           </Text>
           <View style={styles.progressTrack}>
             <View
@@ -431,11 +433,11 @@ export function GuidanceExperience({
         {nextPlace ? (
           <View style={styles.nextHint}>
             <Text style={styles.nextHintTitle}>
-              {GUIDANCE_COPY.nextStep(nextPlace.name)}
+              {t('guidance:nextStep', { name: nextPlace.name })}
             </Text>
             {distanceToNext !== null ? (
               <Text style={styles.nextHintMeta}>
-                {GUIDANCE_COPY.walkHint(
+                {formatGuidanceWalkHint(
                   formatDistanceMeters(distanceToNext),
                   estimateWalkMinutes(distanceToNext),
                 )}
@@ -451,12 +453,12 @@ export function GuidanceExperience({
             accessibilityRole="button"
             accessibilityLabel={
               readyGuide.durationSec
-                ? `${GUIDANCE_COPY.listenCta} — ${formatAudioDuration(readyGuide.durationSec)}`
-                : GUIDANCE_COPY.listenCta
+                ? `${t('guidance:listenCta')} — ${formatAudioDuration(readyGuide.durationSec)}`
+                : t('guidance:listenCta')
             }
           >
             <Ionicons name="headset-outline" size={20} color={colors.onPrimary} />
-            <Text style={styles.primaryText}>{GUIDANCE_COPY.listenCta}</Text>
+            <Text style={styles.primaryText}>{t('guidance:listenCta')}</Text>
             {readyGuide.durationSec ? (
               <Text style={styles.listenDuration}>
                 {formatAudioDuration(readyGuide.durationSec)}
@@ -464,7 +466,7 @@ export function GuidanceExperience({
             ) : null}
           </Pressable>
         ) : (
-          <Text style={styles.noAudio}>{GUIDANCE_COPY.noAudio}</Text>
+          <Text style={styles.noAudio}>{t('guidance:noAudio')}</Text>
         )}
 
         <GuidanceMapSection
@@ -494,7 +496,7 @@ export function GuidanceExperience({
             pressed && stepIndex > 0 && styles.navBtnPressed,
           ]}
           accessibilityRole="button"
-          accessibilityLabel={GUIDANCE_COPY.prevStep}
+          accessibilityLabel={t('guidance:prevStep')}
           accessibilityState={{ disabled: stepIndex <= 0 }}
         >
           <Ionicons
@@ -508,7 +510,7 @@ export function GuidanceExperience({
               stepIndex <= 0 && styles.navBtnTextDisabled,
             ]}
           >
-            {GUIDANCE_COPY.prevStep}
+            {t('guidance:prevStep')}
           </Text>
         </Pressable>
 
@@ -517,11 +519,11 @@ export function GuidanceExperience({
           style={({ pressed }) => [styles.navBtnPrimary, pressed && styles.primaryPressed]}
           accessibilityRole="button"
           accessibilityLabel={
-            isLastStep ? GUIDANCE_COPY.finishCta : GUIDANCE_COPY.nextStepCta
+            isLastStep ? t('guidance:finishCta') : t('guidance:nextStepCta')
           }
         >
           <Text style={styles.navBtnPrimaryText}>
-            {isLastStep ? GUIDANCE_COPY.finishCta : GUIDANCE_COPY.nextStepCta}
+            {isLastStep ? t('guidance:finishCta') : t('guidance:nextStepCta')}
           </Text>
           {!isLastStep ? (
             <Ionicons name="chevron-forward" size={18} color={colors.onPrimary} />

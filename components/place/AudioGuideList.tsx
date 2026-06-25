@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import {
@@ -6,6 +7,7 @@ import {
   getLanguageFlag,
   type AudioGuide,
 } from '../../constants/mockPlaces';
+import i18n from '../../lib/i18n';
 import {
   colors,
   componentSizes,
@@ -27,7 +29,7 @@ function getAuthorInitial(name: string): string {
 }
 
 function getRatingLabel(rating: number | null): string {
-  if (rating === null) return 'Pas encore noté';
+  if (rating === null) return i18n.t('common:notRatedYet');
   return rating.toFixed(1).replace('.0', '');
 }
 
@@ -200,16 +202,16 @@ export function AudioGuideList({
   onPlayGuide,
   onAddGuide,
 }: AudioGuideListProps) {
+  const { t } = useTranslation('common');
+
   if (guides.length === 0) {
     return (
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Guides Audio</Text>
+          <Text style={styles.sectionTitle}>{t('audioGuidesSection')}</Text>
         </View>
         <View style={styles.emptyWrap}>
-          <Text style={styles.emptyText}>
-            Aucun guide audio disponible pour ce lieu pour le moment.
-          </Text>
+          <Text style={styles.emptyText}>{t('noAudioGuides')}</Text>
         </View>
       </View>
     );
@@ -257,10 +259,10 @@ export function AudioGuideList({
         style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
         onPress={onAddGuide}
         accessibilityRole="button"
-        accessibilityLabel="Ajouter un nouveau guide audio"
+        accessibilityLabel={t('addAudioGuide')}
       >
         <Ionicons name="add" size={22} color={colors.onPrimary} />
-        <Text style={styles.addButtonText}>Ajouter un nouveau guide audio</Text>
+        <Text style={styles.addButtonText}>{t('addAudioGuide')}</Text>
       </Pressable>
     </View>
   );

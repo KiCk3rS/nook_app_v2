@@ -1,5 +1,6 @@
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -9,7 +10,6 @@ import {
 
 import { AuthFormField } from '../../components/auth/AuthFormField';
 import { AuthScreenLayout } from '../../components/auth/AuthScreenLayout';
-import { AUTH_COPY } from '../../constants/authCopy';
 import {
   colors,
   componentSizes,
@@ -25,20 +25,9 @@ function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
 
-function resolveAuthError(error: unknown): string {
-  if (error instanceof ApiError) {
-    if (error.statusCode === 0) return AUTH_COPY.errorApiNotConfigured;
-    if (ApiError.isUnauthorized(error)) return AUTH_COPY.error401;
-    if (ApiError.isRateLimited(error)) return AUTH_COPY.error429;
-    if (error.details?.email?.[0]) return error.details.email[0];
-    if (error.details?.password?.[0]) return error.details.password[0];
-    return error.message || AUTH_COPY.errorGeneric;
-  }
-  return AUTH_COPY.errorNetwork;
-}
-
 export default function LoginScreen() {
   const router = useRouter();
+  const { t } = useTranslation(['auth', 'common']);
   const { returnTo, source } = useLocalSearchParams<{
     returnTo?: string;
     source?: string;
@@ -55,14 +44,26 @@ export default function LoginScreen() {
     ? returnTo
     : '/(tabs)/profil';
 
+  function resolveAuthError(error: unknown): string {
+    if (error instanceof ApiError) {
+      if (error.statusCode === 0) return t('auth:errorApiNotConfigured');
+      if (ApiError.isUnauthorized(error)) return t('auth:error401');
+      if (ApiError.isRateLimited(error)) return t('auth:error429');
+      if (error.details?.email?.[0]) return error.details.email[0];
+      if (error.details?.password?.[0]) return error.details.password[0];
+      return error.message || t('common:errorGeneric');
+    }
+    return t('auth:errorNetwork');
+  }
+
   function handleClose() {
     router.back();
   }
 
   function validate(): boolean {
     const next: Record<string, string> = {};
-    if (!isValidEmail(email)) next.email = AUTH_COPY.invalidEmail;
-    if (password.length < 8) next.password = AUTH_COPY.passwordTooShort;
+    if (!isValidEmail(email)) next.email = t('auth:invalidEmail');
+    if (password.length < 8) next.password = t('auth:passwordTooShort');
     setFieldErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -71,7 +72,7 @@ export default function LoginScreen() {
     setFormError(null);
     if (!validate()) return;
     if (!isApiConfigured()) {
-      setFormError(AUTH_COPY.errorApiNotConfigured);
+      setFormError(t('auth:errorApiNotConfigured'));
       return;
     }
 
@@ -88,12 +89,12 @@ export default function LoginScreen() {
 
   return (
     <AuthScreenLayout
-      title={AUTH_COPY.loginTitle}
-      subtitle={AUTH_COPY.loginSubtitle}
+      title={t('auth:loginTitle')}
+      subtitle={t('auth:loginSubtitle')}
       onClose={handleClose}
     >
       <AuthFormField
-        label={AUTH_COPY.emailLabel}
+        label={t('auth:emailLabel')}
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -103,7 +104,7 @@ export default function LoginScreen() {
         error={fieldErrors.email}
       />
       <AuthFormField
-        label={AUTH_COPY.passwordLabel}
+        label={t('auth:passwordLabel')}
         value={password}
         onChangeText={setPassword}
         secureToggle
@@ -123,18 +124,18 @@ export default function LoginScreen() {
         onPress={() => void handleSubmit()}
         disabled={isSubmitting}
         accessibilityRole="button"
-        accessibilityLabel={AUTH_COPY.loginCta}
+        accessibilityLabel={t('auth:loginCta')}
       >
         {isSubmitting ? (
           <ActivityIndicator color={colors.onPrimary} />
         ) : (
-          <Text style={styles.primaryText}>{AUTH_COPY.loginCta}</Text>
+          <Text style={styles.primaryText}>{t('auth:loginCta')}</Text>
         )}
       </Pressable>
 
       <Link href={{ pathname: '/auth/forgot-password' }} asChild>
         <Pressable accessibilityRole="link">
-          <Text style={styles.link}>{AUTH_COPY.forgotPassword}</Text>
+          <Text style={styles.link}>{t('auth:forgotPassword')}</Text>
         </Pressable>
       </Link>
 
@@ -146,7 +147,7 @@ export default function LoginScreen() {
         asChild
       >
         <Pressable accessibilityRole="link">
-          <Text style={styles.link}>{AUTH_COPY.goRegister}</Text>
+          <Text style={styles.link}>{t('auth:goRegister')}</Text>
         </Pressable>
       </Link>
     </AuthScreenLayout>

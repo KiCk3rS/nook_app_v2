@@ -2,12 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PromotedCityCard } from '../city/PromotedCityCard';
 import { PopularCityCard } from '../city/PopularCityCard';
 import {
-  DISCOVERY_FEED_COPY,
   getLatestDiscoveryPlaces,
   getPopularDiscoveryPlaces,
   getTopRatedDiscoveryPlaces,
@@ -34,6 +34,7 @@ import { getPlaceHref } from '../../lib/placeNavigation';
 import { DiscoveryPlaceCard } from './DiscoveryPlaceCard';
 
 export function DiscoveryFeedView() {
+  const { t } = useTranslation('discovery');
   const router = useRouter();
   const [showPromoted, setShowPromoted] = useState(true);
 
@@ -88,22 +89,22 @@ export function DiscoveryFeedView() {
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.pageTitle} accessibilityRole="header">
-          {DISCOVERY_FEED_COPY.title}
+          {t('title')}
         </Text>
 
         {showPromoted && promotedCities.length > 0 ? (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>
-                {DISCOVERY_FEED_COPY.promotedSectionTitle}
+                {t('promotedSectionTitle')}
               </Text>
               <Pressable
                 onPress={handleHidePromoted}
                 accessibilityRole="button"
-                accessibilityLabel={DISCOVERY_FEED_COPY.hidePromoted}
+                accessibilityLabel={t('hidePromoted')}
                 hitSlop={8}
               >
-                <Text style={styles.hideLink}>{DISCOVERY_FEED_COPY.hidePromoted}</Text>
+                <Text style={styles.hideLink}>{t('hidePromoted')}</Text>
               </Pressable>
             </View>
             {promotedCities.map((city) => (
@@ -119,7 +120,7 @@ export function DiscoveryFeedView() {
         {popularCities.length > 0 ? (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>
-              {DISCOVERY_FEED_COPY.popularCitiesSectionTitle}
+              {t('popularCitiesSectionTitle')}
             </Text>
             <ScrollView
               horizontal
@@ -139,7 +140,7 @@ export function DiscoveryFeedView() {
 
         {latestPlaces.length > 0 ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{DISCOVERY_FEED_COPY.latestSectionTitle}</Text>
+            <Text style={styles.sectionTitle}>{t('latestSectionTitle')}</Text>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -159,7 +160,7 @@ export function DiscoveryFeedView() {
 
         {popularPlaces.length > 0 ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{DISCOVERY_FEED_COPY.popularSectionTitle}</Text>
+            <Text style={styles.sectionTitle}>{t('popularSectionTitle')}</Text>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -179,7 +180,7 @@ export function DiscoveryFeedView() {
 
         {topRatedPlaces.length > 0 ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{DISCOVERY_FEED_COPY.topRatedSectionTitle}</Text>
+            <Text style={styles.sectionTitle}>{t('topRatedSectionTitle')}</Text>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -200,16 +201,16 @@ export function DiscoveryFeedView() {
         <View
           style={styles.teaser}
           accessibilityRole="text"
-          accessibilityLabel={`${DISCOVERY_FEED_COPY.missingPlaceTitle} — ${DISCOVERY_FEED_COPY.missingPlaceFooter}`}
+          accessibilityLabel={`${t('missingPlaceTitle')} — ${t('missingPlaceFooter')}`}
           accessibilityState={{ disabled: true }}
         >
           <View style={styles.teaserIconWrap}>
             <Ionicons name="location-outline" size={22} color={colors.primary} />
           </View>
           <View style={styles.teaserBody}>
-            <Text style={styles.teaserTitle}>{DISCOVERY_FEED_COPY.missingPlaceTitle}</Text>
-            <Text style={styles.teaserText}>{DISCOVERY_FEED_COPY.missingPlaceBody}</Text>
-            <Text style={styles.teaserFooter}>{DISCOVERY_FEED_COPY.missingPlaceFooter}</Text>
+            <Text style={styles.teaserTitle}>{t('missingPlaceTitle')}</Text>
+            <Text style={styles.teaserText}>{t('missingPlaceBody')}</Text>
+            <Text style={styles.teaserFooter}>{t('missingPlaceFooter')}</Text>
           </View>
         </View>
       </ScrollView>
