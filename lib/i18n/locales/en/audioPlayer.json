@@ -35,5 +35,15 @@
   "discussionErrorRateLimited": "Too many questions in a short time. Try again in a few minutes.",
   "discussionErrorUnknown": "Something went wrong. Try again.",
   "discussionRetry": "Try again",
-  "discussionGetCredits": "Get credits"
+  "discussionGetCredits": "Get credits",
+  "lyricsEmpty": "This guide's transcript is not available yet.",
+  "lyricsPanelA11y": "Audio guide lyrics",
+  "lyricsSegmentA11y": "Go to: {{text}}",
+  "themesSectionTitle": "Other themes",
+  "themesEmptyTitle": "No other themes",
+  "themesEmptyBody": "This place only has one audio guide for now.",
+  "themesPending": "Generating",
+  "themesGuidePlayA11y": "Play {{title}}",
+  "themesGuidePauseA11y": "Pause — {{title}}",
+  "themesGuidePendingA11y": "{{title}} — generating"
 }

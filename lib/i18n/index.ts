@@ -4,7 +4,8 @@ import { initReactI18next } from 'react-i18next';
 
 import enAuth from './locales/en/auth.json';
 import enAudioPlayer from './locales/en/audioPlayer.json';
-import enCommon from './locales/en/common.json';
+import enCreateGuide from './locales/en/createGuide.json';
+import enCreditsPack from './locales/en/creditsPack.json';
 import enDiscovery from './locales/en/discovery.json';
 import enFavorites from './locales/en/favorites.json';
 import enGuidance from './locales/en/guidance.json';
@@ -17,7 +18,8 @@ import enSettings from './locales/en/settings.json';
 import enUserItineraries from './locales/en/userItineraries.json';
 import frAuth from './locales/fr/auth.json';
 import frAudioPlayer from './locales/fr/audioPlayer.json';
-import frCommon from './locales/fr/common.json';
+import frCreateGuide from './locales/fr/createGuide.json';
+import frCreditsPack from './locales/fr/creditsPack.json';
 import frDiscovery from './locales/fr/discovery.json';
 import frFavorites from './locales/fr/favorites.json';
 import frGuidance from './locales/fr/guidance.json';
@@ -28,6 +30,9 @@ import frProfile from './locales/fr/profile.json';
 import frSearch from './locales/fr/search.json';
 import frSettings from './locales/fr/settings.json';
 import frUserItineraries from './locales/fr/userItineraries.json';
+
+import enCommon from './locales/en/common.json';
+import frCommon from './locales/fr/common.json';
 
 /** Editorial content (itineraries, places) will use Accept-Language or localized API fields. */
 export type AppLocale = 'fr' | 'en';
@@ -50,6 +55,8 @@ const resources = {
     search: frSearch,
     discovery: frDiscovery,
     permissions: frPermissions,
+    createGuide: frCreateGuide,
+    creditsPack: frCreditsPack,
   },
   en: {
     common: enCommon,
@@ -65,6 +72,8 @@ const resources = {
     search: enSearch,
     discovery: enDiscovery,
     permissions: enPermissions,
+    createGuide: enCreateGuide,
+    creditsPack: enCreditsPack,
   },
 } as const;
 
@@ -120,6 +129,8 @@ export function initI18n(initialLocale: AppLocale = DEFAULT_LOCALE): typeof i18n
       'search',
       'discovery',
       'permissions',
+      'createGuide',
+      'creditsPack',
     ],
     interpolation: {
       escapeValue: false,

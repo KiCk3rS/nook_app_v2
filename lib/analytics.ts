@@ -297,3 +297,115 @@ export function trackGuidanceResumeChoice(
 ): void {
   // guidance_resume_choice
 }
+
+export function trackAudioGuideCreateOpen(_poiId: string, _source: string): void {
+  // audio_guide_create_open
+}
+
+export function trackAudioGuideTierSelected(
+  _tier: string,
+  _creditCost: number,
+): void {
+  // audio_guide_tier_selected
+}
+
+export function trackAudioGuideCreateSubmit(
+  _poiId: string,
+  _tier: string,
+  _paymentType: string,
+): void {
+  // audio_guide_create_submit
+}
+
+export function trackAudioGuideCreateSuccess(
+  _poiId: string,
+  _jobId: string,
+  _tier: string,
+): void {
+  // audio_guide_create_success
+}
+
+export function trackAudioGuideCreateError(_code: string, _tier: string): void {
+  // audio_guide_create_error
+}
+
+export function trackAudioGuideCreditsPaywallOpen(
+  _poiId: string,
+  _requiredCredits: number,
+): void {
+  // audio_guide_credits_paywall_open
+}
+
+export type AudioPlayerTab = 'content' | 'options' | 'discussion' | 'themes';
+
+export function trackAudioPlayerExpand(_poiId: string, _guideId: string): void {
+  // audio_player_expand
+}
+
+export function trackAudioPlayerTab(
+  _poiId: string,
+  _guideId: string,
+  _tab: AudioPlayerTab,
+): void {
+  // audio_player_tab
+}
+
+export function trackAudioLyricsSeek(
+  _poiId: string,
+  _guideId: string,
+  _startMs: number,
+): void {
+  // audio_lyrics_seek
+}
+
+export function trackAudioThemeSelect(
+  _poiId: string,
+  _fromGuideId: string,
+  _toGuideId: string,
+): void {
+  // audio_theme_select
+}
+
+export function trackGuideChatOpen(_poiId: string, _guideId: string): void {
+  // guide_chat_open
+}
+
+export function trackGuideChatSend(_poiId: string, _contentLength: number): void {
+  // guide_chat_send
+}
+
+export function trackGuideChatError(
+  _poiId: string,
+  _code: string,
+  _status?: number,
+): void {
+  // guide_chat_error
+}
+
+export function trackGuideChatAuthGate(_poiId: string, _source: string): void {
+  // guide_chat_auth_gate
+}
+
+export type CreditsPackSource = 'create_guide' | 'profile' | 'guide_chat';
+
+export function trackCreditsPackSheetOpen(
+  _source: CreditsPackSource,
+  _requiredCredits?: number,
+): void {
+  // credits_pack_sheet_open
+}
+
+export function trackCreditsPackSelected(_productId: string, _creditsAmount: number): void {
+  // credits_pack_selected
+}
+
+export function trackCreditsPackPurchaseSuccess(
+  _productId: string,
+  _creditsAmount: number,
+): void {
+  // credits_pack_purchase_success
+}
+
+export function trackCreditsPackPurchaseCancel(): void {
+  // credits_pack_purchase_cancel
+}

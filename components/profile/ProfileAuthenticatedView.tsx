@@ -55,10 +55,12 @@ interface ProfileAuthenticatedViewProps {
   stats: ProfileDashboardStats;
   recentRoutes: UserItinerary[];
   recentListens: ProfileRecentListen[];
+  creditsBalance: number | null;
   isRefreshing: boolean;
   loadError: string | null;
   onRefresh: () => void;
   onEditProfile: () => void;
+  onOpenCredits: () => void;
 }
 
 /** Padding sous la carte stats dans le hero. */
@@ -148,10 +150,12 @@ export function ProfileAuthenticatedView({
   stats,
   recentRoutes,
   recentListens,
+  creditsBalance,
   isRefreshing,
   loadError,
   onRefresh,
   onEditProfile,
+  onOpenCredits,
 }: ProfileAuthenticatedViewProps) {
   const router = useRouter();
   const { t } = useTranslation(['profile', 'common']);
@@ -171,6 +175,11 @@ export function ProfileAuthenticatedView({
   const displayName = getUserDisplayName(user);
   const memberLabel =
     stats.memberSinceLabel ?? MOCK_PROFILE_INSIGHTS.memberSinceLabel;
+
+  const creditsSubtitle =
+    creditsBalance === null
+      ? t('profile:creditsSubtitleEmpty')
+      : t('profile:creditsSubtitle', { count: creditsBalance });
 
   const shortcuts: ShortcutItem[] = [
     {
@@ -423,6 +432,12 @@ export function ProfileAuthenticatedView({
           </Pressable>
 
           <View style={styles.sheetMenuGroup}>
+            <SheetMenuRow
+              icon="sparkles-outline"
+              label={t('profile:creditsTitle')}
+              subtitle={creditsSubtitle}
+              onPress={onOpenCredits}
+            />
             <SheetMenuRow
               icon="map-outline"
               label={t('profile:myRoutes')}

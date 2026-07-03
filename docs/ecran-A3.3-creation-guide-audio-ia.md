@@ -53,7 +53,7 @@
 
 1. **Contexte lieu** — nom du POI, rappel « guide privé ».
 2. **Choix de durée** — trois cartes sélectionnables (Court / Normal / Détaillé) avec coût affiché.
-3. **Source Wikipedia** — champ URL + aide contextuelle.
+3. **Source Wikipedia** — article associé au POI (lecture seule).
 4. **Solde** — crédits restants + quota abonnement si applicable.
 5. **CTA principal** — « Générer mon guide — {coût} ».
 6. **Mentions** — source ouverte, délai de traitement, licence Wikipedia.
@@ -67,8 +67,8 @@
 | **Carte palier Court** | Sélection durée | Label « Court », sous-texte durée indicative (~2–3 min), « 1 crédit » | Une seule carte active |
 | **Carte palier Normal** | Sélection durée | ~4–5 min, « 2 crédits » | Sélection par défaut recommandée |
 | **Carte palier Détaillé** | Sélection durée | ~8–10 min, « 3 crédits » | |
-| **Champ URL Wikipedia** | Entrée source | URL `https://*.wikipedia.org/wiki/…` | Clavier URL ; validation au blur et au submit |
-| **Aide source** | Confiance | « Le guide s’appuie sur l’article indiqué. Vérifiez qu’il correspond bien au lieu. » | Lien « Comment trouver l’article ? » (optionnel P2) |
+| **Source Wikipedia** | Confiance | `poi.wikipediaUrl` (donnée POI) | Titre article dérivé de l’URL ; pas de saisie utilisateur |
+| **Aide source** | Confiance | « Le guide s’appuie sur l’article Wikipedia associé à ce lieu. » | — |
 | **Bandeau solde** | Transparence | `creditsBalance`, `subscriptionGenerationsRemaining?`, libellé dynamique | Ex. « 4 crédits · 2 générations incluses ce mois-ci » |
 | **CTA principal** | Lancement | « Générer mon guide — {coût affiché} » | Désactivé si URL invalide ou solde insuffisant |
 | **Lien recharge** | Monétisation | « Obtenir des crédits » → **A8.4** | Visible si solde faible ou CTA secondaire |
@@ -78,7 +78,7 @@
 
 | Champ client | Valeur v1 | Notes |
 |--------------|-----------|--------|
-| `wikipediaUrl` | URL validée | Obligatoire |
+| `wikipediaUrl` | Depuis le POI (`GET /pois/:id`) | Résolu côté serveur ; le client l’envoie en POST pour traçabilité |
 | `durationTier` | `short` \| `normal` \| `detailed` | Mappe 1 / 2 / 3 crédits côté serveur |
 | `language` | Code ISO (ex. `fr`) | Défaut = langue app (**A6.7**) |
 
@@ -90,11 +90,11 @@ Le **ton** éditorial reste géré côté pipeline (brief §4.2) ; pas de choix 
 
 - Tap « Ajouter un guide » sur **A3.1** sans session → feuille **A6.1** (ou redirect) puis retour automatique vers **A3.3** après connexion réussie (`returnTo`).
 
-### Validation URL
+### Validation source
 
-- Domaines autorisés : `*.wikipedia.org` (http/https).
-- Rejet : URL vide, domaine hors liste, page spéciale invalide (ex. `Special:`).
-- Message d’erreur inline sous le champ ; CTA reste désactivé.
+- L’article Wikipedia est **associé éditorialement au POI** ; pas de saisie utilisateur.
+- Si le POI n’a pas d’article lié : le CTA « Ajouter un guide » est **masqué** sur **A3.1**.
+- Côté API : rejet **422** si l’article POI est absent ou invalide.
 
 ### Lancement et débit
 
@@ -123,11 +123,11 @@ Le **ton** éditorial reste géré côté pipeline (brief §4.2) ; pas de choix 
 |------|-------------|-----------|---------|
 | **Ouvert — formulaire** | Feuille affichée | Contexte + paliers + URL + solde | Sélection, saisie, fermer |
 | **Palier sélectionné** | Tap carte durée | Carte active + CTA mis à jour | Changer palier |
-| **URL invalide** | Validation échouée | Bordure erreur + message | Corriger URL |
+| **URL invalide / POI sans source** | POI sans `wikipediaUrl` | CTA création masqué sur **A3.1** | — |
 | **Solde OK** | Crédits ou quota suffisants | CTA actif avec coût | Générer |
 | **Solde insuffisant** | Coût > disponible | CTA désactivé ou secondaire « Obtenir des crédits » | **A8.4** / **A8.3** |
 | **Envoi en cours** | Tap CTA | Overlay loading | — |
-| **Succès lancement** | API 202 | Toast discret + fermeture | Retour **A3.1** |
+| **Succès lancement** | API 202 | Feuille reste ouverte : message de confirmation + CTA « Compris » | Retour **A3.1** après fermeture |
 | **Erreur réseau** | Timeout / offline | Bannière + « Réessayer » | Réessayer |
 | **Non connecté** | Session absente | Redirection **A6.1** | Connexion |
 
@@ -140,16 +140,18 @@ Le **ton** éditorial reste géré côté pipeline (brief §4.2) ; pas de choix 
 | Palier Court | « Court » · « Environ 2–3 min » · « 1 crédit » |
 | Palier Normal | « Normal » · « Environ 4–5 min » · « 2 crédits » |
 | Palier Détaillé | « Détaillé » · « Environ 8–10 min » · « 3 crédits » |
-| Label URL | « Article Wikipedia » |
-| Placeholder URL | « https://fr.wikipedia.org/wiki/… » |
-| Erreur URL | « Indiquez une adresse Wikipedia valide pour ce lieu. » |
+| Label source | « Source » |
+| Aide source | « Ce guide s’appuiera sur l’article Wikipedia associé à ce lieu. » |
 | Solde crédits | « {n} crédit(s) » |
 | Quota abonnement | « {n} génération(s) incluse(s) ce mois-ci » |
 | CTA | « Générer mon guide — {coût} » |
 | Lien recharge | « Obtenir des crédits » |
 | Pending (A3.1) | « Génération en cours… » |
 | Erreur job | « La génération a échoué. » · « Réessayer » |
-| Succès toast | « Votre guide est en cours de création. » |
+| Succès (feuille A3.3, titre) | « Génération lancée » |
+| Succès (feuille A3.3, corps) | « Comptez quelques minutes. Votre guide apparaîtra sur cette fiche dès qu'il sera prêt — vous pouvez continuer votre visite. » |
+| Succès (feuille A3.3, CTA) | « Compris » |
+| Bannière A3.1 (pending) | « Génération en cours. Cela peut prendre quelques minutes : votre guide s'affichera ici dès qu'il sera prêt. » |
 | 402 | « Crédits insuffisants pour ce guide. » |
 | 429 | « Trop de demandes. Réessayez dans quelques minutes. » |
 
@@ -205,7 +207,7 @@ Mapping serveur `durationTier` → crédits : `short` = 1, `normal` = 2, `detail
 3. **Étant donné** un solde insuffisant pour le palier choisi, **quand** l’utilisateur tente de générer, **alors** le CTA mène vers **A8.4** (pack crédits) ou propose l’abonnement via **A8.3** sans lancer de job.
 4. **Étant donné** un guide privé en `pending` puis `ready`, **quand** un **autre** utilisateur ouvre la même fiche lieu, **alors** ce guide n’apparaît pas dans sa liste.
 5. **Étant donné** un guide privé `ready`, **quand** l’**auteur** ouvre **A3.1**, **alors** il peut lire le guide (**A3.2**) et le distingue des guides publics (badge « Mon guide »).
-6. **Étant donné** une URL Wikipedia invalide, **quand** l’utilisateur tente de confirmer, **alors** un message d’erreur s’affiche et aucun appel API n’est effectué.
+6. **Étant donné** un POI **sans** article Wikipedia associé, **quand** l’utilisateur consulte **A3.1**, **alors** le CTA « Ajouter un guide » n’est pas affiché.
 7. **Étant donné** un job en erreur, **quand** l’auteur consulte **A3.1**, **alors** la ligne affiche l’échec et propose « Réessayer ».
 
 ## Open questions

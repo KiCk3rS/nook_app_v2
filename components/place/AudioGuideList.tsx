@@ -15,6 +15,7 @@ import {
   spacing,
   textStyle,
 } from '../../constants/theme';
+import { GuidePlayButton, ThemeGuideRow } from './AudioGuideRow';
 
 interface AudioGuideListProps {
   guides: AudioGuide[];
@@ -22,10 +23,22 @@ interface AudioGuideListProps {
   isPlaying: boolean;
   onPlayGuide: (guideId: string) => void;
   onAddGuide?: () => void;
+  onRetryGuide?: (guideId: string) => void;
 }
 
 function getAuthorInitial(name: string): string {
   return name.trim().charAt(0).toUpperCase() || '?';
+}
+
+function getGuideDurationLabel(
+  guide: AudioGuide,
+  pendingLabel: string,
+  errorLabel: string,
+): string {
+  if (guide.status === 'pending') return pendingLabel;
+  if (guide.status === 'error') return errorLabel;
+  if (guide.durationSec !== null) return formatAudioDurationClock(guide.durationSec);
+  return pendingLabel;
 }
 
 function getRatingLabel(rating: number | null): string {
@@ -33,52 +46,11 @@ function getRatingLabel(rating: number | null): string {
   return rating.toFixed(1).replace('.0', '');
 }
 
-interface GuidePlayButtonProps {
-  guide: AudioGuide;
-  isActive: boolean;
-  isPlaying: boolean;
-  size: 'lg' | 'sm';
-  onPress: () => void;
-}
-
-function GuidePlayButton({ guide, isActive, isPlaying, size, onPress }: GuidePlayButtonProps) {
-  const isReady = guide.status === 'ready';
-  const isLarge = size === 'lg';
-  const buttonSize = isLarge ? 56 : 40;
-  const iconSize = isLarge ? 24 : 16;
-
+function PrivateGuideBadge({ label }: { label: string }) {
   return (
-    <Pressable
-      style={[
-        styles.playButton,
-        { width: buttonSize, height: buttonSize, borderRadius: buttonSize / 2 },
-        isReady && isActive && styles.playButtonActive,
-        isReady && !isActive && styles.playButtonReady,
-        !isReady && styles.playButtonPending,
-      ]}
-      onPress={onPress}
-      disabled={!isReady}
-      accessibilityRole="button"
-      accessibilityLabel={
-        !isReady
-          ? `${guide.title} — à générer`
-          : isActive && isPlaying
-            ? `Mettre en pause — ${guide.title}`
-            : `Écouter ${guide.title}`
-      }
-      accessibilityState={{ disabled: !isReady, selected: isActive }}
-    >
-      <Ionicons
-        name={isActive && isPlaying ? 'pause' : 'play'}
-        size={iconSize}
-        color={
-          !isReady
-            ? colors.mutedSoft
-            : colors.onPrimary
-        }
-        style={isActive || isLarge ? undefined : { marginLeft: 2 }}
-      />
-    </Pressable>
+    <View style={styles.privateBadge}>
+      <Text style={styles.privateBadgeText}>{label}</Text>
+    </View>
   );
 }
 
@@ -87,9 +59,17 @@ interface FeaturedGuideCardProps {
   isActive: boolean;
   isPlaying: boolean;
   onPlayGuide: (guideId: string) => void;
+  onRetryGuide?: (guideId: string) => void;
 }
 
-function FeaturedGuideCard({ guide, isActive, isPlaying, onPlayGuide }: FeaturedGuideCardProps) {
+function FeaturedGuideCard({
+  guide,
+  isActive,
+  isPlaying,
+  onPlayGuide,
+  onRetryGuide,
+}: FeaturedGuideCardProps) {
+  const { t } = useTranslation(['createGuide', 'common']);
   const isReady = guide.status === 'ready';
 
   function handlePlay() {
@@ -120,6 +100,9 @@ function FeaturedGuideCard({ guide, isActive, isPlaying, onPlayGuide }: Featured
       </View>
 
       <Text style={styles.featuredTitle}>{guide.title}</Text>
+      {guide.isPrivate ? (
+        <PrivateGuideBadge label={t('createGuide:myGuideBadge')} />
+      ) : null}
       <Text style={styles.featuredSummary}>{guide.summary}</Text>
 
       <View style={styles.featuredFooter}>
@@ -127,9 +110,11 @@ function FeaturedGuideCard({ guide, isActive, isPlaying, onPlayGuide }: Featured
         <View style={styles.durationRow}>
           <Ionicons name="time-outline" size={16} color={colors.muted} />
           <Text style={styles.durationText}>
-            {isReady && guide.durationSec !== null
-              ? formatAudioDurationClock(guide.durationSec)
-              : 'À générer'}
+            {getGuideDurationLabel(
+              guide,
+              t('createGuide:guidePending'),
+              t('createGuide:guideError'),
+            )}
           </Text>
         </View>
         <GuidePlayButton
@@ -140,57 +125,16 @@ function FeaturedGuideCard({ guide, isActive, isPlaying, onPlayGuide }: Featured
           onPress={handlePlay}
         />
       </View>
-    </View>
-  );
-}
-
-interface ThemeGuideRowProps {
-  guide: AudioGuide;
-  isActive: boolean;
-  isPlaying: boolean;
-  isLast: boolean;
-  onPlayGuide: (guideId: string) => void;
-}
-
-function ThemeGuideRow({
-  guide,
-  isActive,
-  isPlaying,
-  isLast,
-  onPlayGuide,
-}: ThemeGuideRowProps) {
-  const isReady = guide.status === 'ready';
-
-  function handlePlay() {
-    if (!isReady) return;
-    onPlayGuide(guide.id);
-  }
-
-  return (
-    <View style={[styles.themeRow, !isLast && styles.themeRowBorder]}>
-      <View style={styles.themeContent}>
-        <Text style={styles.themeTitle} numberOfLines={1}>
-          {guide.title}
-        </Text>
-        <View style={styles.themeMeta}>
-          <Ionicons name="time-outline" size={14} color={colors.muted} />
-          <Text style={styles.themeMetaText}>
-            {isReady && guide.durationSec !== null
-              ? formatAudioDurationClock(guide.durationSec)
-              : 'À générer'}
-          </Text>
-        </View>
-        <Text style={styles.themeSummary} numberOfLines={1}>
-          {guide.summary}
-        </Text>
-      </View>
-      <GuidePlayButton
-        guide={guide}
-        isActive={isActive}
-        isPlaying={isPlaying}
-        size="sm"
-        onPress={handlePlay}
-      />
+      {guide.status === 'error' && onRetryGuide ? (
+        <Pressable
+          onPress={() => onRetryGuide(guide.id)}
+          style={styles.retryButton}
+          accessibilityRole="button"
+          accessibilityLabel={t('createGuide:guideRetry')}
+        >
+          <Text style={styles.retryButtonText}>{t('createGuide:guideRetry')}</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -201,18 +145,42 @@ export function AudioGuideList({
   isPlaying,
   onPlayGuide,
   onAddGuide,
+  onRetryGuide,
 }: AudioGuideListProps) {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation(['common', 'createGuide']);
+
+  const addGuideButton = onAddGuide ? (
+    <Pressable
+      style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
+      onPress={onAddGuide}
+      accessibilityRole="button"
+      accessibilityLabel={t('common:addAudioGuide')}
+    >
+      <Ionicons name="add" size={22} color={colors.onPrimary} />
+      <Text style={styles.addButtonText}>{t('common:addAudioGuide')}</Text>
+    </Pressable>
+  ) : null;
+
+  const hasPendingGuide = guides.some((guide) => guide.status === 'pending');
+
+  const generationNotice = hasPendingGuide ? (
+    <View style={styles.generationNotice} accessibilityRole="text">
+      <Ionicons name="time-outline" size={18} color={colors.primary} />
+      <Text style={styles.generationNoticeText}>{t('createGuide:generationLaunchedNotice')}</Text>
+    </View>
+  ) : null;
 
   if (guides.length === 0) {
     return (
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{t('audioGuidesSection')}</Text>
+          <Text style={styles.sectionTitle}>{t('common:audioGuidesSection')}</Text>
         </View>
+        {generationNotice}
         <View style={styles.emptyWrap}>
-          <Text style={styles.emptyText}>{t('noAudioGuides')}</Text>
+          <Text style={styles.emptyText}>{t('common:noAudioGuides')}</Text>
         </View>
+        {addGuideButton}
       </View>
     );
   }
@@ -228,12 +196,15 @@ export function AudioGuideList({
         </Text>
       </View>
 
+      {generationNotice}
+
       <View style={styles.card}>
         <FeaturedGuideCard
           guide={featuredGuide}
           isActive={activeGuideId === featuredGuide.id}
           isPlaying={isPlaying && activeGuideId === featuredGuide.id}
           onPlayGuide={onPlayGuide}
+          onRetryGuide={onRetryGuide}
         />
 
         {otherGuides.length > 0 ? (
@@ -249,21 +220,14 @@ export function AudioGuideList({
                 isPlaying={isPlaying && activeGuideId === guide.id}
                 isLast={index === otherGuides.length - 1}
                 onPlayGuide={onPlayGuide}
+                onRetryGuide={onRetryGuide}
               />
             ))}
           </>
         ) : null}
       </View>
 
-      <Pressable
-        style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
-        onPress={onAddGuide}
-        accessibilityRole="button"
-        accessibilityLabel={t('addAudioGuide')}
-      >
-        <Ionicons name="add" size={22} color={colors.onPrimary} />
-        <Text style={styles.addButtonText}>{t('addAudioGuide')}</Text>
-      </Pressable>
+      {addGuideButton}
     </View>
   );
 }
@@ -286,6 +250,20 @@ const styles = StyleSheet.create({
   sectionCount: {
     ...textStyle('bodySm'),
     color: colors.muted,
+  },
+  generationNotice: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primaryDisabled,
+  },
+  generationNoticeText: {
+    ...textStyle('bodySm'),
+    color: colors.ink,
+    flex: 1,
   },
   card: {
     backgroundColor: colors.surfaceSoft,
@@ -371,19 +349,6 @@ const styles = StyleSheet.create({
     ...textStyle('bodySm'),
     color: colors.muted,
   },
-  playButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  playButtonReady: {
-    backgroundColor: colors.primary,
-  },
-  playButtonActive: {
-    backgroundColor: colors.primaryActive,
-  },
-  playButtonPending: {
-    backgroundColor: colors.hairline,
-  },
   themesHeader: {
     backgroundColor: colors.surfaceStrong,
     paddingHorizontal: spacing.base,
@@ -393,39 +358,6 @@ const styles = StyleSheet.create({
     ...textStyle('microLabel'),
     color: colors.muted,
     textTransform: 'uppercase',
-  },
-  themeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingHorizontal: spacing.base,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.canvas,
-  },
-  themeRowBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.hairlineSoft,
-  },
-  themeContent: {
-    flex: 1,
-    gap: spacing.xxs,
-  },
-  themeTitle: {
-    ...textStyle('titleMd'),
-    color: colors.ink,
-  },
-  themeMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  themeMetaText: {
-    ...textStyle('bodySm'),
-    color: colors.muted,
-  },
-  themeSummary: {
-    ...textStyle('bodySm'),
-    color: colors.mutedSoft,
   },
   addButton: {
     minHeight: componentSizes.buttonPrimaryHeight,
@@ -453,5 +385,28 @@ const styles = StyleSheet.create({
     ...textStyle('bodyMd'),
     color: colors.muted,
     textAlign: 'center',
+  },
+  privateBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xxs,
+    borderRadius: radius.full,
+    backgroundColor: colors.surfaceStrong,
+  },
+  privateBadgeText: {
+    ...textStyle('microLabel'),
+    color: colors.primary,
+    textTransform: 'uppercase',
+  },
+  retryButton: {
+    alignSelf: 'flex-start',
+    minHeight: componentSizes.iconControlSize,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.sm,
+  },
+  retryButtonText: {
+    ...textStyle('buttonSm'),
+    color: colors.primary,
+    fontWeight: '600',
   },
 });

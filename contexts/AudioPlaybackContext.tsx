@@ -10,18 +10,22 @@ import {
 import type { AudioGuide, MockPlace } from '../constants/mockPlaces';
 import type { SleepTimerValue } from '../constants/audioPlayerOptions';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
+import { trackAudioPlayerExpand, trackAudioThemeSelect } from '../lib/analytics';
 
 export type AudioPlayerViewMode = 'idle' | 'mini' | 'expanded';
 
 interface AudioPlaybackContextValue {
   place: MockPlace | null;
   guide: AudioGuide | null;
+  playbackGuides: AudioGuide[];
   viewMode: AudioPlayerViewMode;
   activeGuideId: string | null;
   isPlaying: boolean;
   positionMs: number;
   durationMs: number;
-  startPlayback: (place: MockPlace, guide: AudioGuide) => void;
+  startPlayback: (place: MockPlace, guide: AudioGuide, guides?: AudioGuide[]) => void;
+  syncPlaybackGuides: (guides: AudioGuide[]) => void;
+  switchGuide: (guideId: string) => void;
   minimize: () => void;
   expand: () => void;
   dismiss: () => void;
@@ -45,6 +49,7 @@ const AudioPlaybackContext = createContext<AudioPlaybackContextValue | null>(nul
 export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
   const [place, setPlace] = useState<MockPlace | null>(null);
   const [guide, setGuide] = useState<AudioGuide | null>(null);
+  const [playbackGuides, setPlaybackGuides] = useState<AudioGuide[]>([]);
   const [viewMode, setViewMode] = useState<AudioPlayerViewMode>('idle');
 
   const sessionActive = viewMode !== 'idle' && guide !== null;
@@ -71,7 +76,7 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
   } = playback;
 
   const startPlayback = useCallback(
-    (nextPlace: MockPlace, nextGuide: AudioGuide) => {
+    (nextPlace: MockPlace, nextGuide: AudioGuide, guides?: AudioGuide[]) => {
       if (guide?.id === nextGuide.id && viewMode !== 'idle') {
         togglePlay();
         return;
@@ -79,9 +84,28 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
 
       setPlace(nextPlace);
       setGuide(nextGuide);
+      setPlaybackGuides(guides ?? nextPlace.audioGuides);
       setViewMode('expanded');
+      trackAudioPlayerExpand(nextPlace.id, nextGuide.id);
     },
     [guide?.id, togglePlay, viewMode],
+  );
+
+  const syncPlaybackGuides = useCallback((guides: AudioGuide[]) => {
+    setPlaybackGuides(guides);
+  }, []);
+
+  const switchGuide = useCallback(
+    (guideId: string) => {
+      if (!place || !guide) return;
+      const nextGuide = playbackGuides.find(
+        (item) => item.id === guideId && item.status === 'ready',
+      );
+      if (!nextGuide || nextGuide.id === guide.id) return;
+      trackAudioThemeSelect(place.id, guide.id, guideId);
+      setGuide(nextGuide);
+    },
+    [place, guide, playbackGuides],
   );
 
   const minimize = useCallback(() => {
@@ -90,14 +114,16 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
   }, [guide]);
 
   const expand = useCallback(() => {
-    if (!guide) return;
+    if (!guide || !place) return;
     setViewMode('expanded');
-  }, [guide]);
+    trackAudioPlayerExpand(place.id, guide.id);
+  }, [guide, place]);
 
   const dismiss = useCallback(() => {
     reset();
     setPlace(null);
     setGuide(null);
+    setPlaybackGuides([]);
     setViewMode('idle');
   }, [reset]);
 
@@ -105,12 +131,15 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
     () => ({
       place,
       guide,
+      playbackGuides,
       viewMode,
       activeGuideId: guide?.id ?? null,
       isPlaying,
       positionMs,
       durationMs,
       startPlayback,
+      syncPlaybackGuides,
+      switchGuide,
       minimize,
       expand,
       dismiss,
@@ -131,6 +160,7 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
     [
       place,
       guide,
+      playbackGuides,
       viewMode,
       isPlaying,
       positionMs,
@@ -149,6 +179,8 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
       setTrimSilencesEnabled,
       setSleepTimer,
       startPlayback,
+      syncPlaybackGuides,
+      switchGuide,
       minimize,
       expand,
       dismiss,

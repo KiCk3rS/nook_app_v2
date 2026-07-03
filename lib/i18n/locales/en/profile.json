@@ -44,5 +44,9 @@
   "premiumCardBodyInactive": "Curated routes and exclusive audio guides.",
   "exploreMap": "Map",
   "discover": "Discover",
-  "favorites": "Favorites"
+  "favorites": "Favorites",
+  "creditsTitle": "Credits",
+  "creditsSubtitle": "{{count}} credit available",
+  "creditsSubtitle_other": "{{count}} credits available",
+  "creditsSubtitleEmpty": "Top up to create guides"
 }

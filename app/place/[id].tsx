@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Pressable,
@@ -13,8 +13,11 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { CreditsPackSheet } from '../../components/paywall/CreditsPackSheet';
+import { SubscriptionPaywallSheet } from '../../components/paywall/SubscriptionPaywallSheet';
 import { AudioGuideList } from '../../components/place/AudioGuideList';
 import { AssociatedPlacesCarousel } from '../../components/place/AssociatedPlacesCarousel';
+import { CreateGuideSheet } from '../../components/place/CreateGuideSheet';
 import { ParentPlaceLink } from '../../components/place/ParentPlaceLink';
 import { PlaceDescription } from '../../components/place/PlaceDescription';
 import {
@@ -23,9 +26,8 @@ import {
   PlaceHeroBackground,
   PlaceHeroControls,
 } from '../../components/place/PlaceHero';
-import { useAudioPlayback } from '../../contexts/AudioPlaybackContext';
-import { useFavorites } from '../../contexts/FavoritesContext';
-import { getPlaceById, getPlaceChildren, getPlaceParent } from '../../constants/mockPlaces';
+import { ToastSnackbar } from '../../components/ui/ToastSnackbar';
+import type { AudioGuide } from '../../constants/mockPlaces';
 import {
   colors,
   componentSizes,
@@ -33,13 +35,28 @@ import {
   spacing,
   textStyle,
 } from '../../constants/theme';
+import { useAudioPlayback } from '../../contexts/AudioPlaybackContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { useFavorites } from '../../contexts/FavoritesContext';
+import { fetchPrivateGuidesForPlace } from '../../lib/api/audioGuides';
+import { normalizeLocale } from '../../lib/i18n';
+import { getPlaceWikipediaUrl } from '../../lib/placeWikipedia';
+import {
+  getPlaceById,
+  getPlaceChildren,
+  getPlaceParent,
+} from '../../constants/mockPlaces';
+
+const PRIVATE_GUIDE_POLL_MS = 3000;
 
 export default function PlaceDetailScreen() {
   const router = useRouter();
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation(['common', 'createGuide', 'creditsPack']);
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, createGuide } = useLocalSearchParams<{ id: string; createGuide?: string }>();
+  const { isAuthenticated, isLoading: isAuthLoading, user, preferences, isMockSession } = useAuth();
+
   const place = useMemo(
     () => (typeof id === 'string' ? getPlaceById(id) : undefined),
     [id],
@@ -53,18 +70,108 @@ export default function PlaceDetailScreen() {
     [place],
   );
 
+  const [privateGuides, setPrivateGuides] = useState<AudioGuide[]>([]);
+  const [createGuideVisible, setCreateGuideVisible] = useState(false);
+  const [creditsPackVisible, setCreditsPackVisible] = useState(false);
+  const [subscriptionPaywallVisible, setSubscriptionPaywallVisible] = useState(false);
+  const [requiredCredits, setRequiredCredits] = useState<number | undefined>();
+  const [purchaseToastVisible, setPurchaseToastVisible] = useState(false);
+  const [purchasedCredits, setPurchasedCredits] = useState(0);
+
   const { isPlaceFavorite, togglePlaceFavorite } = useFavorites();
   const isFavorite = place ? isPlaceFavorite(place.id) : false;
   const {
     activeGuideId,
     isPlaying,
     viewMode,
+    place: playbackPlace,
     startPlayback,
+    syncPlaybackGuides,
     minimize,
   } = useAudioPlayback();
 
+  const appLanguage = normalizeLocale(
+    isAuthenticated ? preferences.language : i18n.language,
+  );
+
+  const placeWikipediaUrl = useMemo(
+    () => (place ? getPlaceWikipediaUrl(place, appLanguage) : undefined),
+    [place, appLanguage],
+  );
+
+  const canCreateGuide = Boolean(placeWikipediaUrl);
+
+  const publicGuides = useMemo(
+    () => place?.audioGuides.filter((guide) => !guide.isPrivate) ?? [],
+    [place],
+  );
+
+  const displayedGuides = useMemo(() => {
+    if (!isAuthenticated) return publicGuides;
+    return [...privateGuides, ...publicGuides];
+  }, [isAuthenticated, privateGuides, publicGuides]);
+
+  const hasPendingGuides = privateGuides.some((guide) => guide.status === 'pending');
+
+  const loadPrivateGuides = useCallback(async () => {
+    if (!place || !isAuthenticated || !user) {
+      setPrivateGuides([]);
+      return;
+    }
+    try {
+      const guides = await fetchPrivateGuidesForPlace(user.id, place.id, isMockSession);
+      setPrivateGuides(guides);
+    } catch {
+      setPrivateGuides([]);
+    }
+  }, [isAuthenticated, isMockSession, place, user]);
+
+  useEffect(() => {
+    void loadPrivateGuides();
+  }, [loadPrivateGuides]);
+
+  useEffect(() => {
+    if (!place || playbackPlace?.id !== place.id) return;
+    syncPlaybackGuides(displayedGuides);
+  }, [displayedGuides, place, playbackPlace?.id, syncPlaybackGuides]);
+
+  useEffect(() => {
+    if (!hasPendingGuides) return;
+    const timer = setInterval(() => {
+      void loadPrivateGuides();
+    }, PRIVATE_GUIDE_POLL_MS);
+    return () => clearInterval(timer);
+  }, [hasPendingGuides, loadPrivateGuides]);
+
+  useEffect(() => {
+    if (isAuthLoading || !place) return;
+    if (createGuide === '1' && isAuthenticated && placeWikipediaUrl) {
+      setCreateGuideVisible(true);
+      router.setParams({ createGuide: undefined });
+    }
+  }, [createGuide, isAuthenticated, isAuthLoading, place, placeWikipediaUrl, router]);
+
+  useEffect(() => {
+    if (!purchaseToastVisible) return;
+    const timer = setTimeout(() => setPurchaseToastVisible(false), 3200);
+    return () => clearTimeout(timer);
+  }, [purchaseToastVisible]);
+
   const scrollTopInset = PLACE_HERO_HEIGHT - PLACE_CONTENT_OVERLAP;
   const bodyMinHeight = windowHeight - scrollTopInset + PLACE_CONTENT_OVERLAP;
+  const toastBottom = insets.bottom + spacing.xl;
+
+  function openCreateGuideFlow() {
+    if (!place || !placeWikipediaUrl) return;
+    if (!isAuthenticated) {
+      router.push({
+        pathname: '/auth/login',
+        params: { returnTo: `/place/${place.id}?createGuide=1` },
+      });
+      return;
+    }
+    setCreateGuideVisible(true);
+  }
 
   function handleBack() {
     if (viewMode === 'expanded') {
@@ -84,23 +191,32 @@ export default function PlaceDetailScreen() {
   function handlePlayGuide(guideId: string) {
     if (!place) return;
 
-    const guide = place.audioGuides.find(
+    const guide = displayedGuides.find(
       (g) => g.id === guideId && g.status === 'ready',
     );
     if (!guide) return;
 
-    startPlayback(place, guide);
+    startPlayback(place, guide, displayedGuides);
   }
 
-  function handleAddGuide() {
-    // B6 / production : flux de création de guide — à brancher.
+  function handleOpenCreditsPack(credits: number) {
+    setRequiredCredits(credits);
+    setCreditsPackVisible(true);
+  }
+
+  function handleCreateSuccess() {
+    void loadPrivateGuides();
+  }
+
+  function handleRetryGuide(_guideId: string) {
+    openCreateGuideFlow();
   }
 
   if (!place) {
     return (
       <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
-        <Text style={styles.notFoundTitle}>{t('placeNotFoundTitle')}</Text>
-        <Text style={styles.notFoundBody}>{t('placeNotFoundBody')}</Text>
+        <Text style={styles.notFoundTitle}>{t('common:placeNotFoundTitle')}</Text>
+        <Text style={styles.notFoundBody}>{t('common:placeNotFoundBody')}</Text>
         <Pressable
           style={({ pressed }) => [
             styles.notFoundButton,
@@ -108,9 +224,9 @@ export default function PlaceDetailScreen() {
           ]}
           onPress={handleBack}
           accessibilityRole="button"
-          accessibilityLabel={t('back')}
+          accessibilityLabel={t('common:back')}
         >
-          <Text style={styles.primaryText}>{t('back')}</Text>
+          <Text style={styles.primaryText}>{t('common:back')}</Text>
         </Pressable>
       </View>
     );
@@ -160,16 +276,57 @@ export default function PlaceDetailScreen() {
           <PlaceDescription description={place.description} />
 
           <AudioGuideList
-            guides={place.audioGuides}
+            guides={displayedGuides}
             activeGuideId={activeGuideId}
             isPlaying={isPlaying}
             onPlayGuide={handlePlayGuide}
-            onAddGuide={handleAddGuide}
+            onAddGuide={canCreateGuide ? openCreateGuideFlow : undefined}
+            onRetryGuide={handleRetryGuide}
           />
 
           <AssociatedPlacesCarousel places={associatedPlaces} />
         </View>
       </ScrollView>
+
+      {placeWikipediaUrl ? (
+        <CreateGuideSheet
+          visible={createGuideVisible}
+          poiId={place.id}
+          poiName={place.name}
+          wikipediaUrl={placeWikipediaUrl}
+          language={appLanguage}
+          onClose={() => setCreateGuideVisible(false)}
+          onSuccess={handleCreateSuccess}
+          onOpenCreditsPack={handleOpenCreditsPack}
+        />
+      ) : null}
+
+      <CreditsPackSheet
+        visible={creditsPackVisible}
+        sourceScreen="create_guide"
+        requiredCredits={requiredCredits}
+        onClose={() => setCreditsPackVisible(false)}
+        onPurchaseSuccess={(credits) => {
+          setPurchasedCredits(credits);
+          setPurchaseToastVisible(true);
+          if (!createGuideVisible) {
+            setCreateGuideVisible(true);
+          }
+        }}
+        onOpenSubscription={() => setSubscriptionPaywallVisible(true)}
+      />
+
+      <SubscriptionPaywallSheet
+        visible={subscriptionPaywallVisible}
+        sourceScreen="create_guide"
+        onClose={() => setSubscriptionPaywallVisible(false)}
+      />
+
+      <ToastSnackbar
+        visible={purchaseToastVisible}
+        message={t('creditsPack:purchaseSuccess', { count: purchasedCredits })}
+        bottomInset={toastBottom}
+      />
     </View>
   );
 }

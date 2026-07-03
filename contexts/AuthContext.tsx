@@ -22,6 +22,7 @@ import {
   patchMockPreferences,
   patchMockUser,
 } from '../lib/mockUserSession';
+import { resetDemoCreditsBalance } from '../lib/api/audioGuides';
 import {
   clearStoredTokens,
   loadStoredTokens,
@@ -197,6 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     applySession(MOCK_ACCESS_TOKEN, MOCK_REFRESH_TOKEN);
     const profile = await loadMockProfile();
     applyProfileToState(profile, setUser, setPreferences);
+    await resetDemoCreditsBalance();
   }, [applySession]);
 
   const login = useCallback(

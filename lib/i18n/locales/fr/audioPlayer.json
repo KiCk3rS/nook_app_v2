@@ -35,5 +35,15 @@
   "discussionErrorRateLimited": "Trop de questions en peu de temps. Réessayez dans quelques minutes.",
   "discussionErrorUnknown": "Une erreur est survenue. Réessayez.",
   "discussionRetry": "Réessayer",
-  "discussionGetCredits": "Obtenir des crédits"
+  "discussionGetCredits": "Obtenir des crédits",
+  "lyricsEmpty": "Le texte de ce guide n'est pas encore disponible.",
+  "lyricsPanelA11y": "Paroles du guide audio",
+  "lyricsSegmentA11y": "Aller à : {{text}}",
+  "themesSectionTitle": "Autres thèmes",
+  "themesEmptyTitle": "Aucun autre thème",
+  "themesEmptyBody": "Ce lieu ne propose qu'un seul guide audio pour le moment.",
+  "themesPending": "À générer",
+  "themesGuidePlayA11y": "Écouter {{title}}",
+  "themesGuidePauseA11y": "Mettre en pause — {{title}}",
+  "themesGuidePendingA11y": "{{title}} — à générer"
 }

@@ -1,0 +1,17 @@
+{
+  "sheetTitle": "Crédits",
+  "currentBalance": "Vous avez {{count}} crédit",
+  "currentBalance_other": "Vous avez {{count}} crédits",
+  "requiredCredits": "Ce guide nécessite {{count}} crédit.",
+  "requiredCredits_other": "Ce guide nécessite {{count}} crédits.",
+  "tierReminder": "Court · 1 crédit — Normal · 2 — Détaillé · 3",
+  "packCredits": "{{count}} crédits",
+  "ctaContinue": "Continuer — {{price}}",
+  "subscriptionUpsell": "Des générations incluses chaque mois avec Premium",
+  "subscriptionLink": "Voir l'abonnement",
+  "restorePurchases": "Restaurer les achats",
+  "purchasing": "Achat en cours…",
+  "purchaseSuccess": "{{count}} crédit ajouté à votre compte.",
+  "purchaseSuccess_other": "{{count}} crédits ajoutés à votre compte.",
+  "packAccessibility": "{{credits}} crédits, {{price}}"
+}

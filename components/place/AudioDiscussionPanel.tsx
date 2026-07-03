@@ -13,6 +13,10 @@ import {
   View,
 } from 'react-native';
 
+import {
+  trackGuideChatAuthGate,
+  trackGuideChatOpen,
+} from '../../lib/analytics';
 import { useGuideChat, type GuideChatErrorCode } from '../../hooks/useGuideChat';
 import type { GuideChatMessage } from '../../types/guideChat';
 import {
@@ -26,6 +30,7 @@ import {
 interface AudioDiscussionPanelProps {
   poiId: string;
   poiName: string;
+  guideId: string;
   guideTitle: string;
   enabled: boolean;
 }
@@ -102,6 +107,7 @@ function ErrorBanner({
 export function AudioDiscussionPanel({
   poiId,
   poiName,
+  guideId,
   guideTitle,
   enabled,
 }: AudioDiscussionPanelProps) {
@@ -123,12 +129,18 @@ export function AudioDiscussionPanel({
     maxMessageLength,
   } = useGuideChat({ poiId, poiName, guideTitle, enabled });
 
+  useEffect(() => {
+    if (!enabled) return;
+    trackGuideChatOpen(poiId, guideId);
+  }, [enabled, guideId, poiId]);
+
   const handleSignIn = useCallback(() => {
+    trackGuideChatAuthGate(poiId, 'guide_chat');
     router.push({
       pathname: '/auth/login',
       params: { returnTo: pathname, source: 'guide_chat' },
     });
-  }, [pathname, router]);
+  }, [pathname, poiId, router]);
 
   const handleSend = useCallback(async () => {
     const sent = await sendMessage(draft);

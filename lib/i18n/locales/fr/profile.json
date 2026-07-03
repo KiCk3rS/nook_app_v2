@@ -44,5 +44,9 @@
   "premiumCardBodyInactive": "Parcours curatés et guides audio exclusifs.",
   "exploreMap": "Carte",
   "discover": "Découvrir",
-  "favorites": "Favoris"
+  "favorites": "Favoris",
+  "creditsTitle": "Crédits",
+  "creditsSubtitle": "{{count}} crédit disponible",
+  "creditsSubtitle_other": "{{count}} crédits disponibles",
+  "creditsSubtitleEmpty": "Recharger pour créer des guides"
 }

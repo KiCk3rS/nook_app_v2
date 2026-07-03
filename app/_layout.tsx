@@ -17,6 +17,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GlobalAudioChrome } from '../components/audio/GlobalAudioChrome';
 import { I18nSync } from '../components/I18nSync';
 import { AudioPlaybackProvider } from '../contexts/AudioPlaybackContext';
+import { CreditsProvider } from '../contexts/CreditsContext';
 import { AuthProvider } from '../contexts/AuthContext';
 import { FavoritesProvider } from '../contexts/FavoritesContext';
 import { PremiumProvider } from '../contexts/PremiumContext';
@@ -52,6 +53,7 @@ export default function RootLayout() {
           <I18nSync />
           <FavoritesProvider>
           <PremiumProvider>
+          <CreditsProvider>
           <StatusBar style="dark" />
           <Stack
             screenOptions={{
@@ -147,6 +149,7 @@ export default function RootLayout() {
             />
           </Stack>
           <GlobalAudioChrome />
+          </CreditsProvider>
           </PremiumProvider>
           </FavoritesProvider>
           </AuthProvider>

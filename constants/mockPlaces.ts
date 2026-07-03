@@ -3,7 +3,7 @@ export interface PlaceCategory {
   label: string;
 }
 
-export type AudioGuideStatus = 'ready' | 'pending';
+export type AudioGuideStatus = 'ready' | 'pending' | 'error';
 
 export interface AudioGuide {
   id: string;
@@ -15,6 +15,8 @@ export interface AudioGuide {
   publishedAt: string;
   status: AudioGuideStatus;
   rating: number | null;
+  /** Guide généré par l'utilisateur — visible uniquement pour l'auteur (A3.3). */
+  isPrivate?: boolean;
 }
 
 export interface MockPlace {
@@ -25,6 +27,8 @@ export interface MockPlace {
   categoryId: string;
   address: string;
   imageUrl: string;
+  /** Article Wikipedia associé éditorialement au POI (source génération guide IA). */
+  wikipediaUrl?: string;
   description: string;
   audioGuides: AudioGuide[];
   /** POI parent (ex. musée pour une œuvre) — absent = POI racine affiché sur la carte. */
@@ -100,6 +104,7 @@ export const mockPlaces: MockPlace[] = [
     address: '6 Parvis Notre-Dame - Place Jean-Paul II',
     imageUrl:
       'https://images.unsplash.com/photo-1758204570486-8f49ab989f56?w=800&q=80',
+    wikipediaUrl: 'https://fr.wikipedia.org/wiki/Cath%C3%A9drale_Notre-Dame_de_Paris',
     description:
       'Chef-d\'œuvre de l\'architecture gothique, Notre-Dame domine l\'Île de la Cité depuis le XIIe siècle.\n\n' +
       'Sa façade occidentale, ses rosaces et ses gargouilles en font un symbole reconnu dans le monde entier.\n\n' +
@@ -149,6 +154,7 @@ export const mockPlaces: MockPlace[] = [
     address: 'Rue de Rivoli, 75001 Paris',
     imageUrl:
       'https://images.unsplash.com/photo-1743880475189-e36f80868bcc?w=800&q=80',
+    wikipediaUrl: 'https://fr.wikipedia.org/wiki/Mus%C3%A9e_du_Louvre',
     description:
       'Ancien palais royal devenu le plus grand musée du monde, le Louvre abrite des millénaires d\'art.',
     audioGuides: [
@@ -218,6 +224,7 @@ export const mockPlaces: MockPlace[] = [
     address: 'Av. Gustave Eiffel, 75007 Paris',
     imageUrl:
       'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=800&q=80',
+    wikipediaUrl: 'https://fr.wikipedia.org/wiki/Tour_Eiffel',
     description:
       'Symbole de Paris depuis l\'Exposition universelle de 1889, la tour Eiffel fut d\'abord controversée.',
     audioGuides: [
@@ -243,6 +250,8 @@ export const mockPlaces: MockPlace[] = [
     address: '35 Rue du Chevalier de la Barre, 75018 Paris',
     imageUrl:
       'https://images.unsplash.com/photo-1757162381660-5fd3d391bcb4?w=800&q=80',
+    wikipediaUrl:
+      'https://fr.wikipedia.org/wiki/Basilique_du_Sacr%C3%A9-C%C5%93ur_de_Montmartre',
     description:
       'Perchée sur la butte Montmartre, la basilique du Sacré-Cœur offre l\'un des plus beaux panoramas de Paris.',
     audioGuides: [
@@ -279,6 +288,7 @@ export const mockPlaces: MockPlace[] = [
     address: 'Rue de Médicis - Rue de Vaugirard, 75006 Paris',
     imageUrl:
       'https://images.unsplash.com/photo-1570688382843-856642db5426?w=800&q=80',
+    wikipediaUrl: 'https://fr.wikipedia.org/wiki/Jardin_du_Luxembourg',
     description:
       'Créé en 1612 à la demande de Marie de Médicis, le jardin du Luxembourg mêle parterres et bosquets.',
     audioGuides: [
@@ -304,6 +314,7 @@ export const mockPlaces: MockPlace[] = [
     address: '3e et 4e arrondissement, Paris',
     imageUrl:
       'https://images.unsplash.com/photo-1594558068774-4bd20990a583?w=800&q=80',
+    wikipediaUrl: 'https://fr.wikipedia.org/wiki/Le_Marais',
     description:
       'Entre hôtels particuliers du XVIIe siècle et ruelles animées, le Marais concentre histoire et art.',
     audioGuides: [
@@ -341,6 +352,7 @@ export const mockPlaces: MockPlace[] = [
     address: 'Musée du Louvre — Aile Denon, 1er étage',
     imageUrl:
       'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&q=80',
+    wikipediaUrl: 'https://fr.wikipedia.org/wiki/La_Joconde',
     description:
       'Portrait de Lisa Gherardini peint par Léonard de Vinci entre 1503 et 1519, devenu l\'emblème du musée du Louvre.',
     audioGuides: [
@@ -367,6 +379,7 @@ export const mockPlaces: MockPlace[] = [
     address: 'Musée du Louvre — Galerie des Antiques',
     imageUrl:
       'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&q=80',
+    wikipediaUrl: 'https://fr.wikipedia.org/wiki/V%C3%A9nus_de_Milo',
     description:
       'Sculpture grecque en marbre de Paros, découverte en 1820 à Milos et entrée au Louvre en 1821.',
     audioGuides: [
@@ -393,6 +406,7 @@ export const mockPlaces: MockPlace[] = [
     address: 'Musée du Louvre — Escalier Daru',
     imageUrl:
       'https://images.unsplash.com/photo-1578321272176-b2a2ad7c3a8e?w=800&q=80',
+    wikipediaUrl: 'https://fr.wikipedia.org/wiki/Victoire_de_Samothrace',
     description:
       'Chef-d\'œuvre de la sculpture hellénistique, représentant Niké posée sur la proue d\'un navire.',
     audioGuides: [
@@ -418,6 +432,7 @@ export const mockPlaces: MockPlace[] = [
     address: 'Place des Vosges, 75004 Paris',
     imageUrl:
       'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80',
+    wikipediaUrl: 'https://fr.wikipedia.org/wiki/Place_des_Vosges',
     description:
       'Plus ancienne place planifiée de Paris, entourée d’arcades et d’hôtels particuliers du XVIIe siècle.',
     audioGuides: [
@@ -443,6 +458,7 @@ export const mockPlaces: MockPlace[] = [
     address: '5 Rue de Thorigny, 75003 Paris',
     imageUrl:
       'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&q=80',
+    wikipediaUrl: 'https://fr.wikipedia.org/wiki/Mus%C3%A9e_Picasso',
     description:
       'Installé dans l’hôtel Salé, le musée abrite la plus grande collection publique d’œuvres de Picasso.',
     audioGuides: [
@@ -468,6 +484,7 @@ export const mockPlaces: MockPlace[] = [
     address: 'Rue des Rosiers, 75004 Paris',
     imageUrl:
       'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80',
+    wikipediaUrl: 'https://fr.wikipedia.org/wiki/Rue_des_Rosiers_(Paris)',
     description:
       'Artère historique du pletzl, entre synagogues, boulangeries et l’ambiance du Marais juif.',
     audioGuides: [
@@ -493,6 +510,7 @@ export const mockPlaces: MockPlace[] = [
     address: '62 Rue Saint-Antoine, 75004 Paris',
     imageUrl:
       'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&q=80',
+    wikipediaUrl: 'https://fr.wikipedia.org/wiki/H%C3%B4tel_de_Sully',
     description:
       'Hôtel particulier du début du XVIIe siècle, porte d’entrée vers la place des Vosges.',
     audioGuides: [
@@ -518,6 +536,7 @@ export const mockPlaces: MockPlace[] = [
     address: '16 Rue des Francs-Bourgeois, 75003 Paris',
     imageUrl:
       'https://images.unsplash.com/photo-1743880475189-e36f80868bcc?w=800&q=80',
+    wikipediaUrl: 'https://fr.wikipedia.org/wiki/Mus%C3%A9e_Carnavalet',
     description:
       'Musée d’histoire de Paris, installé dans deux hôtels particuliers du Marais.',
     audioGuides: [

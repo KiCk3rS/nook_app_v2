@@ -1,8 +1,12 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { CreditsPackSheet } from '../../components/paywall/CreditsPackSheet';
+import { SubscriptionPaywallSheet } from '../../components/paywall/SubscriptionPaywallSheet';
+import { ToastSnackbar } from '../../components/ui/ToastSnackbar';
 import { ProfileAnonymousView } from '../../components/profile/ProfileAnonymousView';
 import {
   ProfileAuthenticatedView,
@@ -17,13 +21,15 @@ import {
 import { MOCK_SAVED_ROUTES_COUNT } from '../../constants/mockUser';
 import { MOCK_USER_ITINERARIES } from '../../constants/mockUserItineraries';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCredits } from '../../contexts/CreditsContext';
 import { useFavorites } from '../../contexts/FavoritesContext';
 import { fetchItineraries } from '../../lib/api/itineraries';
 import { isApiConfigured, shouldShowDemoLogin } from '../../lib/config';
 import { ApiError } from '../../types/api';
 
 export default function ProfilScreen() {
-  const { t } = useTranslation('profile');
+  const { t } = useTranslation(['profile', 'creditsPack']);
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const {
     user,
@@ -35,8 +41,13 @@ export default function ProfilScreen() {
     loginAsMock,
   } = useAuth();
   const { favoritePlaceIds, favoriteItineraryIds } = useFavorites();
+  const { balance, refreshBalance } = useCredits();
 
   const [editVisible, setEditVisible] = useState(false);
+  const [creditsPackVisible, setCreditsPackVisible] = useState(false);
+  const [subscriptionPaywallVisible, setSubscriptionPaywallVisible] = useState(false);
+  const [purchaseToastVisible, setPurchaseToastVisible] = useState(false);
+  const [purchasedCredits, setPurchasedCredits] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [routesCount, setRoutesCount] = useState(MOCK_SAVED_ROUTES_COUNT);
 
@@ -108,6 +119,12 @@ export default function ProfilScreen() {
     }, [isAuthenticated, isLoading, refresh]),
   );
 
+  useEffect(() => {
+    if (!purchaseToastVisible) return;
+    const timer = setTimeout(() => setPurchaseToastVisible(false), 3200);
+    return () => clearTimeout(timer);
+  }, [purchaseToastVisible]);
+
   function openLogin() {
     router.push({
       pathname: '/auth/login',
@@ -152,16 +169,39 @@ export default function ProfilScreen() {
         stats={dashboardStats}
         recentRoutes={recentRoutes}
         recentListens={recentListens}
+        creditsBalance={balance?.creditsBalance ?? null}
         isRefreshing={isRefreshingProfile}
         loadError={loadError}
         onRefresh={() => void refresh()}
         onEditProfile={() => setEditVisible(true)}
+        onOpenCredits={() => setCreditsPackVisible(true)}
       />
       <ProfileEditSheet
         visible={editVisible}
         user={user}
         onClose={() => setEditVisible(false)}
         onSaved={handleSaved}
+      />
+      <CreditsPackSheet
+        visible={creditsPackVisible}
+        sourceScreen="profile"
+        onClose={() => setCreditsPackVisible(false)}
+        onPurchaseSuccess={(credits) => {
+          setPurchasedCredits(credits);
+          setPurchaseToastVisible(true);
+        }}
+        onOpenSubscription={() => setSubscriptionPaywallVisible(true)}
+      />
+      <SubscriptionPaywallSheet
+        visible={subscriptionPaywallVisible}
+        sourceScreen="credits_pack"
+        onClose={() => setSubscriptionPaywallVisible(false)}
+        onSubscribed={() => void refreshBalance()}
+      />
+      <ToastSnackbar
+        visible={purchaseToastVisible}
+        message={t('creditsPack:purchaseSuccess', { count: purchasedCredits })}
+        bottomInset={insets.bottom + 16}
       />
     </>
   );

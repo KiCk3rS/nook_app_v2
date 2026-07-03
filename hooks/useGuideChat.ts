@@ -6,6 +6,10 @@ import * as guideChatApi from '../lib/api/guideChat';
 import { getMemoryAccessToken } from '../lib/api/client';
 import { isApiConfigured } from '../lib/config';
 import {
+  trackGuideChatError,
+  trackGuideChatSend,
+} from '../lib/analytics';
+import {
   fetchMockGuideChatMessages,
   sendMockGuideChatMessage,
 } from '../lib/mockGuideChat';
@@ -78,7 +82,13 @@ export function useGuideChat({
       setCreditsBalance(response.creditsBalance ?? null);
     } catch (error) {
       if (version !== loadVersionRef.current) return;
-      setErrorCode(resolveErrorCode(error));
+      const code = resolveErrorCode(error);
+      setErrorCode(code);
+      trackGuideChatError(
+        poiId,
+        code,
+        error instanceof ApiError ? error.statusCode : undefined,
+      );
     } finally {
       if (version === loadVersionRef.current) {
         setIsLoading(false);
@@ -126,9 +136,16 @@ export function useGuideChat({
           response.assistantMessage,
         ]);
         setCreditsBalance(response.creditsBalance ?? null);
+        trackGuideChatSend(poiId, content.length);
         return true;
       } catch (error) {
-        setErrorCode(resolveErrorCode(error));
+        const code = resolveErrorCode(error);
+        setErrorCode(code);
+        trackGuideChatError(
+          poiId,
+          code,
+          error instanceof ApiError ? error.statusCode : undefined,
+        );
         return false;
       } finally {
         setIsSending(false);

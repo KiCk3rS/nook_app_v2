@@ -12,10 +12,12 @@ export function GlobalAudioChrome() {
   const {
     place,
     guide,
+    playbackGuides,
     viewMode,
     isPlaying,
     positionMs,
     durationMs,
+    switchGuide,
     minimize,
     expand,
     dismiss,
@@ -63,6 +65,7 @@ export function GlobalAudioChrome() {
           visible
           place={place}
           guide={guide}
+          guides={playbackGuides}
           isPlaying={isPlaying}
           positionMs={positionMs}
           durationMs={durationMs}
@@ -79,6 +82,7 @@ export function GlobalAudioChrome() {
           onVoiceBoostChange={setVoiceBoostEnabled}
           onTrimSilencesChange={setTrimSilencesEnabled}
           onSleepTimerChange={setSleepTimer}
+          onSelectGuide={switchGuide}
         />
       ) : null}
     </>
