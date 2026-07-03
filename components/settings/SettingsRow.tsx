@@ -96,6 +96,7 @@ export function SettingsGroup({ title, children }: SettingsGroupProps) {
 const styles = StyleSheet.create({
   group: {
     gap: spacing.sm,
+    paddingHorizontal: spacing.base,
   },
   groupTitle: {
     ...textStyle('caption'),

@@ -1,0 +1,76 @@
+{
+  "privacyLastUpdated": "Last updated: March 2026",
+  "termsLastUpdated": "Last updated: March 2026",
+  "privacy": {
+    "intro": {
+      "title": "Introduction",
+      "body": "NOOK helps you discover places and listen to audio guides. This policy describes the data we process when you use the app and the choices available to you."
+    },
+    "dataCollected": {
+      "title": "Data we collect",
+      "body": "Depending on how you use the app, we may process: account identifiers (email), usage preferences (language, notifications), listen history, favorites, saved routes, credit balance, and anonymized technical logs (crashes, performance)."
+    },
+    "location": {
+      "title": "Location",
+      "body": "With your consent, we use device location to center the map, show nearby places, and improve discovery. You can deny or revoke this permission anytime in device settings; the map remains usable without location."
+    },
+    "account": {
+      "title": "Account and authentication",
+      "body": "Creating an account lets you sync routes, favorites, and personal guides. We do not sell your personal data to third parties."
+    },
+    "audioAndAi": {
+      "title": "Audio, AI guides, and chat",
+      "body": "Audio guides generated for your account are private by default. Questions sent to the contextual guide are processed to provide answers based on place content; they may be logged in a limited way for security and service improvement."
+    },
+    "retention": {
+      "title": "Retention",
+      "body": "We keep your data while your account is active, then as long as needed for legal obligations or dispute resolution. You may request account deletion (see contact)."
+    },
+    "rights": {
+      "title": "Your rights",
+      "body": "Under applicable privacy law (including GDPR where relevant), you may request access, rectification, erasure, restriction, or portability of your data, or object to certain processing. Use in-app settings or the contact below."
+    },
+    "contact": {
+      "title": "Contact us",
+      "body": "For privacy questions: privacy@nook.app (placeholder — replace with the official channel before release)."
+    }
+  },
+  "terms": {
+    "intro": {
+      "title": "Acceptance",
+      "body": "By using NOOK, you agree to these terms. If you do not agree, do not use the application."
+    },
+    "service": {
+      "title": "Service description",
+      "body": "NOOK offers place discovery, audio guides, routes, and premium features. Editorial content and generated guides may change; some features require an account or subscription."
+    },
+    "account": {
+      "title": "User account",
+      "body": "You are responsible for keeping your credentials secure. Information you provide must be accurate. We may suspend accounts for fraudulent or prohibited use."
+    },
+    "content": {
+      "title": "Content and licenses",
+      "body": "Text sourced from Wikipedia is reused under CC BY-SA where applicable. NOOK audio guides and premium itineraries are protected; unauthorized reproduction is prohibited."
+    },
+    "purchases": {
+      "title": "In-app purchases",
+      "body": "Subscriptions and credit packs are billed through Apple or Google stores under their terms. Credits are used for personal guide generation; they are non-refundable except where required by law."
+    },
+    "acceptableUse": {
+      "title": "Acceptable use",
+      "body": "You agree not to misuse the service, harass others, attempt unauthorized access, or use guide chat for illegal or offensive content."
+    },
+    "liability": {
+      "title": "Liability",
+      "body": "NOOK is provided \"as is\". We do not guarantee complete accuracy of third-party content (including Wikipedia). Stay aware on site and follow local regulations."
+    },
+    "changes": {
+      "title": "Changes",
+      "body": "We may update these terms. For material changes, we will notify you in the app. Continued use constitutes acceptance."
+    },
+    "contact": {
+      "title": "Contact",
+      "body": "Legal questions: legal@nook.app (placeholder — replace before release)."
+    }
+  }
+}

@@ -45,6 +45,13 @@ module.exports = {
         },
       ],
       [
+        'expo-notifications',
+        {
+          icon: './assets/icon.png',
+          color: '#2E6BFF',
+        },
+      ],
+      [
         'react-native-maps',
         {
           androidGoogleMapsApiKey: googleMapsApiKey,

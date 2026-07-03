@@ -31,6 +31,7 @@ import type { AudioGuide } from '../../constants/mockPlaces';
 import {
   colors,
   componentSizes,
+  elevation,
   radius,
   spacing,
   textStyle,
@@ -88,6 +89,7 @@ export default function PlaceDetailScreen() {
     startPlayback,
     syncPlaybackGuides,
     minimize,
+    togglePlay,
   } = useAudioPlayback();
 
   const appLanguage = normalizeLocale(
@@ -112,6 +114,26 @@ export default function PlaceDetailScreen() {
   }, [isAuthenticated, privateGuides, publicGuides]);
 
   const hasPendingGuides = privateGuides.some((guide) => guide.status === 'pending');
+
+  const stickyGuide = useMemo(() => {
+    if (activeGuideId && playbackPlace?.id === place?.id) {
+      return (
+        displayedGuides.find(
+          (guide) => guide.id === activeGuideId && guide.status === 'ready',
+        ) ?? displayedGuides.find((guide) => guide.status === 'ready') ?? null
+      );
+    }
+    return displayedGuides.find((guide) => guide.status === 'ready') ?? null;
+  }, [activeGuideId, displayedGuides, place?.id, playbackPlace?.id]);
+
+  const showStickyListenBar = stickyGuide !== null && viewMode !== 'expanded';
+  const isStickyGuideActive =
+    stickyGuide !== null &&
+    activeGuideId === stickyGuide.id &&
+    viewMode !== 'idle';
+  const stickyCtaLabel = isStickyGuideActive && isPlaying
+    ? t('common:pauseGuide')
+    : t('common:listenGuide');
 
   const loadPrivateGuides = useCallback(async () => {
     if (!place || !isAuthenticated || !user) {
@@ -208,9 +230,23 @@ export default function PlaceDetailScreen() {
     void loadPrivateGuides();
   }
 
+  function handleStickyListen() {
+    if (!place || !stickyGuide) return;
+    if (isStickyGuideActive) {
+      togglePlay();
+      return;
+    }
+    handlePlayGuide(stickyGuide.id);
+  }
+
   function handleRetryGuide(_guideId: string) {
     openCreateGuideFlow();
   }
+
+  const stickyBarHeight = componentSizes.buttonPrimaryHeight + insets.bottom + spacing.md;
+  const scrollBottomPadding = showStickyListenBar
+    ? insets.bottom + spacing.xxl + stickyBarHeight
+    : insets.bottom + spacing.xxl;
 
   if (!place) {
     return (
@@ -254,7 +290,7 @@ export default function PlaceDetailScreen() {
         <View
           style={[
             styles.body,
-            { minHeight: bodyMinHeight, paddingBottom: insets.bottom + spacing.xxl },
+            { minHeight: bodyMinHeight, paddingBottom: scrollBottomPadding },
           ]}
         >
           <Text style={styles.title} accessibilityRole="header">
@@ -287,6 +323,32 @@ export default function PlaceDetailScreen() {
           <AssociatedPlacesCarousel places={associatedPlaces} />
         </View>
       </ScrollView>
+
+      {showStickyListenBar ? (
+        <View
+          style={[
+            styles.stickyBar,
+            { paddingBottom: Math.max(insets.bottom, spacing.sm) },
+          ]}
+        >
+          <Pressable
+            onPress={handleStickyListen}
+            style={({ pressed }) => [
+              styles.stickyButton,
+              pressed && styles.stickyButtonPressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={stickyCtaLabel}
+          >
+            <Ionicons
+              name={isStickyGuideActive && isPlaying ? 'pause' : 'headset'}
+              size={22}
+              color={colors.onPrimary}
+            />
+            <Text style={styles.stickyButtonText}>{stickyCtaLabel}</Text>
+          </Pressable>
+        </View>
+      ) : null}
 
       {placeWikipediaUrl ? (
         <CreateGuideSheet
@@ -402,6 +464,35 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryActive,
   },
   primaryText: {
+    ...textStyle('buttonMd'),
+    color: colors.onPrimary,
+  },
+  stickyBar: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: spacing.base,
+    paddingTop: spacing.sm,
+    backgroundColor: colors.canvas,
+    borderTopWidth: 1,
+    borderTopColor: colors.hairline,
+    ...elevation.sheet,
+  },
+  stickyButton: {
+    minHeight: componentSizes.buttonPrimaryHeight,
+    borderRadius: radius.full,
+    backgroundColor: colors.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+  },
+  stickyButtonPressed: {
+    backgroundColor: colors.primaryActive,
+  },
+  stickyButtonText: {
     ...textStyle('buttonMd'),
     color: colors.onPrimary,
   },

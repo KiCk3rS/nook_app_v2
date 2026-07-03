@@ -1,0 +1,76 @@
+{
+  "privacyLastUpdated": "Dernière mise à jour : mars 2026",
+  "termsLastUpdated": "Dernière mise à jour : mars 2026",
+  "privacy": {
+    "intro": {
+      "title": "Introduction",
+      "body": "NOOK vous aide à découvrir des lieux et à écouter des guides audio. Cette politique décrit les données que nous traitons lorsque vous utilisez l'application et les choix dont vous disposez."
+    },
+    "dataCollected": {
+      "title": "Données que nous collectons",
+      "body": "Selon votre utilisation, nous pouvons traiter : identifiants de compte (e-mail), préférences d'usage (langue, notifications), historique d'écoute, favoris, parcours enregistrés, solde de crédits et journaux techniques anonymisés (crashs, performances)."
+    },
+    "location": {
+      "title": "Localisation",
+      "body": "Avec votre accord, nous utilisons la position de l'appareil pour centrer la carte, afficher des lieux à proximité et améliorer la découverte. Vous pouvez refuser ou révoquer cette autorisation à tout moment dans les réglages de l'appareil ; la carte reste utilisable sans géolocalisation."
+    },
+    "account": {
+      "title": "Compte et authentification",
+      "body": "La création d'un compte permet de synchroniser vos parcours, favoris et guides personnels. Nous ne vendons pas vos données personnelles à des tiers."
+    },
+    "audioAndAi": {
+      "title": "Audio, guides IA et discussion",
+      "body": "Les guides audio générés pour votre compte sont privés par défaut. Les questions posées au guide contextuel sont traitées pour fournir une réponse fondée sur le contenu du lieu ; elles peuvent être journalisées de façon limitée pour la sécurité et l'amélioration du service."
+    },
+    "retention": {
+      "title": "Conservation",
+      "body": "Nous conservons vos données tant que votre compte est actif, puis pendant la durée nécessaire aux obligations légales ou à la résolution de litiges. Vous pouvez demander la suppression de votre compte (voir contact)."
+    },
+    "rights": {
+      "title": "Vos droits",
+      "body": "Conformément au RGPD, vous pouvez demander l'accès, la rectification, l'effacement, la limitation ou la portabilité de vos données, ainsi que vous opposer à certains traitements. Exercez ces droits via les paramètres de l'app ou le contact ci-dessous."
+    },
+    "contact": {
+      "title": "Nous contacter",
+      "body": "Pour toute question relative à vos données : privacy@nook.app (adresse indicative — à remplacer par le canal officiel avant publication)."
+    }
+  },
+  "terms": {
+    "intro": {
+      "title": "Acceptation",
+      "body": "En utilisant NOOK, vous acceptez les présentes conditions. Si vous n'êtes pas d'accord, n'utilisez pas l'application."
+    },
+    "service": {
+      "title": "Description du service",
+      "body": "NOOK propose la découverte de lieux, l'écoute de guides audio, des parcours et des fonctionnalités premium. Le contenu éditorial et les guides générés peuvent évoluer ; certaines fonctions nécessitent un compte ou un abonnement."
+    },
+    "account": {
+      "title": "Compte utilisateur",
+      "body": "Vous êtes responsable de la confidentialité de vos identifiants. Les informations fournies doivent être exactes. Nous pouvons suspendre un compte en cas d'usage frauduleux ou contraire à ces conditions."
+    },
+    "content": {
+      "title": "Contenu et licences",
+      "body": "Les textes issus de Wikipedia sont réutilisés sous licence CC BY-SA lorsque applicable. Les guides audio NOOK et les itinéraires premium sont protégés ; toute reproduction non autorisée est interdite."
+    },
+    "purchases": {
+      "title": "Achats in-app",
+      "body": "Les abonnements et packs de crédits sont facturés via les stores Apple ou Google selon leurs conditions. Les crédits servent à la génération de guides personnels ; ils ne sont pas remboursables sauf obligation légale."
+    },
+    "acceptableUse": {
+      "title": "Usage acceptable",
+      "body": "Vous vous engagez à ne pas détourner le service, harceler d'autres utilisateurs, tenter d'accéder à des systèmes non autorisés ou utiliser le chat guide pour du contenu illicite ou offensant."
+    },
+    "liability": {
+      "title": "Responsabilité",
+      "body": "NOOK est fourni « en l'état ». Nous ne garantissons pas l'exactitude exhaustive des contenus tiers (dont Wikipedia). Restez vigilant sur le terrain et respectez la réglementation locale."
+    },
+    "changes": {
+      "title": "Modifications",
+      "body": "Nous pouvons mettre à jour ces conditions. En cas de changement substantiel, nous vous en informerons dans l'application. La poursuite de l'usage vaut acceptation."
+    },
+    "contact": {
+      "title": "Contact",
+      "body": "Questions juridiques : legal@nook.app (adresse indicative — à remplacer avant publication)."
+    }
+  }
+}

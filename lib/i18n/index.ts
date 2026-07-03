@@ -10,6 +10,7 @@ import enDiscovery from './locales/en/discovery.json';
 import enFavorites from './locales/en/favorites.json';
 import enGuidance from './locales/en/guidance.json';
 import enHub from './locales/en/hub.json';
+import enLegal from './locales/en/legal.json';
 import enListenHistory from './locales/en/listenHistory.json';
 import enPermissions from './locales/en/permissions.json';
 import enProfile from './locales/en/profile.json';
@@ -24,6 +25,7 @@ import frDiscovery from './locales/fr/discovery.json';
 import frFavorites from './locales/fr/favorites.json';
 import frGuidance from './locales/fr/guidance.json';
 import frHub from './locales/fr/hub.json';
+import frLegal from './locales/fr/legal.json';
 import frListenHistory from './locales/fr/listenHistory.json';
 import frPermissions from './locales/fr/permissions.json';
 import frProfile from './locales/fr/profile.json';
@@ -57,6 +59,7 @@ const resources = {
     permissions: frPermissions,
     createGuide: frCreateGuide,
     creditsPack: frCreditsPack,
+    legal: frLegal,
   },
   en: {
     common: enCommon,
@@ -74,6 +77,7 @@ const resources = {
     permissions: enPermissions,
     createGuide: enCreateGuide,
     creditsPack: enCreditsPack,
+    legal: enLegal,
   },
 } as const;
 
@@ -131,6 +135,7 @@ export function initI18n(initialLocale: AppLocale = DEFAULT_LOCALE): typeof i18n
       'permissions',
       'createGuide',
       'creditsPack',
+      'legal',
     ],
     interpolation: {
       escapeValue: false,

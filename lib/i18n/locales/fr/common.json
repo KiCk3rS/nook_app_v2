@@ -43,6 +43,7 @@
   "addAudioGuide": "Ajouter un nouveau guide audio",
   "pauseGuide": "Mettre en pause",
   "playGuide": "Lire le guide",
+  "listenGuide": "Écouter le guide",
   "notRatedYet": "Pas encore noté",
   "openSettingsShort": "Ouvrir les paramètres",
   "blockedHintOpenSettings": "{{hint}} — ouvrir les paramètres",

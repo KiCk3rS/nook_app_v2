@@ -43,6 +43,7 @@
   "addAudioGuide": "Add a new audio guide",
   "pauseGuide": "Pause",
   "playGuide": "Play guide",
+  "listenGuide": "Listen to the guide",
   "notRatedYet": "Not rated yet",
   "openSettingsShort": "Open settings",
   "blockedHintOpenSettings": "{{hint}} — open settings",

@@ -409,3 +409,39 @@ export function trackCreditsPackPurchaseSuccess(
 export function trackCreditsPackPurchaseCancel(): void {
   // credits_pack_purchase_cancel
 }
+
+export function trackSettingsViewed(): void {
+  // settings_viewed
+}
+
+export function trackSettingsLanguageChanged(_language: string): void {
+  // settings_language_changed
+}
+
+export function trackSettingsNotificationToggled(_key: string, _enabled: boolean): void {
+  // settings_notification_toggled
+}
+
+export type SettingsLegalDocument = 'privacy' | 'terms';
+
+export function trackSettingsLegalLinkTapped(_document: SettingsLegalDocument): void {
+  // settings_legal_link_tapped
+}
+
+export function trackSettingsPremiumTapped(_subscriptionState: 'active' | 'inactive'): void {
+  // settings_premium_tapped
+}
+
+export type SettingsOsSettingsReason = 'location' | 'notifications';
+
+export function trackSettingsOsSettingsOpened(_reason: SettingsOsSettingsReason): void {
+  // settings_os_settings_opened
+}
+
+export function trackSettingsLogoutTapped(): void {
+  // settings_logout_tapped
+}
+
+export function trackSettingsLogoutConfirmed(): void {
+  // settings_logout_confirmed
+}
