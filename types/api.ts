@@ -8,6 +8,108 @@ export interface User {
   role: string;
 }
 
+/** Réponse paginée standard (listes POI, discovery, favoris, etc.). */
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface PoiCategory {
+  slug: string;
+  label: string;
+}
+
+/** Item carte / liste POI (`GET /api/v1/pois`). */
+export interface PoiSummary {
+  id: string;
+  title: string;
+  lat: number;
+  lng: number;
+  categories: PoiCategory[];
+  parentPoiId?: string | null;
+}
+
+export interface PoiDetailImage {
+  id: string;
+  sortOrder: number;
+  altText: string | null;
+}
+
+export interface PoiDetailPopularity {
+  averageRating: number | null;
+  reviewCount: number | null;
+  playCountTotal: number | null;
+  playCountLast7Days: number | null;
+}
+
+/** Fiche POI (`GET /api/v1/pois/:id`). */
+export interface PoiDetail {
+  id: string;
+  title: string;
+  description: string | null;
+  parentPoiId: string | null;
+  childrenCount: number;
+  lat: number | null;
+  lng: number | null;
+  categories: PoiCategory[];
+  images: PoiDetailImage[];
+  audios?: AudioTrack[];
+  popularity: PoiDetailPopularity | null;
+}
+
+export interface DiscoveryCoverImage {
+  id: string;
+  url: string;
+  expiresAt: string;
+  altText: string | null;
+}
+
+export interface DiscoveryPopularity {
+  averageRating: number | null;
+  reviewCount: number | null;
+  playCountLast7Days: number | null;
+  playCountTotal: number | null;
+}
+
+/** Item feed découverte (`GET /api/v1/discovery/*`). */
+export interface DiscoveryItem {
+  id: string;
+  title: string;
+  parentPoiId: string | null;
+  lat: number | null;
+  lng: number | null;
+  categories: PoiCategory[];
+  publishedAt: string | null;
+  popularity: DiscoveryPopularity | null;
+  coverImage: DiscoveryCoverImage | null;
+}
+
+export interface AudioAudience {
+  slug: string;
+  label: string;
+}
+
+/** Métadonnées piste audio publiée (`GET /api/v1/pois/:poiId/audios`). */
+export interface AudioTrack {
+  id: string;
+  title: string | null;
+  language: string;
+  durationSeconds: number | null;
+  sortOrder: number;
+  sourceType: 'MANUAL' | 'WIKIPEDIA' | 'OTHER';
+  attribution: string | null;
+  mimeType: string | null;
+  audienceCategories: AudioAudience[];
+}
+
+/** URL de lecture pré-signée (`GET .../audios/:audioId/playback`). */
+export interface PlaybackUrl {
+  playbackUrl: string;
+  expiresAt: string;
+}
+
 export interface UserPreferences {
   language?: 'fr' | 'en';
   notifications?: {

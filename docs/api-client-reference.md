@@ -281,7 +281,7 @@ Implémentation : `src/guide-chat/guide-chat.controller.ts`.
 
 ### Génération guide audio IA — utilisateur (F-015 user, spec A3.3)
 
-> **Statut :** contrat cible documenté pour l’app mobile ; endpoints `/me/…` à implémenter côté API (aujourd’hui seule la voie **admin** existe en annexe).
+> **Statut : prévu / non implémenté** — contrat cible documenté pour l’app mobile ; endpoints `/me/…` à implémenter côté API (aujourd’hui seule la voie **admin** existe en annexe).
 
 | Méthode | Chemin | Auth | Description | Codes notables |
 |--------|--------|------|-------------|----------------|
