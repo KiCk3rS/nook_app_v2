@@ -52,7 +52,7 @@ const PRIVATE_GUIDE_POLL_MS = 3000;
 
 export default function PlaceDetailScreen() {
   const router = useRouter();
-  const { t, i18n } = useTranslation(['common', 'createGuide', 'creditsPack']);
+  const { t, i18n } = useTranslation(['common', 'createGuide', 'creditsPack', 'place']);
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
   const { id, createGuide } = useLocalSearchParams<{ id: string; createGuide?: string }>();
@@ -308,7 +308,7 @@ export default function PlaceDetailScreen() {
 
           {parentPlace ? <ParentPlaceLink parent={parentPlace} /> : null}
 
-          <Text style={styles.sectionTitle}>Description</Text>
+          <Text style={styles.sectionTitle}>{t('place:descriptionSection')}</Text>
           <PlaceDescription description={place.description} />
 
           <AudioGuideList

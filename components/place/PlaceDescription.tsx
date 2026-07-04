@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, spacing, textStyle } from '../../constants/theme';
@@ -23,6 +24,7 @@ interface PlaceDescriptionProps {
 }
 
 export function PlaceDescription({ description }: PlaceDescriptionProps) {
+  const { t } = useTranslation('place');
   const [expanded, setExpanded] = useState(false);
   const paragraphs = splitParagraphs(description);
   const expandable = isExpandable(paragraphs);
@@ -56,10 +58,10 @@ export function PlaceDescription({ description }: PlaceDescriptionProps) {
           onPress={() => setExpanded((value) => !value)}
           style={({ pressed }) => [styles.toggle, pressed && styles.togglePressed]}
           accessibilityRole="button"
-          accessibilityLabel={expanded ? 'Réduire la description' : 'Lire la suite'}
+          accessibilityLabel={expanded ? t('showLessA11y') : t('readMoreA11y')}
         >
           <Text style={styles.toggleText}>
-            {expanded ? 'Réduire' : 'Lire la suite'}
+            {expanded ? t('showLess') : t('readMore')}
           </Text>
         </Pressable>
       ) : null}

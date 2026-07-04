@@ -1,0 +1,13 @@
+{
+  "descriptionSection": "Description",
+  "guidesAvailable_one": "{{count}} disponible",
+  "guidesAvailable_other": "{{count}} disponibles",
+  "parentPlace": "Lieu parent",
+  "parentPlaceA11y": "Voir le lieu parent — {{name}}",
+  "associatedPlaces": "Points d'intérêt associés",
+  "viewPlaceA11y": "Voir la fiche — {{name}}",
+  "readMore": "Lire la suite",
+  "showLess": "Réduire",
+  "readMoreA11y": "Lire la suite",
+  "showLessA11y": "Réduire la description"
+}

@@ -13,9 +13,11 @@ import enHub from './locales/en/hub.json';
 import enLegal from './locales/en/legal.json';
 import enListenHistory from './locales/en/listenHistory.json';
 import enPermissions from './locales/en/permissions.json';
+import enPlace from './locales/en/place.json';
 import enProfile from './locales/en/profile.json';
 import enSearch from './locales/en/search.json';
 import enSettings from './locales/en/settings.json';
+import enTabs from './locales/en/tabs.json';
 import enUserItineraries from './locales/en/userItineraries.json';
 import frAuth from './locales/fr/auth.json';
 import frAudioPlayer from './locales/fr/audioPlayer.json';
@@ -28,9 +30,11 @@ import frHub from './locales/fr/hub.json';
 import frLegal from './locales/fr/legal.json';
 import frListenHistory from './locales/fr/listenHistory.json';
 import frPermissions from './locales/fr/permissions.json';
+import frPlace from './locales/fr/place.json';
 import frProfile from './locales/fr/profile.json';
 import frSearch from './locales/fr/search.json';
 import frSettings from './locales/fr/settings.json';
+import frTabs from './locales/fr/tabs.json';
 import frUserItineraries from './locales/fr/userItineraries.json';
 
 import enCommon from './locales/en/common.json';
@@ -48,6 +52,7 @@ const resources = {
     audioPlayer: frAudioPlayer,
     auth: frAuth,
     settings: frSettings,
+    tabs: frTabs,
     profile: frProfile,
     favorites: frFavorites,
     guidance: frGuidance,
@@ -57,6 +62,7 @@ const resources = {
     search: frSearch,
     discovery: frDiscovery,
     permissions: frPermissions,
+    place: frPlace,
     createGuide: frCreateGuide,
     creditsPack: frCreditsPack,
     legal: frLegal,
@@ -66,6 +72,7 @@ const resources = {
     audioPlayer: enAudioPlayer,
     auth: enAuth,
     settings: enSettings,
+    tabs: enTabs,
     profile: enProfile,
     favorites: enFavorites,
     guidance: enGuidance,
@@ -75,6 +82,7 @@ const resources = {
     search: enSearch,
     discovery: enDiscovery,
     permissions: enPermissions,
+    place: enPlace,
     createGuide: enCreateGuide,
     creditsPack: enCreditsPack,
     legal: enLegal,
@@ -124,6 +132,7 @@ export function initI18n(initialLocale: AppLocale = DEFAULT_LOCALE): typeof i18n
       'audioPlayer',
       'auth',
       'settings',
+      'tabs',
       'profile',
       'favorites',
       'guidance',
@@ -133,6 +142,7 @@ export function initI18n(initialLocale: AppLocale = DEFAULT_LOCALE): typeof i18n
       'search',
       'discovery',
       'permissions',
+      'place',
       'createGuide',
       'creditsPack',
       'legal',

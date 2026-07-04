@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import {
   Image,
   Pressable,
@@ -30,6 +31,7 @@ interface AssociatedPlaceCardProps {
 }
 
 function AssociatedPlaceCard({ place, onPress }: AssociatedPlaceCardProps) {
+  const { t } = useTranslation('place');
   const categoryLabel = getCategoryLabel(place.categoryId);
 
   return (
@@ -37,7 +39,7 @@ function AssociatedPlaceCard({ place, onPress }: AssociatedPlaceCardProps) {
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Voir la fiche — ${place.name}`}
+      accessibilityLabel={t('viewPlaceA11y', { name: place.name })}
     >
       <View style={styles.imageWrap}>
         <Image
@@ -67,13 +69,14 @@ interface AssociatedPlacesCarouselProps {
 
 export function AssociatedPlacesCarousel({ places }: AssociatedPlacesCarouselProps) {
   const router = useRouter();
+  const { t } = useTranslation('place');
 
   if (places.length === 0) return null;
 
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle} accessibilityRole="header">
-        Points d'intérêts associés
+        {t('associatedPlaces')}
       </Text>
       <ScrollView
         horizontal

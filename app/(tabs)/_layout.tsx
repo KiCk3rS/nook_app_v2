@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { Platform, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, spacing, tabBarHeight, textStyle } from '../../constants/theme';
@@ -11,6 +12,7 @@ function TabBarBackground() {
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation('tabs');
 
   return (
     <Tabs
@@ -36,7 +38,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Carte',
+          title: t('map'),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="map-outline" size={size} color={color} />
           ),
@@ -45,7 +47,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="decouvrir"
         options={{
-          title: 'Découvrir',
+          title: t('discover'),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="compass-outline" size={size} color={color} />
           ),
@@ -54,7 +56,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="favoris"
         options={{
-          title: 'Favoris',
+          title: t('favorites'),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="heart-outline" size={size} color={color} />
           ),
@@ -63,7 +65,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profil"
         options={{
-          title: 'Profil',
+          title: t('profile'),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-outline" size={size} color={color} />
           ),

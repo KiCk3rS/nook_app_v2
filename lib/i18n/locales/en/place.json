@@ -1,0 +1,13 @@
+{
+  "descriptionSection": "Description",
+  "guidesAvailable_one": "{{count}} available",
+  "guidesAvailable_other": "{{count}} available",
+  "parentPlace": "Parent place",
+  "parentPlaceA11y": "View parent place — {{name}}",
+  "associatedPlaces": "Related places",
+  "viewPlaceA11y": "View place — {{name}}",
+  "readMore": "Read more",
+  "showLess": "Show less",
+  "readMoreA11y": "Read more description",
+  "showLessA11y": "Collapse description"
+}

@@ -147,7 +147,7 @@ export function AudioGuideList({
   onAddGuide,
   onRetryGuide,
 }: AudioGuideListProps) {
-  const { t } = useTranslation(['common', 'createGuide']);
+  const { t } = useTranslation(['common', 'createGuide', 'audioPlayer', 'place']);
 
   const addGuideButton = onAddGuide ? (
     <Pressable
@@ -190,9 +190,9 @@ export function AudioGuideList({
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Guides Audio</Text>
+        <Text style={styles.sectionTitle}>{t('common:audioGuidesSection')}</Text>
         <Text style={styles.sectionCount}>
-          {guides.length} disponible{guides.length > 1 ? 's' : ''}
+          {t('place:guidesAvailable', { count: guides.length })}
         </Text>
       </View>
 
@@ -210,7 +210,9 @@ export function AudioGuideList({
         {otherGuides.length > 0 ? (
           <>
             <View style={styles.themesHeader}>
-              <Text style={styles.themesHeaderText}>Autres thèmes</Text>
+              <Text style={styles.themesHeaderText}>
+                {t('audioPlayer:themesSectionTitle')}
+              </Text>
             </View>
             {otherGuides.map((guide, index) => (
               <ThemeGuideRow

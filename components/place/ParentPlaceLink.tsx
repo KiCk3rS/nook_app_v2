@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { MockPlace } from '../../constants/mockPlaces';
@@ -11,13 +12,14 @@ interface ParentPlaceLinkProps {
 
 export function ParentPlaceLink({ parent }: ParentPlaceLinkProps) {
   const router = useRouter();
+  const { t } = useTranslation('place');
 
   return (
     <Pressable
       style={({ pressed }) => [styles.link, pressed && styles.linkPressed]}
       onPress={() => router.push(`/place/${parent.id}`)}
       accessibilityRole="link"
-      accessibilityLabel={`Voir le lieu parent — ${parent.name}`}
+      accessibilityLabel={t('parentPlaceA11y', { name: parent.name })}
     >
       <View style={styles.content}>
         <Ionicons
@@ -27,7 +29,7 @@ export function ParentPlaceLink({ parent }: ParentPlaceLinkProps) {
           accessibilityElementsHidden
         />
         <View style={styles.textWrap}>
-          <Text style={styles.label}>Lieu parent</Text>
+          <Text style={styles.label}>{t('parentPlace')}</Text>
           <Text style={styles.name} numberOfLines={1}>
             {parent.name}
           </Text>
