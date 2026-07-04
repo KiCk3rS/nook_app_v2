@@ -1,3 +1,6 @@
+import { getPlaceCategoryLabel } from '../lib/i18n/categoryLabels';
+import { formatAudioDuration as formatAudioDurationI18n } from '../lib/i18n/formatters';
+
 export interface PlaceCategory {
   id: string;
   label: string;
@@ -36,8 +39,7 @@ export interface MockPlace {
 }
 
 export function getCategoryLabel(categoryId: string): string {
-  const category = categories.find((c) => c.id === categoryId);
-  return category?.label ?? categoryId;
+  return getPlaceCategoryLabel(categoryId);
 }
 
 export function getPlaceById(id: string): MockPlace | undefined {
@@ -49,11 +51,7 @@ export function isRootPlace(place: MockPlace): boolean {
 }
 
 export function formatAudioDuration(durationSec: number): string {
-  const totalMinutes = Math.max(1, Math.round(durationSec / 60));
-  if (totalMinutes < 60) return `${totalMinutes} min`;
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  return minutes > 0 ? `${hours} h ${minutes} min` : `${hours} h`;
+  return formatAudioDurationI18n(durationSec);
 }
 
 /** Format mm:ss pour l’affichage des guides (ex. 2:45). */

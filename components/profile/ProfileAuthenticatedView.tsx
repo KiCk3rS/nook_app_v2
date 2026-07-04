@@ -247,7 +247,9 @@ export function ProfileAuthenticatedView({
             <View style={styles.avatarRing}>
               <View
                 style={styles.avatar}
-                accessibilityLabel={`Initiales ${getUserInitials(user)}`}
+                accessibilityLabel={t('profile:a11yInitials', {
+                  initials: getUserInitials(user),
+                })}
               >
                 <Text style={styles.avatarText}>{getUserInitials(user)}</Text>
               </View>
@@ -441,19 +443,19 @@ export function ProfileAuthenticatedView({
             <SheetMenuRow
               icon="map-outline"
               label={t('profile:myRoutes')}
-              subtitle={`${stats.routesCount} enregistrés`}
+              subtitle={t('profile:menuRoutesSubtitle', { count: stats.routesCount })}
               onPress={() => router.push('/itineraries')}
             />
             <SheetMenuRow
               icon="heart-outline"
               label={t('profile:favorites')}
-              subtitle={`${stats.favoritesCount} lieux`}
+              subtitle={t('profile:menuFavoritesSubtitle', { count: stats.favoritesCount })}
               onPress={() => router.push('/(tabs)/favoris')}
             />
             <SheetMenuRow
               icon="time-outline"
               label={t('profile:history')}
-              subtitle={`${stats.listenCount} guides écoutés`}
+              subtitle={t('profile:menuHistorySubtitle', { count: stats.listenCount })}
               onPress={() => router.push('/listen-history')}
             />
           </View>

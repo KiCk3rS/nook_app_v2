@@ -54,7 +54,7 @@ export function FavoriteSuggestionRow({
               color={colors.muted}
             />
             <Text style={styles.kindText}>
-              {kind === 'place' ? 'Lieu' : 'Parcours'}
+              {kind === 'place' ? t('suggestionKindPlace') : t('suggestionKindItinerary')}
             </Text>
           </View>
           <Text style={styles.title} numberOfLines={2}>

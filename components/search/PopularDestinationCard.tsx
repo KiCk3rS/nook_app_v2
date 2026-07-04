@@ -1,4 +1,5 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { getCategoryLabel, type MockPlace } from '../../constants/mockPlaces';
 import {
@@ -21,6 +22,7 @@ const TITLE_LINE_HEIGHT = typography.titleMd.fontSize * typography.titleMd.lineH
 const TITLE_MIN_HEIGHT = TITLE_LINE_HEIGHT * 2;
 
 export function PopularDestinationCard({ place, onPress }: PopularDestinationCardProps) {
+  const { t } = useTranslation('search');
   const categoryLabel = getCategoryLabel(place.categoryId);
 
   return (
@@ -28,7 +30,7 @@ export function PopularDestinationCard({ place, onPress }: PopularDestinationCar
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Destination populaire — ${place.name}`}
+      accessibilityLabel={t('a11yPopularDestination', { name: place.name })}
     >
       <View style={styles.imageWrap}>
         <Image

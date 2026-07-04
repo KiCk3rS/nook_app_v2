@@ -6,8 +6,11 @@
   "sectionLegal": "Confidentialité et conditions",
   "sectionApp": "Application",
   "language": "Langue",
-  "languageFr": "Français",
-  "languageEn": "English",
+  "languagePickerA11y": "Ouvrir la liste des langues disponibles",
+  "languages": {
+    "fr": "Français",
+    "en": "English"
+  },
   "push": "Notifications push",
   "pushDescription": "Alertes sur vos parcours et nouveautés.",
   "routeReminders": "Rappels de parcours",

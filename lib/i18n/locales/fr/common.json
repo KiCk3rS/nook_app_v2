@@ -51,5 +51,9 @@
   "placeNotFoundTitle": "Lieu introuvable",
   "placeNotFoundBody": "Ce lieu n'existe pas ou n'est plus disponible.",
   "removeFavorite": "Retirer des favoris",
-  "addFavorite": "Ajouter aux favoris"
+  "addFavorite": "Ajouter aux favoris",
+  "durationMinutes_one": "{{count}} min",
+  "durationMinutes_other": "{{count}} min",
+  "durationHoursMinutes": "{{hours}} h {{minutes}} min",
+  "durationHours": "{{hours}} h"
 }

@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { SEARCH_SHEET_GUTTER } from '../../constants/searchDiscovery';
 import { getCategoryLabel, type MockPlace } from '../../constants/mockPlaces';
@@ -18,6 +19,7 @@ interface SearchResultRowProps {
 }
 
 export function SearchResultRow({ place, subtitle, onPress }: SearchResultRowProps) {
+  const { t } = useTranslation('search');
   const categoryLabel = getCategoryLabel(place.categoryId).toUpperCase();
 
   return (
@@ -25,7 +27,7 @@ export function SearchResultRow({ place, subtitle, onPress }: SearchResultRowPro
       style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Résultat — ${place.name}`}
+      accessibilityLabel={t('a11yResult', { name: place.name })}
     >
       <Image
         source={{ uri: place.imageUrl }}

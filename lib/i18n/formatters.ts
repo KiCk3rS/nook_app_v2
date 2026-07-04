@@ -69,6 +69,24 @@ export function formatStepsCount(count: number, locale?: string): string {
   return i18n.t('common:steps', { count, lng: lang });
 }
 
+export function formatAudioDuration(durationSec: number, locale?: string): string {
+  const totalMinutes = Math.max(1, Math.round(durationSec / 60));
+  return formatDurationMinutes(totalMinutes, locale);
+}
+
+export function formatDurationMinutes(totalMinutes: number, locale?: string): string {
+  const lang = locale ?? i18n.language ?? 'fr';
+  if (totalMinutes < 60) {
+    return i18n.t('common:durationMinutes', { count: totalMinutes, lng: lang });
+  }
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (minutes > 0) {
+    return i18n.t('common:durationHoursMinutes', { hours, minutes, lng: lang });
+  }
+  return i18n.t('common:durationHours', { hours, lng: lang });
+}
+
 export function formatItineraryStepMeta(
   duration: string,
   steps: number,

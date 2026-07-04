@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Pressable,
   StyleSheet,
@@ -24,6 +25,7 @@ export function AuthFormField({
   secureTextEntry,
   ...inputProps
 }: AuthFormFieldProps) {
+  const { t } = useTranslation('auth');
   const [hidden, setHidden] = useState(Boolean(secureTextEntry));
 
   return (
@@ -42,7 +44,7 @@ export function AuthFormField({
             onPress={() => setHidden((v) => !v)}
             style={styles.toggle}
             accessibilityRole="button"
-            accessibilityLabel={hidden ? 'Afficher le mot de passe' : 'Masquer le mot de passe'}
+            accessibilityLabel={hidden ? t('showPassword') : t('hidePassword')}
           >
             <Ionicons
               name={hidden ? 'eye-outline' : 'eye-off-outline'}

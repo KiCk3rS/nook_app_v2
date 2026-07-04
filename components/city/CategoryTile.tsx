@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import type { ItineraryCategory } from '../../constants/itineraryCategories';
 import { CATEGORY_ICONS } from '../../constants/itineraryCategories';
+import { getItineraryCategoryLabel } from '../../lib/i18n/categoryLabels';
 import {
   colors,
   componentSizes,
@@ -19,10 +21,12 @@ interface CategoryTileProps {
 }
 
 export function CategoryTile({ category, itineraryCount, onPress }: CategoryTileProps) {
+  const { t } = useTranslation('hub');
   const iconName = CATEGORY_ICONS[category.icon] as keyof typeof Ionicons.glyphMap;
+  const label = getItineraryCategoryLabel(category.slug);
   const countLabel =
     itineraryCount !== undefined && itineraryCount > 0
-      ? `${itineraryCount} parcours`
+      ? t('categoryItineraryCount', { count: itineraryCount })
       : null;
 
   return (
@@ -30,13 +34,16 @@ export function CategoryTile({ category, itineraryCount, onPress }: CategoryTile
       style={({ pressed }) => [styles.tile, pressed && styles.tilePressed]}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Catégorie ${category.label}${countLabel ? ` — ${countLabel}` : ''}`}
+      accessibilityLabel={t('a11yCategory', {
+        label,
+        suffix: countLabel ? ` — ${countLabel}` : '',
+      })}
     >
       <View style={styles.iconWrap}>
         <Ionicons name={iconName} size={22} color={colors.primary} />
       </View>
       <Text style={styles.label} numberOfLines={2}>
-        {category.label}
+        {label}
       </Text>
       {countLabel ? (
         <Text style={styles.count} numberOfLines={1}>

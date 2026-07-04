@@ -28,7 +28,7 @@ interface PoiPreviewCardProps {
 
 export function PoiPreviewCard({ place, onClose }: PoiPreviewCardProps) {
   const router = useRouter();
-  const { t } = useTranslation('common');
+  const { t } = useTranslation(['common', 'place']);
   const { isPlaceFavorite, togglePlaceFavorite } = useFavorites();
   const isFavorite = isPlaceFavorite(place.id);
   const categoryLabel = getCategoryLabel(place.categoryId);
@@ -43,7 +43,7 @@ export function PoiPreviewCard({ place, onClose }: PoiPreviewCardProps) {
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       onPress={handleOpenDetail}
       accessibilityRole="button"
-      accessibilityLabel={`Voir la fiche — ${place.name}`}
+      accessibilityLabel={t('place:viewPlaceA11y', { name: place.name })}
     >
       <View style={styles.imageWrap}>
         <Image
@@ -64,7 +64,7 @@ export function PoiPreviewCard({ place, onClose }: PoiPreviewCardProps) {
             }}
             accessibilityRole="button"
             accessibilityLabel={
-              isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'
+              isFavorite ? t('removeFavorite') : t('addFavorite')
             }
             hitSlop={8}
           >

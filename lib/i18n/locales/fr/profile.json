@@ -48,5 +48,12 @@
   "creditsTitle": "Crédits",
   "creditsSubtitle": "{{count}} crédit disponible",
   "creditsSubtitle_other": "{{count}} crédits disponibles",
-  "creditsSubtitleEmpty": "Recharger pour créer des guides"
+  "creditsSubtitleEmpty": "Recharger pour créer des guides",
+  "menuRoutesSubtitle": "{{count}} enregistrés",
+  "menuFavoritesSubtitle_one": "{{count}} lieu",
+  "menuFavoritesSubtitle_other": "{{count}} lieux",
+  "menuHistorySubtitle_one": "{{count}} guide écouté",
+  "menuHistorySubtitle_other": "{{count}} guides écoutés",
+  "a11yInitials": "Initiales {{initials}}",
+  "mockMemberSince": "Explorateur depuis mars 2025"
 }

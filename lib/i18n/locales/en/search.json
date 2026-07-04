@@ -6,5 +6,9 @@
   "missingPlaceBody": "Local guides and authorities can publish content on NOOK.",
   "missingPlaceFooter": "Coming soon",
   "emptyResultsTitle": "No places for \"{{query}}\"",
-  "emptyResultsHint": "Try another keyword"
+  "emptyResultsHint": "Try another keyword",
+  "cityTypeLabel": "CITY",
+  "a11yCity": "City — {{name}}",
+  "a11yResult": "Result — {{name}}",
+  "a11yPopularDestination": "Popular destination — {{name}}"
 }

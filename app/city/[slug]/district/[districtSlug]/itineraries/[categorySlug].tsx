@@ -108,10 +108,14 @@ export default function DistrictItineraryCategoryListScreen() {
           <Pressable
             onPress={handleBack}
             accessibilityRole="button"
-            accessibilityLabel={`Retour à ${district?.name ?? 'le quartier'}`}
+            accessibilityLabel={t('hub:a11yBackToDistrict', {
+              name: district?.name ?? t('hub:a11yBackToDistrictFallback'),
+            })}
           >
             <Text style={styles.emptyLink}>
-              Retour à {district?.name ?? 'le quartier'}
+              {t('hub:backTo', {
+                name: district?.name ?? t('hub:a11yBackToDistrictFallback'),
+              })}
             </Text>
           </Pressable>
         </View>

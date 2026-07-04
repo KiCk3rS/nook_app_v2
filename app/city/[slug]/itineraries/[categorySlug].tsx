@@ -96,10 +96,14 @@ export default function ItineraryCategoryListScreen() {
           <Pressable
             onPress={handleBack}
             accessibilityRole="button"
-            accessibilityLabel={`Retour à ${city?.name ?? 'la ville'}`}
+            accessibilityLabel={t('hub:a11yBackToCity', {
+              name: city?.name ?? t('hub:a11yBackToCityFallback'),
+            })}
           >
             <Text style={styles.emptyLink}>
-              Retour à {city?.name ?? 'la ville'}
+              {t('hub:backTo', {
+                name: city?.name ?? t('hub:a11yBackToCityFallback'),
+              })}
             </Text>
           </Pressable>
         </View>

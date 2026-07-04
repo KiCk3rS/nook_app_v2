@@ -27,7 +27,10 @@ export function TouristPassCard({ item, onPress }: TouristPassCardProps) {
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Pass touristique ${item.title} — ${item.partnerName}`}
+      accessibilityLabel={t('a11yTouristPass', {
+        title: item.title,
+        partner: item.partnerName,
+      })}
     >
       <View style={styles.imageWrap}>
         <Image
@@ -44,7 +47,7 @@ export function TouristPassCard({ item, onPress }: TouristPassCardProps) {
         <Text style={styles.title} numberOfLines={2}>
           {item.title}
         </Text>
-        <Text style={styles.price}>À partir de {item.priceFrom}</Text>
+        <Text style={styles.price}>{t('priceFrom', { price: item.priceFrom })}</Text>
         {item.validityLabel ? (
           <Text style={styles.validity}>{item.validityLabel}</Text>
         ) : null}

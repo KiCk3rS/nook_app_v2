@@ -36,7 +36,10 @@ export function PremiumItineraryCard({
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Itinéraire premium ${itinerary.title}${isLocked ? ' — verrouillé' : ''}`}
+      accessibilityLabel={t('a11yPremiumItinerary', {
+        title: itinerary.title,
+        lockedSuffix: isLocked ? t('a11yPremiumItineraryLocked') : '',
+      })}
     >
       <View style={styles.imageWrap}>
         <Image

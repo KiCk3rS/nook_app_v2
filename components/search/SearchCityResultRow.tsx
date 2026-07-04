@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { SEARCH_SHEET_GUTTER } from '../../constants/searchDiscovery';
 import type { MockCity } from '../../constants/mockCities';
@@ -18,12 +19,14 @@ interface SearchCityResultRowProps {
 }
 
 export function SearchCityResultRow({ city, subtitle, onPress }: SearchCityResultRowProps) {
+  const { t } = useTranslation('search');
+
   return (
     <Pressable
       style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Ville — ${city.name}`}
+      accessibilityLabel={t('a11yCity', { name: city.name })}
     >
       <Image
         source={{ uri: city.coverImageUrl }}
@@ -32,7 +35,7 @@ export function SearchCityResultRow({ city, subtitle, onPress }: SearchCityResul
         accessibilityIgnoresInvertColors
       />
       <View style={styles.content}>
-        <Text style={styles.category}>VILLE</Text>
+        <Text style={styles.category}>{t('cityTypeLabel')}</Text>
         <Text style={styles.title} numberOfLines={2}>
           {city.name}
         </Text>

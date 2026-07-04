@@ -1,4 +1,5 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import type { MockCity } from '../../constants/mockCities';
 import {
@@ -17,12 +18,14 @@ interface PromotedCityCardProps {
 const IMAGE_HEIGHT = 168;
 
 export function PromotedCityCard({ city, onPress }: PromotedCityCardProps) {
+  const { t } = useTranslation('hub');
+
   return (
     <Pressable
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Destination promue — ${city.name}`}
+      accessibilityLabel={t('a11yPromotedCity', { name: city.name })}
     >
       <View style={styles.imageWrap}>
         <Image

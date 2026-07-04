@@ -206,7 +206,7 @@ export default function PlaceDetailScreen() {
   async function handleShare() {
     if (!place) return;
     await Share.share({
-      message: `Découvrez ${place.name} sur NOOK — ${place.address}`,
+      message: t('place:shareMessage', { name: place.name, address: place.address }),
     });
   }
 

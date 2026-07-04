@@ -2,8 +2,8 @@ import { useTranslation } from 'react-i18next';
 
 import type { EditorialItinerary } from '../../constants/mockItineraries';
 import {
-  difficultyLabels,
   formatItineraryDuration,
+  getItineraryDifficultyLabel,
 } from '../../constants/mockItineraries';
 import { formatItineraryStepMeta } from '../../lib/i18n/formatters';
 import { ItineraryRow } from './ItineraryRow';
@@ -26,7 +26,7 @@ export function ItineraryListRow({ itinerary, isLocked, onPress }: ItineraryList
     <ItineraryRow
       title={itinerary.title}
       coverImageUrl={itinerary.coverImageUrl}
-      meta={`${stepsMeta} · ${difficultyLabels[itinerary.difficulty]}`}
+      meta={`${stepsMeta} · ${getItineraryDifficultyLabel(itinerary.difficulty)}`}
       badge={
         itinerary.isPremium
           ? { label: t('premiumBadge'), variant: 'premium' }
@@ -34,7 +34,11 @@ export function ItineraryListRow({ itinerary, isLocked, onPress }: ItineraryList
       }
       trailing={isLocked ? 'lock' : 'chevron'}
       onPress={onPress}
-      accessibilityLabel={`Itinéraire ${itinerary.title}, ${stepsMeta}${isLocked ? ', premium verrouillé' : ''}`}
+      accessibilityLabel={t('a11yItineraryRow', {
+        title: itinerary.title,
+        meta: stepsMeta,
+        lockedSuffix: isLocked ? t('a11yItineraryRowLocked') : '',
+      })}
     />
   );
 }

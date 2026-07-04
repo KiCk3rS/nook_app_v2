@@ -1,3 +1,5 @@
+import { getItineraryCategoryLabel } from '../lib/i18n/categoryLabels';
+
 /** Catégories d’itinéraires éditoriaux — hub ville A4.3. */
 
 export interface ItineraryCategory {
@@ -29,5 +31,5 @@ export function getCategoryBySlug(slug: string): ItineraryCategory | undefined {
 }
 
 export function getCategoryLabel(slug: string): string {
-  return getCategoryBySlug(slug)?.label ?? slug;
+  return getItineraryCategoryLabel(slug);
 }

@@ -28,7 +28,7 @@ export function ExperienceCard({ item, onPress }: ExperienceCardProps) {
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Expérience ${item.title} — réservation externe`}
+      accessibilityLabel={t('a11yExperience', { title: item.title })}
     >
       <View style={styles.imageWrap}>
         <Image
@@ -48,7 +48,7 @@ export function ExperienceCard({ item, onPress }: ExperienceCardProps) {
         <Text style={styles.title} numberOfLines={2}>
           {item.title}
         </Text>
-        <Text style={styles.price}>À partir de {item.priceFrom}</Text>
+        <Text style={styles.price}>{t('priceFrom', { price: item.priceFrom })}</Text>
         {item.duration ? (
           <Text style={styles.duration}>{item.duration}</Text>
         ) : null}

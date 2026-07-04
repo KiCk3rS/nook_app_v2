@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
-import { categories } from '../../constants/mockPlaces';
+import { categories, getCategoryLabel } from '../../constants/mockPlaces';
 import { colors, componentSizes, radius, spacing, textStyle } from '../../constants/theme';
 
 interface CategorySliderProps {
@@ -26,7 +26,7 @@ export function CategorySlider({ selectedCategoryId, onSelectCategory }: Categor
             style={[styles.chip, isActive ? styles.chipActive : styles.chipInactive]}
             accessibilityRole="button"
             accessibilityState={{ selected: isActive }}
-            accessibilityLabel={category.label}
+            accessibilityLabel={getCategoryLabel(category.id)}
           >
             <Ionicons
               name="pricetag-outline"
@@ -34,7 +34,7 @@ export function CategorySlider({ selectedCategoryId, onSelectCategory }: Categor
               color={isActive ? colors.onPrimary : colors.muted}
             />
             <Text style={[styles.chipText, isActive ? styles.chipTextActive : styles.chipTextInactive]}>
-              {category.label}
+              {getCategoryLabel(category.id)}
             </Text>
           </Pressable>
         );

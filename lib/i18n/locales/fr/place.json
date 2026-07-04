@@ -9,5 +9,6 @@
   "readMore": "Lire la suite",
   "showLess": "Réduire",
   "readMoreA11y": "Lire la suite",
-  "showLessA11y": "Réduire la description"
+  "showLessA11y": "Réduire la description",
+  "shareMessage": "Découvrez {{name}} sur NOOK — {{address}}"
 }

@@ -6,5 +6,9 @@
   "missingPlaceBody": "Les guides locaux et les autorités peuvent publier du contenu sur NOOK.",
   "missingPlaceFooter": "Bientôt disponible",
   "emptyResultsTitle": "Aucun lieu pour « {{query}} »",
-  "emptyResultsHint": "Essayez un autre mot-clé"
+  "emptyResultsHint": "Essayez un autre mot-clé",
+  "cityTypeLabel": "VILLE",
+  "a11yCity": "Ville — {{name}}",
+  "a11yResult": "Résultat — {{name}}",
+  "a11yPopularDestination": "Destination populaire — {{name}}"
 }

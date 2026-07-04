@@ -60,10 +60,10 @@ export default function ProfilScreen() {
       listenCount: isMockSession ? MOCK_PROFILE_INSIGHTS.listenCount : 0,
       citiesCount: isMockSession ? MOCK_PROFILE_INSIGHTS.citiesCount : 0,
       memberSinceLabel: isMockSession
-        ? MOCK_PROFILE_INSIGHTS.memberSinceLabel
+        ? t('profile:mockMemberSince')
         : undefined,
     }),
-    [favoritesCount, isMockSession, routesCount],
+    [favoritesCount, isMockSession, routesCount, t],
   );
 
   const recentRoutes = useMemo(

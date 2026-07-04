@@ -25,7 +25,7 @@ import { PaywallSheet } from '../../../../components/paywall/PaywallSheet';
 import { getCategoryLabel } from '../../../../constants/itineraryCategories';
 import { getCityBySlug } from '../../../../constants/mockCities';
 import {
-  difficultyLabels,
+  getItineraryDifficultyLabel,
   formatItineraryDistance,
   formatItineraryDuration,
   getItineraryById,
@@ -94,7 +94,10 @@ export default function EditorialItineraryScreen() {
   async function handleShare() {
     if (!itinerary || !city) return;
     await Share.share({
-      message: `${itinerary.title} — ${city.name} sur NOOK`,
+      message: t('hub:itineraryShareMessage', {
+        title: itinerary.title,
+        city: city.name,
+      }),
     });
   }
 
@@ -195,7 +198,7 @@ export default function EditorialItineraryScreen() {
             <SummaryItem icon="walk-outline" label={distance} />
             <SummaryItem
               icon="speedometer-outline"
-              label={difficultyLabels[itinerary.difficulty]}
+              label={getItineraryDifficultyLabel(itinerary.difficulty)}
             />
             <SummaryItem
               icon="list-outline"

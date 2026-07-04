@@ -12,6 +12,8 @@
   "emptyAddFavorite": "Ajouter aux favoris",
   "itinerariesSection": "Parcours",
   "placesSection": "Lieux",
+  "suggestionKindPlace": "Lieu",
+  "suggestionKindItinerary": "Parcours",
   "removePlace": "Retirer des favoris",
   "removeItinerary": "Retirer des favoris",
   "removedPlace": "Lieu retiré des favoris",

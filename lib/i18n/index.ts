@@ -4,6 +4,7 @@ import { initReactI18next } from 'react-i18next';
 
 import enAuth from './locales/en/auth.json';
 import enAudioPlayer from './locales/en/audioPlayer.json';
+import enCategories from './locales/en/categories.json';
 import enCreateGuide from './locales/en/createGuide.json';
 import enCreditsPack from './locales/en/creditsPack.json';
 import enDiscovery from './locales/en/discovery.json';
@@ -21,6 +22,7 @@ import enTabs from './locales/en/tabs.json';
 import enUserItineraries from './locales/en/userItineraries.json';
 import frAuth from './locales/fr/auth.json';
 import frAudioPlayer from './locales/fr/audioPlayer.json';
+import frCategories from './locales/fr/categories.json';
 import frCreateGuide from './locales/fr/createGuide.json';
 import frCreditsPack from './locales/fr/creditsPack.json';
 import frDiscovery from './locales/fr/discovery.json';
@@ -64,6 +66,7 @@ const resources = {
     permissions: frPermissions,
     place: frPlace,
     createGuide: frCreateGuide,
+    categories: frCategories,
     creditsPack: frCreditsPack,
     legal: frLegal,
   },
@@ -84,6 +87,7 @@ const resources = {
     permissions: enPermissions,
     place: enPlace,
     createGuide: enCreateGuide,
+    categories: enCategories,
     creditsPack: enCreditsPack,
     legal: enLegal,
   },
@@ -144,6 +148,7 @@ export function initI18n(initialLocale: AppLocale = DEFAULT_LOCALE): typeof i18n
       'permissions',
       'place',
       'createGuide',
+      'categories',
       'creditsPack',
       'legal',
     ],

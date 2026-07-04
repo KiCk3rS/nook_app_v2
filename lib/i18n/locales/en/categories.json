@@ -1,0 +1,23 @@
+{
+  "place": {
+    "all": "All",
+    "monument": "Monument",
+    "musee": "Museum",
+    "parc": "Park",
+    "quartier": "District",
+    "oeuvre": "Artwork"
+  },
+  "itinerary": {
+    "highlights": "Highlights",
+    "secrets": "Hidden gems",
+    "family": "Family",
+    "one-day": "One day",
+    "walking": "On foot",
+    "evening": "Evening"
+  },
+  "difficulty": {
+    "EASY": "Easy",
+    "MEDIUM": "Moderate",
+    "HARD": "Hard"
+  }
+}

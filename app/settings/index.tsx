@@ -8,7 +8,6 @@ import {
   Alert,
   AppState,
   Linking,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -22,6 +21,7 @@ import {
   SettingsRow,
   SettingsToggleRow,
 } from '../../components/settings/SettingsRow';
+import { SettingsLanguagePicker } from '../../components/settings/SettingsLanguagePicker';
 import { SubscriptionPaywallSheet } from '../../components/paywall/SubscriptionPaywallSheet';
 import { colors, spacing, textStyle } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
@@ -42,8 +42,7 @@ import {
 import { getAppVersion } from '../../lib/config';
 import { maskEmail } from '../../lib/userDisplay';
 import type { AppLocale } from '../../lib/i18n';
-
-const LANGUAGE_OPTIONS: AppLocale[] = ['fr', 'en'];
+import { normalizeLocale } from '../../lib/i18n';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -128,38 +127,6 @@ export default function SettingsScreen() {
     ]);
   }
 
-  function showLanguagePicker() {
-    const options = LANGUAGE_OPTIONS.map((locale) =>
-      locale === 'fr' ? t('settings:languageFr') : t('settings:languageEn'),
-    );
-    const currentLanguage = preferences.language ?? 'fr';
-
-    if (Platform.OS === 'ios') {
-      Alert.alert(t('settings:language'), undefined, [
-        ...LANGUAGE_OPTIONS.map((locale, index) => ({
-          text: options[index],
-          onPress: () => void handleLanguageChange(locale),
-          style: locale === currentLanguage ? ('default' as const) : undefined,
-        })),
-        { text: t('common:cancel'), style: 'cancel' },
-      ]);
-      return;
-    }
-
-    Alert.alert(
-      t('settings:language'),
-      undefined,
-      [
-        ...LANGUAGE_OPTIONS.map((locale, index) => ({
-          text: options[index],
-          onPress: () => void handleLanguageChange(locale),
-        })),
-        { text: t('common:cancel'), style: 'cancel' },
-      ],
-      { cancelable: true },
-    );
-  }
-
   async function handleLanguageChange(language: AppLocale) {
     if (preferences.language === language) return;
     setIsSavingPref(true);
@@ -211,7 +178,7 @@ export default function SettingsScreen() {
   }
 
   const pushEnabled = preferences.notifications?.pushEnabled ?? false;
-  const currentLanguage = preferences.language ?? 'fr';
+  const currentLanguage = normalizeLocale(preferences.language);
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
@@ -244,14 +211,9 @@ export default function SettingsScreen() {
         ) : null}
 
         <SettingsGroup title={t('settings:sectionPreferences')}>
-          <SettingsRow
-            label={t('settings:language')}
-            value={
-              currentLanguage === 'en'
-                ? t('settings:languageEn')
-                : t('settings:languageFr')
-            }
-            onPress={showLanguagePicker}
+          <SettingsLanguagePicker
+            value={currentLanguage}
+            onChange={(locale) => void handleLanguageChange(locale)}
             disabled={isSavingPref}
           />
         </SettingsGroup>

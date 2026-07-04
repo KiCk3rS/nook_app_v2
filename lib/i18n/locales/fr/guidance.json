@@ -28,5 +28,7 @@
   "notFoundTitle": "Parcours introuvable",
   "notFoundBody": "Ce parcours n'existe pas ou n'est plus disponible.",
   "a11yScreen": "Guidage — {{title}}",
-  "a11yMap": "Carte, étape {{step}}, {{name}}. Ouvrir la carte plein écran"
+  "a11yMap": "Carte, étape {{step}}, {{name}}. Ouvrir la carte plein écran",
+  "stepFallback": "Étape",
+  "placeNotFoundStep": "Lieu introuvable"
 }

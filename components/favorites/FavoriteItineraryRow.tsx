@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 
 import type { EditorialItinerary } from '../../constants/mockItineraries';
 import {
-  difficultyLabels,
   formatItineraryDuration,
+  getItineraryDifficultyLabel,
 } from '../../constants/mockItineraries';
 import { formatItineraryStepMeta } from '../../lib/i18n/formatters';
 import {
@@ -66,7 +66,7 @@ export function FavoriteItineraryRow({
             ) : null}
           </View>
           <Text style={styles.meta}>
-            {stepsMeta} · {difficultyLabels[itinerary.difficulty]}
+            {stepsMeta} · {getItineraryDifficultyLabel(itinerary.difficulty)}
             {!unlocked && itinerary.isPremium ? ' · Verrouillé' : ''}
           </Text>
         </View>

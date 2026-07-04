@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Marker } from 'react-native-maps';
 
 import type { MockPlace } from '../../constants/mockPlaces';
@@ -23,6 +24,7 @@ export function ItineraryStepMarker({
   isSelected,
   onPress,
 }: ItineraryStepMarkerProps) {
+  const { t } = useTranslation('hub');
   const [tracksViewChanges, setTracksViewChanges] = useState(true);
   const active = isCurrent || isSelected;
 
@@ -38,7 +40,7 @@ export function ItineraryStepMarker({
       anchor={MARKER_ANCHOR}
       tracksViewChanges={tracksViewChanges}
       onPress={onPress}
-      accessibilityLabel={`Étape ${order}, ${place.name}`}
+      accessibilityLabel={t('a11yStep', { order, name: place.name })}
     >
       <View style={styles.wrapper} collapsable={false}>
         <View

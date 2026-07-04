@@ -30,13 +30,18 @@ export function ItineraryStepRow({
   const label = isLocked ? lockedLabel : (place?.name ?? lockedLabel);
   const category = place ? getCategoryLabel(place.categoryId) : null;
 
+  const stepDetails = [
+    place ? `, ${place.name}` : '',
+    isLocked ? t('a11yStepLocked') : '',
+  ].join('');
+
   return (
     <Pressable
       style={({ pressed }) => [styles.row, pressed && !isLocked && styles.rowPressed]}
       onPress={onPress}
       disabled={isLocked}
       accessibilityRole="button"
-      accessibilityLabel={`Étape ${order}${place ? `, ${place.name}` : ''}${isLocked ? ', verrouillée' : ''}`}
+      accessibilityLabel={t('a11yStepDetail', { order, details: stepDetails })}
     >
       <View style={styles.orderBadge}>
         <Text style={styles.orderText}>{order}</Text>

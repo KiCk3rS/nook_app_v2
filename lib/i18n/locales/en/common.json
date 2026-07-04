@@ -51,5 +51,9 @@
   "placeNotFoundTitle": "Place not found",
   "placeNotFoundBody": "This place does not exist or is no longer available.",
   "removeFavorite": "Remove from favorites",
-  "addFavorite": "Add to favorites"
+  "addFavorite": "Add to favorites",
+  "durationMinutes_one": "{{count}} min",
+  "durationMinutes_other": "{{count}} min",
+  "durationHoursMinutes": "{{hours}} h {{minutes}} min",
+  "durationHours": "{{hours}} h"
 }

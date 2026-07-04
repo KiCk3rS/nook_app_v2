@@ -6,8 +6,11 @@
   "sectionLegal": "Privacy and terms",
   "sectionApp": "Application",
   "language": "Language",
-  "languageFr": "Français",
-  "languageEn": "English",
+  "languagePickerA11y": "Open the list of available languages",
+  "languages": {
+    "fr": "Français",
+    "en": "English"
+  },
   "push": "Push notifications",
   "pushDescription": "Alerts about your routes and new content.",
   "routeReminders": "Route reminders",

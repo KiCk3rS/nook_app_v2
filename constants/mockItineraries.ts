@@ -1,5 +1,8 @@
 /** Itinéraires éditoriaux NOOK — A5.6 / A5.7. */
 
+import { getDifficultyLabel } from '../lib/i18n/categoryLabels';
+import { formatDurationMinutes } from '../lib/i18n/formatters';
+
 export type ItineraryDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
 
 export interface EditorialItinerary {
@@ -20,11 +23,16 @@ export interface EditorialItinerary {
   editorialOrder: number;
 }
 
+/** @deprecated Use getDifficultyLabel() from lib/i18n/categoryLabels */
 export const difficultyLabels: Record<ItineraryDifficulty, string> = {
   EASY: 'Facile',
   MEDIUM: 'Modéré',
   HARD: 'Difficile',
 };
+
+export function getItineraryDifficultyLabel(difficulty: ItineraryDifficulty): string {
+  return getDifficultyLabel(difficulty);
+}
 
 export const mockItineraries: EditorialItinerary[] = [
   {
@@ -225,10 +233,7 @@ export function countItinerariesByCategory(
 }
 
 export function formatItineraryDuration(minutes: number): string {
-  if (minutes < 60) return `${minutes} min`;
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  return mins > 0 ? `${hours} h ${mins} min` : `${hours} h`;
+  return formatDurationMinutes(minutes);
 }
 
 export function formatItineraryDistance(meters: number): string {

@@ -180,7 +180,7 @@ export function GuidanceExperience({
 
       if (saved && saved.stepIndex > 0) {
         const savedPlace = getPlaceById(stepPoiIds[saved.stepIndex] ?? '');
-        const name = savedPlace?.name ?? 'Étape';
+        const name = savedPlace?.name ?? t('guidance:stepFallback');
         setResumeStepIndex(saved.stepIndex);
         setResumeStepName(name);
         trackGuidanceResumePromptShown(sourceType, itineraryId, saved.stepIndex);
@@ -373,7 +373,7 @@ export function GuidanceExperience({
   }
 
   const stepImageUrl = currentPlace?.imageUrl ?? coverImageUrl;
-  const stepName = currentPlace?.name ?? 'Lieu introuvable';
+  const stepName = currentPlace?.name ?? t('guidance:placeNotFoundStep');
 
   return (
     <View style={styles.screen} accessibilityLabel={t('guidance:a11yScreen', { title })}>

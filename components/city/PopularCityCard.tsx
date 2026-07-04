@@ -1,4 +1,5 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import type { MockCity } from '../../constants/mockCities';
 import {
@@ -21,12 +22,14 @@ const TITLE_LINE_HEIGHT = typography.titleMd.fontSize * typography.titleMd.lineH
 const TITLE_MIN_HEIGHT = TITLE_LINE_HEIGHT * 2;
 
 export function PopularCityCard({ city, onPress }: PopularCityCardProps) {
+  const { t } = useTranslation('hub');
+
   return (
     <Pressable
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Destination populaire — ${city.name}`}
+      accessibilityLabel={t('a11yPopularCity', { name: city.name })}
     >
       <View style={styles.imageWrap}>
         <Image

@@ -48,5 +48,12 @@
   "creditsTitle": "Credits",
   "creditsSubtitle": "{{count}} credit available",
   "creditsSubtitle_other": "{{count}} credits available",
-  "creditsSubtitleEmpty": "Top up to create guides"
+  "creditsSubtitleEmpty": "Top up to create guides",
+  "menuRoutesSubtitle": "{{count}} saved",
+  "menuFavoritesSubtitle_one": "{{count}} place",
+  "menuFavoritesSubtitle_other": "{{count}} places",
+  "menuHistorySubtitle_one": "{{count}} guide listened",
+  "menuHistorySubtitle_other": "{{count}} guides listened",
+  "a11yInitials": "Initials {{initials}}",
+  "mockMemberSince": "Explorer since March 2025"
 }

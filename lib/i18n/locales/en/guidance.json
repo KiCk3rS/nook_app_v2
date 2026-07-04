@@ -28,5 +28,7 @@
   "notFoundTitle": "Route not found",
   "notFoundBody": "This route does not exist or is no longer available.",
   "a11yScreen": "Guidance — {{title}}",
-  "a11yMap": "Map, step {{step}}, {{name}}. Open full-screen map"
+  "a11yMap": "Map, step {{step}}, {{name}}. Open full-screen map",
+  "stepFallback": "Step",
+  "placeNotFoundStep": "Place not found"
 }
