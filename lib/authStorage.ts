@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 const STORAGE_KEY = 'nook:auth:tokens:v1';
 
@@ -7,18 +8,42 @@ interface StoredTokens {
   refreshToken: string;
 }
 
-/**
- * Persistance des tokens côté app uniquement.
- * AsyncStorage : compatible Expo Go / dev client sans rebuild natif.
- * Pour SecureStore en production, reconstruire le dev client après `expo-secure-store`
- * (`npx expo run:android` ou `run:ios`) puis basculer l’implémentation si souhaité.
- */
+export type AuthStorageBackend = 'async' | 'secure';
+
+/** Backend de persistance : SecureStore en prod, AsyncStorage en dev. */
+export function getAuthStorageBackend(): AuthStorageBackend {
+  return __DEV__ ? 'async' : 'secure';
+}
+
+async function readRaw(): Promise<string | null> {
+  if (getAuthStorageBackend() === 'secure') {
+    return SecureStore.getItemAsync(STORAGE_KEY);
+  }
+  return AsyncStorage.getItem(STORAGE_KEY);
+}
+
+async function writeRaw(value: string): Promise<void> {
+  if (getAuthStorageBackend() === 'secure') {
+    await SecureStore.setItemAsync(STORAGE_KEY, value);
+    return;
+  }
+  await AsyncStorage.setItem(STORAGE_KEY, value);
+}
+
+async function removeRaw(): Promise<void> {
+  if (getAuthStorageBackend() === 'secure') {
+    await SecureStore.deleteItemAsync(STORAGE_KEY);
+    return;
+  }
+  await AsyncStorage.removeItem(STORAGE_KEY);
+}
+
 export async function loadStoredTokens(): Promise<{
   accessToken: string | null;
   refreshToken: string | null;
 }> {
   try {
-    const raw = await AsyncStorage.getItem(STORAGE_KEY);
+    const raw = await readRaw();
     if (!raw) return { accessToken: null, refreshToken: null };
     const parsed = JSON.parse(raw) as Partial<StoredTokens>;
     return {
@@ -36,7 +61,7 @@ export async function saveStoredTokens(
 ): Promise<void> {
   try {
     const payload: StoredTokens = { accessToken, refreshToken };
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    await writeRaw(JSON.stringify(payload));
   } catch {
     // Persistance locale non bloquante.
   }
@@ -44,7 +69,7 @@ export async function saveStoredTokens(
 
 export async function clearStoredTokens(): Promise<void> {
   try {
-    await AsyncStorage.removeItem(STORAGE_KEY);
+    await removeRaw();
   } catch {
     // Persistance locale non bloquante.
   }

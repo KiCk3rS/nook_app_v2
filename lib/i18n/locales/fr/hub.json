@@ -68,5 +68,6 @@
   "a11yStep": "Étape {{order}}, {{name}}",
   "a11yStepDetail": "Étape {{order}}{{details}}",
   "a11yStepLocked": ", verrouillée",
-  "backTo": "Retour à {{name}}"
+  "backTo": "Retour à {{name}}",
+  "mapLoadError": "Impossible de charger les lieux sur la carte."
 }

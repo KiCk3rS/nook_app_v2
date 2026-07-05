@@ -14,8 +14,8 @@ Remplacer les mocks catalogue (`mockPlaces`, recherche locale) par les endpoints
 
 ## Prérequis
 
-- [ ] T01 terminée
-- [ ] T00 : POI publiés en base
+- [x] T01 terminée
+- [x] T00 : POI publiés en base
 
 ## Endpoints
 
@@ -32,25 +32,25 @@ Remplacer les mocks catalogue (`mockPlaces`, recherche locale) par les endpoints
 
 ### Modules API client
 
-- [ ] Créer `lib/api/categories.ts` → `fetchCategories()`
-- [ ] Créer `lib/api/pois.ts` :
+- [x] Créer `lib/api/categories.ts` → `fetchCategories()`
+- [x] Créer `lib/api/pois.ts` :
   - `fetchPois(query)` avec bbox / geo / recherche
   - `fetchPoiById(id, { includeAudios })`
   - `fetchPoiChildren(id, pagination)`
-- [ ] Créer mappers DTO → modèles UI (`lib/mappers/poi.ts` ou inline)
+- [x] Créer mappers DTO → modèles UI (`lib/mappers/poi.ts` ou inline)
 
 ### Hooks / data
 
-- [ ] `hooks/usePoisInBbox.ts` — debounce on region change
-- [ ] `hooks/usePoiDetail.ts` — loading / error / empty
+- [x] `hooks/usePoisInBbox.ts` — debounce on region change
+- [x] `hooks/usePoiDetail.ts` — loading / error / empty
 
 ### Écrans et composants
 
-- [ ] `app/(tabs)/index.tsx` + `components/home/HomeMap.tsx` — fetch bbox
-- [ ] `lib/searchPlaces.ts` — appeler API au lieu du filtre mock
-- [ ] `app/place/[id].tsx` — détail depuis API
-- [ ] `components/home/PoiPreviewCard.tsx`, `PlaceMapMarker.tsx` — props depuis DTO
-- [ ] Adapter layer : API si `isApiConfigured()`, sinon mock existant
+- [x] `app/(tabs)/index.tsx` + `components/home/HomeMap.tsx` — fetch bbox
+- [x] `lib/searchPlaces.ts` — appeler API au lieu du filtre mock
+- [x] `app/place/[id].tsx` — détail depuis API
+- [x] `components/home/PoiPreviewCard.tsx`, `PlaceMapMarker.tsx` — props depuis DTO
+- [x] Adapter layer : API si `isApiConfigured()`, sinon mock existant
 
 ## Fichiers concernés
 
@@ -62,11 +62,11 @@ Remplacer les mocks catalogue (`mockPlaces`, recherche locale) par les endpoints
 
 ## Critères d'acceptation
 
-- [ ] Carte affiche des POI réels quand `API_BASE_URL` est défini
-- [ ] Recherche textuelle retourne résultats API (pas mock)
-- [ ] Fiche lieu charge titre, description, images, audios metadata depuis API
-- [ ] Mode sans API : comportement mock inchangé
-- [ ] États loading / erreur / vide gérés (spec A1.3 partiel)
+- [x] Carte affiche des POI réels quand `API_BASE_URL` est défini
+- [x] Recherche textuelle retourne résultats API (pas mock)
+- [x] Fiche lieu charge titre, description, images, audios metadata depuis API
+- [x] Mode sans API : comportement mock inchangé
+- [x] États loading / erreur / vide gérés (spec A1.3 partiel)
 
 ## Specs écrans liées
 
@@ -82,15 +82,15 @@ Remplacer les mocks catalogue (`mockPlaces`, recherche locale) par les endpoints
 
 ### App
 
-- [ ] `lib/api/__tests__/pois.test.ts` :
+- [x] `lib/api/__tests__/pois.test.ts` :
   - `fetchPois` construit URL bbox / lat+lng+radius / `q` correctement
   - parse `{ items, total, limit, offset }`
   - propage `ApiError` 422 si filtre manquant (côté client : ne pas appeler sans filtre — test guard local)
-- [ ] `lib/api/__tests__/categories.test.ts` : parse `{ items: [...] }`
-- [ ] `lib/mappers/__tests__/poi.test.ts` (si mapper extrait) :
+- [x] `lib/api/__tests__/categories.test.ts` : parse `{ items: [...] }`
+- [x] `lib/mappers/__tests__/poi.test.ts` (si mapper extrait) :
   - DTO API → props `PoiPreviewCard` / marqueur carte
   - champs optionnels (`images`, `categories`) null-safe
-- [ ] `lib/searchPlaces.test.ts` ou `__tests__/searchPlaces.test.ts` :
+- [x] `lib/searchPlaces.test.ts` ou `__tests__/searchPlaces.test.ts` :
   - délègue à API quand configurée ; fallback mock sinon
 
 ### API — si correction côté serveur
@@ -99,4 +99,4 @@ Remplacer les mocks catalogue (`mockPlaces`, recherche locale) par les endpoints
 
 ### Exécution
 
-- [ ] `npm test` vert dans `nook_app_v2` (+ API si modifiée)
+- [x] `npm test` vert dans `nook_app_v2` (+ API si modifiée)

@@ -33,6 +33,10 @@ import {
   setMemoryAccessToken,
   setTokenRefreshHandler,
 } from '../lib/api/client';
+import {
+  getProactiveRefreshDelayMs,
+  sharedRefreshLock,
+} from '../lib/authRefresh';
 import type { MeProfile, User, UserPreferences } from '../types/api';
 import { ApiError } from '../types/api';
 
@@ -97,20 +101,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshingProfile, setIsRefreshingProfile] = useState(false);
   const refreshTokenRef = useRef<string | null>(null);
+  const proactiveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scheduleProactiveRefreshRef = useRef<() => void>(() => {});
+
+  const clearProactiveRefreshTimer = useCallback(() => {
+    if (proactiveTimerRef.current) {
+      clearTimeout(proactiveTimerRef.current);
+      proactiveTimerRef.current = null;
+    }
+  }, []);
 
   const applySession = useCallback((accessToken: string, refreshToken: string) => {
     refreshTokenRef.current = refreshToken;
     setMemoryAccessToken(accessToken);
     void saveStoredTokens(accessToken, refreshToken);
+    scheduleProactiveRefreshRef.current();
   }, []);
 
   const clearSession = useCallback(async () => {
+    clearProactiveRefreshTimer();
     refreshTokenRef.current = null;
     setMemoryAccessToken(null);
     setUser(null);
     setPreferences(defaultPreferences);
     await clearStoredTokens();
-  }, []);
+  }, [clearProactiveRefreshTimer]);
 
   const loadProfile = useCallback(async (): Promise<MeProfile> => {
     if (isMockAccessToken(getMemoryAccessToken())) {
@@ -123,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return profile;
   }, []);
 
-  const refreshAccessToken = useCallback(async (): Promise<string | null> => {
+  const refreshAccessTokenImpl = useCallback(async (): Promise<string | null> => {
     if (isMockAccessToken(refreshTokenRef.current)) {
       return MOCK_ACCESS_TOKEN;
     }
@@ -143,10 +158,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [applySession, clearSession]);
 
+  const refreshAccessToken = useCallback(
+    () => sharedRefreshLock.refresh(refreshAccessTokenImpl),
+    [refreshAccessTokenImpl],
+  );
+
+  const scheduleProactiveRefresh = useCallback(() => {
+    clearProactiveRefreshTimer();
+    if (!isApiConfigured()) return;
+
+    const token = getMemoryAccessToken();
+    if (!token || isMockAccessToken(token)) return;
+
+    const delayMs = getProactiveRefreshDelayMs(token);
+    proactiveTimerRef.current = setTimeout(() => {
+      void refreshAccessToken().then((newToken) => {
+        if (newToken) {
+          scheduleProactiveRefresh();
+        }
+      });
+    }, delayMs);
+  }, [clearProactiveRefreshTimer, refreshAccessToken]);
+
+  scheduleProactiveRefreshRef.current = scheduleProactiveRefresh;
+
   useEffect(() => {
     setTokenRefreshHandler(refreshAccessToken);
-    return () => setTokenRefreshHandler(null);
-  }, [refreshAccessToken]);
+    return () => {
+      setTokenRefreshHandler(null);
+      clearProactiveRefreshTimer();
+    };
+  }, [refreshAccessToken, clearProactiveRefreshTimer]);
 
   useEffect(() => {
     let cancelled = false;
@@ -163,6 +205,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         refreshTokenRef.current = stored.refreshToken;
         setMemoryAccessToken(stored.accessToken);
+        scheduleProactiveRefreshRef.current();
 
         if (isMockAccessToken(stored.accessToken)) {
           const profile = await loadMockProfile();

@@ -68,5 +68,6 @@
   "a11yStep": "Step {{order}}, {{name}}",
   "a11yStepDetail": "Step {{order}}{{details}}",
   "a11yStepLocked": ", locked",
-  "backTo": "Back to {{name}}"
+  "backTo": "Back to {{name}}",
+  "mapLoadError": "Unable to load places on the map."
 }

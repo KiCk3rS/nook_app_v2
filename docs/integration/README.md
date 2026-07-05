@@ -36,9 +36,9 @@ Découpage du plan d'intégration [`nook_api_v2` → `nook_app_v2`](../../.curso
 | Tâche | Statut | Date début | Date fin | Notes |
 |-------|--------|------------|----------|-------|
 | T00 | ✅ terminé | 2026-07-05 | 2026-07-05 | Contrat sync, seed POI, health client, Jest app |
-| T01 | ⬜ à faire | | | |
-| T02 | ⬜ à faire | | | |
-| T03 | ⬜ à faire | | | |
+| T01 | ✅ terminé | 2026-07-05 | 2026-07-05 | Client HTTP, refresh proactif, SecureStore prod |
+| T02 | ✅ terminé | 2026-07-05 | 2026-07-05 | Endpoints /me/credits, génération audio user, tests Jest 178/178 |
+| T03 | ✅ terminé | 2026-07-05 | 2026-07-05 | POI carte/recherche/fiche, mappers, hooks, tests 35/35 |
 | T04 | ⬜ à faire | | | |
 | T05 | ⬜ à faire | | | |
 | T06 | ⬜ à faire | | | |

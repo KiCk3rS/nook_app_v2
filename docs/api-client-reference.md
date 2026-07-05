@@ -281,15 +281,26 @@ Implémentation : `src/guide-chat/guide-chat.controller.ts`.
 
 ### Génération guide audio IA — utilisateur (F-015 user, spec A3.3)
 
-> **Statut : prévu / non implémenté** — contrat cible documenté pour l’app mobile ; endpoints `/me/…` à implémenter côté API (aujourd’hui seule la voie **admin** existe en annexe).
-
 | Méthode | Chemin | Auth | Description | Codes notables |
 |--------|--------|------|-------------|----------------|
 | GET | `/api/v1/me/credits` | Bearer | Solde crédits + quota générations abonnement (mois courant) | 200 ; 401 |
-| POST | `/api/v1/me/pois/:poiId/audio-guides/generate` | Bearer | Lance un job ; guide **privé auteur** | **202** + `jobId` ; 401 ; 422 ; **402** (`AUDIO_GUIDE_INSUFFICIENT_CREDITS`) ; 429 |
+| POST | `/api/v1/me/credits/purchase` | Bearer | Achat pack crédits (**stub** sans validation store) | 200 ; 401 ; 422 ; 429 |
+| POST | `/api/v1/me/pois/:poiId/audio-guides/generate` | Bearer | Lance un job ; guide **privé auteur** | **202** + `jobId`, `guideId`, `paymentType` ; 401 ; 422 ; **402** (`AUDIO_GUIDE_INSUFFICIENT_CREDITS`) ; 429 |
 | GET | `/api/v1/me/audio-guides/jobs/:jobId` | Bearer | Statut job (auteur uniquement) | 200 ; 404 ; 401 |
+| GET | `/api/v1/me/pois/:poiId/audio-guides` | Bearer | Guides privés de l’utilisateur sur ce POI | 200 ; 401 ; 404 |
 
-**Corps POST proposé**
+Implémentation API : `src/me-credits/`, `src/audio-generation/user-audio-guides.controller.ts`.
+
+**Réponse GET `/me/credits`**
+
+```json
+{
+  "creditsBalance": 4,
+  "subscriptionGenerationsRemaining": 2
+}
+```
+
+**Corps POST `/me/pois/:poiId/audio-guides/generate`**
 
 ```json
 {
@@ -305,7 +316,28 @@ Implémentation : `src/guide-chat/guide-chat.controller.ts`.
 | `normal` | 2 |
 | `detailed` | 3 |
 
-Consommation proposée : **quota abonnement** en priorité, puis **crédits achetés** (packs in-app, spec **A8.4**). Voir [`ecran-A3.3-creation-guide-audio-ia.md`](./ecran-A3.3-creation-guide-audio-ia.md).
+Consommation : **quota abonnement** en priorité, puis **crédits achetés** (packs in-app, spec **A8.4**). Voir [`ecran-A3.3-creation-guide-audio-ia.md`](./ecran-A3.3-creation-guide-audio-ia.md).
+
+**Réponse POST generate (202)**
+
+```json
+{
+  "jobId": "f7e4d8fc-43eb-48d8-88cf-95d16b7e302a",
+  "guideId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "paymentType": "credits"
+}
+```
+
+**Réponse GET job (statut simplifié client)**
+
+```json
+{
+  "id": "f7e4d8fc-43eb-48d8-88cf-95d16b7e302a",
+  "status": "pending",
+  "guideId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "errorMessage": null
+}
+```
 
 Voie admin existante (production éditoriale) : voir [Annexe — Admin et génération audio](#annexe--admin-et-génération-audio).
 

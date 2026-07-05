@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 
-import type { MockPlace } from '../../constants/mockPlaces';
+import type { CataloguePlaceMarker } from '../../types/catalogue';
 
 import { POI_MARKER_ANCHOR, PoiMarkerVisual } from './PoiMarkerVisual';
 
 interface PlaceMapMarkerProps {
-  place: MockPlace;
+  place: CataloguePlaceMarker;
   selected: boolean;
   onPress: () => void;
 }

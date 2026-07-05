@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -27,14 +27,17 @@ import { SearchSheet } from '../../components/search/SearchSheet';
 
 import type { PermissionType } from '../../constants/permissions';
 
-import { getPlaceById } from '../../constants/mockPlaces';
+import { getPlaceById, parisRegion } from '../../constants/mockPlaces';
 import { getCityBySlug } from '../../constants/mockCities';
 import { getDistrictBySlug } from '../../constants/mockDistricts';
 import { getItineraryById } from '../../constants/mockItineraries';
 import { useAudioPlayback } from '../../contexts/AudioPlaybackContext';
-import { colors, miniPlayerHeight, spacing, zIndex } from '../../constants/theme';
+import { colors, miniPlayerHeight, spacing, textStyle, zIndex, radius } from '../../constants/theme';
 
 import { useLocationPermission } from '../../hooks/useLocationPermission';
+import { usePoisInBbox } from '../../hooks/usePoisInBbox';
+import type { MapRegion } from '../../lib/itineraryMap';
+import { markerToPreview, mockPlaceToPreview } from '../../lib/mappers/poi';
 
 import type { PermissionSheetSource } from '../../lib/analytics';
 import { trackItineraryMapViewed } from '../../lib/analytics';
@@ -98,6 +101,8 @@ export default function CarteScreen() {
 
   } = useLocationPermission();
 
+  const [mapRegion, setMapRegion] = useState<MapRegion>(parisRegion);
+
   const itineraryMapSession = useMemo(() => {
     if (typeof focusItinerary !== 'string' || !focusItinerary.trim()) {
       return null;
@@ -156,17 +161,44 @@ export default function CarteScreen() {
     }
   }, [itineraryMapSession]);
 
+  const mapDataEnabled = !itineraryMapSession;
+
+  const {
+    places: mapPlaces,
+    error: mapPlacesError,
+  } = usePoisInBbox({
+    region: mapRegion,
+    categorySlug: selectedCategoryId,
+    enabled: mapDataEnabled,
+  });
+
   const [poiCardHeight, setPoiCardHeight] = useState(0);
   const { viewMode } = useAudioPlayback();
 
-  const selectedPlace =
-    selectedPlaceId ? getPlaceById(selectedPlaceId) ?? null : null;
+  const selectedPreview = useMemo(() => {
+    if (!selectedPlaceId) return null;
+
+    if (itineraryMapSession) {
+      const itineraryPlace = itineraryMapSession.places.find(
+        (p) => p.id === selectedPlaceId,
+      );
+      if (itineraryPlace) return mockPlaceToPreview(itineraryPlace);
+    }
+
+    const marker = mapPlaces.find((p) => p.id === selectedPlaceId);
+    if (marker) return markerToPreview(marker);
+
+    const mock = getPlaceById(selectedPlaceId);
+    if (mock) return mockPlaceToPreview(mock);
+
+    return null;
+  }, [itineraryMapSession, mapPlaces, selectedPlaceId]);
 
   const miniPlayerInset =
     viewMode === 'mini' ? miniPlayerHeight + spacing.sm + 2 : 0;
   const poiCardBottom = poiCardMargin + miniPlayerInset;
 
-  const geolocControlBottom = selectedPlace
+  const geolocControlBottom = selectedPreview
 
     ? poiCardBottom + poiCardHeight + spacing.base
 
@@ -297,9 +329,13 @@ export default function CarteScreen() {
 
         ref={mapRef}
 
+        places={mapPlaces}
+
         selectedPlaceId={selectedPlaceId}
 
         onSelectPlace={setSelectedPlaceId}
+
+        onRegionChange={setMapRegion}
 
         showsUserLocation={locationStatus === 'granted'}
 
@@ -367,7 +403,7 @@ export default function CarteScreen() {
 
       </View>
 
-      {selectedPlace ? (
+      {selectedPreview ? (
 
         <View
 
@@ -381,7 +417,7 @@ export default function CarteScreen() {
 
           <PoiPreviewCard
 
-            place={selectedPlace}
+            place={selectedPreview}
 
             onClose={() => setSelectedPlaceId(null)}
 
@@ -389,6 +425,12 @@ export default function CarteScreen() {
 
         </View>
 
+      ) : null}
+
+      {mapPlacesError && mapDataEnabled ? (
+        <View style={[styles.mapStatusBanner, { bottom: poiCardBottom }]} pointerEvents="none">
+          <Text style={styles.mapStatusText}>{t('mapLoadError')}</Text>
+        </View>
       ) : null}
 
       <PermissionSheet
@@ -491,6 +533,22 @@ const styles = StyleSheet.create({
 
     zIndex: zIndex.poiPreview,
 
+  },
+
+  mapStatusBanner: {
+    position: 'absolute',
+    left: poiCardMargin,
+    right: poiCardMargin,
+    zIndex: zIndex.mapControls,
+    padding: spacing.sm,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceCard,
+  },
+
+  mapStatusText: {
+    ...textStyle('bodySm'),
+    color: colors.muted,
+    textAlign: 'center',
   },
 
 });

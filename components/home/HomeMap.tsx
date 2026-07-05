@@ -5,12 +5,13 @@ import MapView, { Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Platform, StyleSheet, View } from 'react-native';
 
 import type { MockPlace } from '../../constants/mockPlaces';
-import { rootPlaces, parisRegion } from '../../constants/mockPlaces';
+import { parisRegion } from '../../constants/mockPlaces';
 import { colors, zIndex } from '../../constants/theme';
 import {
   getCoordinatesForPlaces,
   type MapRegion,
 } from '../../lib/itineraryMap';
+import type { CataloguePlaceMarker } from '../../types/catalogue';
 
 import { ItineraryStepMarker } from './ItineraryStepMarker';
 import { PlaceMapMarker } from './PlaceMapMarker';
@@ -21,8 +22,10 @@ export interface ItineraryMapOverlay {
 }
 
 interface HomeMapProps {
+  places: CataloguePlaceMarker[];
   selectedPlaceId: string | null;
   onSelectPlace: (placeId: string | null) => void;
+  onRegionChange?: (region: MapRegion) => void;
   showsUserLocation?: boolean;
   itineraryOverlay?: ItineraryMapOverlay | null;
 }
@@ -54,7 +57,14 @@ const HIDE_NATIVE_POI_MAP_STYLE = [
 ];
 
 export const HomeMap = forwardRef<HomeMapHandle, HomeMapProps>(function HomeMap(
-  { selectedPlaceId, onSelectPlace, showsUserLocation = false, itineraryOverlay = null },
+  {
+    places,
+    selectedPlaceId,
+    onSelectPlace,
+    onRegionChange,
+    showsUserLocation = false,
+    itineraryOverlay = null,
+  },
   ref,
 ) {
   const mapRef = useRef<MapView>(null);
@@ -63,8 +73,8 @@ export const HomeMap = forwardRef<HomeMapHandle, HomeMapProps>(function HomeMap(
 
   const visiblePlaces = useMemo(() => {
     if (itineraryOverlay) return [];
-    return rootPlaces;
-  }, [itineraryOverlay]);
+    return places;
+  }, [itineraryOverlay, places]);
 
   const routeCoordinates = useMemo(
     () => (itineraryOverlay ? getCoordinatesForPlaces(itineraryOverlay.places) : []),
@@ -86,8 +96,8 @@ export const HomeMap = forwardRef<HomeMapHandle, HomeMapProps>(function HomeMap(
       mapRef.current?.animateToRegion(region, 350);
     },
 
-    fitItineraryRoute(places, edgePadding = DEFAULT_ITINERARY_PADDING) {
-      const coordinates = getCoordinatesForPlaces(places);
+    fitItineraryRoute(overlayPlaces, edgePadding = DEFAULT_ITINERARY_PADDING) {
+      const coordinates = getCoordinatesForPlaces(overlayPlaces);
       if (coordinates.length === 0) return;
 
       if (coordinates.length === 1) {
@@ -131,6 +141,10 @@ export const HomeMap = forwardRef<HomeMapHandle, HomeMapProps>(function HomeMap(
     onSelectPlace(null);
   }
 
+  function handleRegionChangeComplete(region: MapRegion) {
+    onRegionChange?.(region);
+  }
+
   return (
     <View style={styles.container}>
       <MapView
@@ -147,6 +161,7 @@ export const HomeMap = forwardRef<HomeMapHandle, HomeMapProps>(function HomeMap(
         customMapStyle={HIDE_NATIVE_POI_MAP_STYLE}
         showsPointsOfInterests={false}
         onPress={handleMapPress}
+        onRegionChangeComplete={handleRegionChangeComplete}
       >
         {visiblePlaces.map((place) => (
           <PlaceMapMarker

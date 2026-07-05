@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ActivityIndicator,
   BackHandler,
   KeyboardAvoidingView,
   Modal,
@@ -25,7 +26,8 @@ import {
   trackSearchSheetOpened,
 } from '../../lib/analytics';
 import { getPlaceHrefById } from '../../lib/placeNavigation';
-import { searchAll } from '../../lib/searchPlaces';
+import type { SearchResult } from '../../lib/searchPlaces';
+import { searchAllAsync } from '../../lib/searchPlaces';
 import {
   colors,
   componentSizes,
@@ -105,10 +107,35 @@ export function SearchSheet({
     }
   }, [debouncedQuery]);
 
-  const results = useMemo(
-    () => (debouncedQuery.length >= 1 ? searchAll(debouncedQuery) : []),
-    [debouncedQuery],
-  );
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    if (debouncedQuery.length < 1) {
+      setResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    let cancelled = false;
+    setIsSearching(true);
+
+    void searchAllAsync(debouncedQuery)
+      .then((next) => {
+        if (!cancelled) {
+          setResults(next);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsSearching(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedQuery]);
 
   const isResultsMode = debouncedQuery.length >= 1;
 
@@ -207,7 +234,11 @@ export function SearchSheet({
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           keyboardVerticalOffset={insets.top}
         >
-          {isResultsMode ? (
+          {isResultsMode && isSearching ? (
+            <View style={styles.loading}>
+              <ActivityIndicator color={colors.primary} accessibilityLabel={t('searchPlaceholder')} />
+            </View>
+          ) : isResultsMode ? (
             <SearchResultsList
               query={debouncedQuery}
               results={results}
@@ -256,5 +287,11 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
+  },
+  loading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: spacing.xxl,
   },
 });

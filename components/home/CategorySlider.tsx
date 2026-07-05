@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
-import { categories, getCategoryLabel } from '../../constants/mockPlaces';
 import { colors, componentSizes, radius, spacing, textStyle } from '../../constants/theme';
+import { useCategories } from '../../hooks/usePoisInBbox';
 
 interface CategorySliderProps {
   selectedCategoryId: string;
@@ -10,23 +11,31 @@ interface CategorySliderProps {
 }
 
 export function CategorySlider({ selectedCategoryId, onSelectCategory }: CategorySliderProps) {
+  const { t } = useTranslation('categories');
+  const { categories } = useCategories();
+
+  const chips = [
+    { id: 'all', slug: 'all', label: t('place.all') },
+    ...categories.map((c) => ({ id: c.slug, slug: c.slug, label: c.label })),
+  ];
+
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.content}
     >
-      {categories.map((category) => {
-        const isActive = category.id === selectedCategoryId;
+      {chips.map((category) => {
+        const isActive = category.slug === selectedCategoryId;
 
         return (
           <Pressable
             key={category.id}
-            onPress={() => onSelectCategory(category.id)}
+            onPress={() => onSelectCategory(category.slug)}
             style={[styles.chip, isActive ? styles.chipActive : styles.chipInactive]}
             accessibilityRole="button"
             accessibilityState={{ selected: isActive }}
-            accessibilityLabel={getCategoryLabel(category.id)}
+            accessibilityLabel={category.label}
           >
             <Ionicons
               name="pricetag-outline"
@@ -34,7 +43,7 @@ export function CategorySlider({ selectedCategoryId, onSelectCategory }: Categor
               color={isActive ? colors.onPrimary : colors.muted}
             />
             <Text style={[styles.chipText, isActive ? styles.chipTextActive : styles.chipTextInactive]}>
-              {getCategoryLabel(category.id)}
+              {category.label}
             </Text>
           </Pressable>
         );

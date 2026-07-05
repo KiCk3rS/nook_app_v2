@@ -42,11 +42,7 @@ import { useFavorites } from '../../contexts/FavoritesContext';
 import { fetchPrivateGuidesForPlace } from '../../lib/api/audioGuides';
 import { normalizeLocale } from '../../lib/i18n';
 import { getPlaceWikipediaUrl } from '../../lib/placeWikipedia';
-import {
-  getPlaceById,
-  getPlaceChildren,
-  getPlaceParent,
-} from '../../constants/mockPlaces';
+import { usePoiDetail } from '../../hooks/usePoiDetail';
 
 const PRIVATE_GUIDE_POLL_MS = 3000;
 
@@ -58,18 +54,16 @@ export default function PlaceDetailScreen() {
   const { id, createGuide } = useLocalSearchParams<{ id: string; createGuide?: string }>();
   const { isAuthenticated, isLoading: isAuthLoading, user, preferences, isMockSession } = useAuth();
 
-  const place = useMemo(
-    () => (typeof id === 'string' ? getPlaceById(id) : undefined),
-    [id],
-  );
-  const parentPlace = useMemo(
-    () => (place ? getPlaceParent(place) : undefined),
-    [place],
-  );
-  const associatedPlaces = useMemo(
-    () => (place ? getPlaceChildren(place.id) : []),
-    [place],
-  );
+  const placeId = typeof id === 'string' ? id : undefined;
+  const {
+    place,
+    parentPlace,
+    associatedPlaces,
+    loading: isPlaceLoading,
+    error: placeError,
+    notFound,
+    reload,
+  } = usePoiDetail(placeId);
 
   const [privateGuides, setPrivateGuides] = useState<AudioGuide[]>([]);
   const [createGuideVisible, setCreateGuideVisible] = useState(false);
@@ -248,7 +242,43 @@ export default function PlaceDetailScreen() {
     ? insets.bottom + spacing.xxl + stickyBarHeight
     : insets.bottom + spacing.xxl;
 
-  if (!place) {
+  if (isPlaceLoading) {
+    return (
+      <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
+        <Text style={styles.notFoundBody}>…</Text>
+      </View>
+    );
+  }
+
+  if (placeError) {
+    return (
+      <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
+        <Text style={styles.notFoundTitle}>{t('common:placeNotFoundTitle')}</Text>
+        <Text style={styles.notFoundBody}>{t('common:errorGeneric')}</Text>
+        <Pressable
+          style={({ pressed }) => [
+            styles.notFoundButton,
+            pressed && styles.primaryPressed,
+          ]}
+          onPress={reload}
+          accessibilityRole="button"
+          accessibilityLabel={t('common:retry')}
+        >
+          <Text style={styles.primaryText}>{t('common:retry')}</Text>
+        </Pressable>
+        <Pressable
+          style={({ pressed }) => [pressed && styles.primaryPressed]}
+          onPress={handleBack}
+          accessibilityRole="button"
+          accessibilityLabel={t('common:back')}
+        >
+          <Text style={styles.notFoundBody}>{t('common:back')}</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  if (!place || notFound) {
     return (
       <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
         <Text style={styles.notFoundTitle}>{t('common:placeNotFoundTitle')}</Text>

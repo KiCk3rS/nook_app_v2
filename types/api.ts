@@ -145,25 +145,76 @@ export interface UserItinerary {
 export interface ApiErrorBody {
   statusCode?: number;
   message?: string | string[];
+  /** Code métier (ex. `GUIDE_CHAT_INSUFFICIENT_CREDITS`). */
+  code?: string;
+  /** Alias legacy NestJS ; utilisé comme repli si `code` absent. */
   error?: string;
   details?: Record<string, string[]>;
+  requestId?: string;
 }
 
 export class ApiError extends Error {
   readonly statusCode: number;
   readonly details?: Record<string, string[]>;
   readonly code?: string;
+  readonly requestId?: string;
 
   constructor(
     message: string,
     statusCode: number,
-    options?: { details?: Record<string, string[]>; code?: string },
+    options?: {
+      details?: Record<string, string[]>;
+      code?: string;
+      requestId?: string;
+    },
   ) {
     super(message);
     this.name = 'ApiError';
     this.statusCode = statusCode;
     this.details = options?.details;
     this.code = options?.code;
+    this.requestId = options?.requestId;
+  }
+
+  static fromBody(
+    body: ApiErrorBody,
+    statusCode: number,
+    fallbackMessage: string,
+    requestIdHeader?: string | null,
+  ): ApiError {
+    const message = ApiError.parseMessage(body, fallbackMessage);
+    const code =
+      typeof body.code === 'string' && body.code.length > 0
+        ? body.code
+        : typeof body.error === 'string' && body.error.length > 0
+          ? body.error
+          : undefined;
+    const requestId =
+      (typeof body.requestId === 'string' && body.requestId.length > 0
+        ? body.requestId
+        : undefined) ??
+      (typeof requestIdHeader === 'string' && requestIdHeader.length > 0
+        ? requestIdHeader
+        : undefined);
+
+    return new ApiError(message, statusCode, {
+      details: body.details,
+      code,
+      requestId,
+    });
+  }
+
+  private static parseMessage(body: ApiErrorBody, fallback: string): string {
+    if (typeof body.message === 'string' && body.message.length > 0) {
+      return body.message;
+    }
+    if (Array.isArray(body.message) && body.message.length > 0) {
+      return body.message.join('\n');
+    }
+    if (typeof body.error === 'string' && body.error.length > 0) {
+      return body.error;
+    }
+    return fallback;
   }
 
   static isRateLimited(error: unknown): boolean {

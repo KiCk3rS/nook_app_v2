@@ -10,8 +10,9 @@ import {
 } from 'react-native';
 
 import { useFavorites } from '../../contexts/FavoritesContext';
-import { getCategoryLabel, type MockPlace } from '../../constants/mockPlaces';
-import { getPlaceHref } from '../../lib/placeNavigation';
+import type { CataloguePlaceMarker, CataloguePlacePreview } from '../../types/catalogue';
+import { getCategoryDisplayLabel } from '../../lib/mappers/poi';
+import { getPlaceHrefById } from '../../lib/placeNavigation';
 import {
   colors,
   componentSizes,
@@ -22,7 +23,7 @@ import {
 } from '../../constants/theme';
 
 interface PoiPreviewCardProps {
-  place: MockPlace;
+  place: CataloguePlacePreview;
   onClose: () => void;
 }
 
@@ -31,11 +32,14 @@ export function PoiPreviewCard({ place, onClose }: PoiPreviewCardProps) {
   const { t } = useTranslation(['common', 'place']);
   const { isPlaceFavorite, togglePlaceFavorite } = useFavorites();
   const isFavorite = isPlaceFavorite(place.id);
-  const categoryLabel = getCategoryLabel(place.categoryId);
-  const readyGuideCount = place.audioGuides.filter((g) => g.status === 'ready').length;
+  const categoryLabel = getCategoryDisplayLabel(
+    place.categoryId,
+    place.categoryLabel,
+  );
+  const readyGuideCount = place.readyAudioCount;
 
   function handleOpenDetail() {
-    router.push(getPlaceHref(place));
+    router.push(getPlaceHrefById(place.id));
   }
 
   return (
@@ -46,12 +50,16 @@ export function PoiPreviewCard({ place, onClose }: PoiPreviewCardProps) {
       accessibilityLabel={t('place:viewPlaceA11y', { name: place.name })}
     >
       <View style={styles.imageWrap}>
-        <Image
-          source={{ uri: place.imageUrl }}
-          style={styles.image}
-          resizeMode="cover"
-          accessibilityIgnoresInvertColors
-        />
+        {place.imageUrl ? (
+          <Image
+            source={{ uri: place.imageUrl }}
+            style={styles.image}
+            resizeMode="cover"
+            accessibilityIgnoresInvertColors
+          />
+        ) : (
+          <View style={[styles.image, styles.imagePlaceholder]} />
+        )}
         <View style={styles.badge} pointerEvents="none">
           <Text style={styles.badgeText}>{categoryLabel}</Text>
         </View>
@@ -120,9 +128,11 @@ export function PoiPreviewCard({ place, onClose }: PoiPreviewCardProps) {
             color={colors.muted}
             accessibilityElementsHidden
           />
-          <Text style={styles.address} numberOfLines={2}>
-            {place.address}
-          </Text>
+          {place.address ? (
+            <Text style={styles.address} numberOfLines={2}>
+              {place.address}
+            </Text>
+          ) : null}
         </View>
       </View>
     </Pressable>
@@ -151,6 +161,9 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
+  },
+  imagePlaceholder: {
+    backgroundColor: colors.surfaceStrong,
   },
   badge: {
     position: 'absolute',

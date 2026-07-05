@@ -10,6 +10,8 @@ export interface ApiRequestOptions {
   accessToken?: string | null;
 }
 
+const REQUEST_TIMEOUT_MS = 30_000;
+
 let memoryAccessToken: string | null = null;
 let refreshHandler: (() => Promise<string | null>) | null = null;
 
@@ -27,24 +29,51 @@ export function setTokenRefreshHandler(
   refreshHandler = handler;
 }
 
-function parseErrorMessage(body: ApiErrorBody, fallback: string): string {
-  if (typeof body.message === 'string' && body.message.length > 0) {
-    return body.message;
+/** Construit une query string (`limit=20&offset=0&q=paris`) en omettant `null` / `undefined`. */
+export function buildQuery(
+  params: Record<string, string | number | boolean | undefined | null>,
+): string {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === null) continue;
+    search.set(key, String(value));
   }
-  if (Array.isArray(body.message) && body.message.length > 0) {
-    return body.message.join('\n');
+  return search.toString();
+}
+
+function createRequestId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
   }
-  if (typeof body.error === 'string' && body.error.length > 0) {
-    return body.error;
+  return `req-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+}
+
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new ApiError('Délai de requête dépassé.', 0);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
   }
-  return fallback;
 }
 
 async function parseResponse<T>(response: Response): Promise<T> {
+  const requestIdHeader = response.headers.get('X-Request-Id');
   const text = await response.text();
   if (!text) {
     if (!response.ok) {
-      throw new ApiError('Une erreur est survenue.', response.status);
+      throw new ApiError('Une erreur est survenue.', response.status, {
+        requestId: requestIdHeader ?? undefined,
+      });
     }
     return undefined as T;
   }
@@ -54,17 +83,20 @@ async function parseResponse<T>(response: Response): Promise<T> {
     data = JSON.parse(text);
   } catch {
     if (!response.ok) {
-      throw new ApiError('Une erreur est survenue.', response.status);
+      throw new ApiError('Une erreur est survenue.', response.status, {
+        requestId: requestIdHeader ?? undefined,
+      });
     }
     return text as T;
   }
 
   if (!response.ok) {
-    const body = data as ApiErrorBody;
-    throw new ApiError(parseErrorMessage(body, 'Une erreur est survenue.'), response.status, {
-      details: body.details,
-      code: typeof body.error === 'string' ? body.error : undefined,
-    });
+    throw ApiError.fromBody(
+      data as ApiErrorBody,
+      response.status,
+      'Une erreur est survenue.',
+      requestIdHeader,
+    );
   }
 
   return data as T;
@@ -84,6 +116,7 @@ async function requestOnce<T>(
 
   const headers: Record<string, string> = {
     Accept: 'application/json',
+    'X-Request-Id': createRequestId(),
   };
 
   if (options.body !== undefined) {
@@ -95,7 +128,7 @@ async function requestOnce<T>(
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${getApiBaseUrl()}/api/v1${path}`, {
+  const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/v1${path}`, {
     method: options.method ?? 'GET',
     headers,
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,

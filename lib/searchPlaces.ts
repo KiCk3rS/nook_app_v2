@@ -4,9 +4,21 @@ import {
   type MockPlace,
 } from '../constants/mockPlaces';
 import { getCityBySlug, mockCities, type MockCity } from '../constants/mockCities';
+import { isApiConfigured } from './config';
+import { fetchPois } from './api/pois';
+import {
+  mockPlaceToPreview,
+  poiSummaryToMockPlaceSummary,
+} from './mappers/poi';
+import type { CataloguePlacePreview } from '../types/catalogue';
 
 export interface SearchPlaceResult {
   place: MockPlace;
+  subtitle: string | null;
+}
+
+export interface SearchCatalogueResult {
+  place: CataloguePlacePreview;
   subtitle: string | null;
 }
 
@@ -73,20 +85,52 @@ function buildPlaceSubtitle(place: MockPlace, query: string): string | null {
   return `${description.slice(0, maxLen - 1).trim()}…`;
 }
 
+function buildApiPlaceSubtitle(
+  title: string,
+  categories: { label: string }[],
+  query: string,
+): string | null {
+  const q = normalize(query);
+  const name = normalize(title);
+  if (name.includes(q)) return null;
+  const labels = categories.map((c) => c.label).filter(Boolean);
+  return labels.length > 0 ? labels.join(' · ') : null;
+}
+
+function searchCitiesLocal(query: string): SearchResult[] {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const cityRanked = mockCities
+    .map((city) => {
+      const tier = getCityMatchTier(city, trimmed);
+      return tier === null ? null : { type: 'city' as const, city, tier };
+    })
+    .filter(
+      (entry): entry is { type: 'city'; city: MockCity; tier: MatchTier } =>
+        entry !== null,
+    );
+
+  return cityRanked.map((entry) => ({
+    type: 'city' as const,
+    city: entry.city,
+    subtitle: entry.city.subtitle,
+  }));
+}
+
 /**
- * Recherche locale POI — conservée pour compatibilité.
+ * Recherche locale POI — conservée pour compatibilité mock.
  */
 export function searchPlaces(query: string): SearchPlaceResult[] {
-  return searchAll(query)
+  return searchAllLocal(query)
     .filter((r): r is Extract<SearchResult, { type: 'place' }> => r.type === 'place')
     .map(({ place, subtitle }) => ({ place, subtitle }));
 }
 
 /**
- * Recherche locale POI + villes.
- * Tri : tier ascendant ; villes avant POI à tier égal ; id ascendant.
+ * Recherche locale POI + villes (mode mock).
  */
-export function searchAll(query: string): SearchResult[] {
+export function searchAllLocal(query: string): SearchResult[] {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
@@ -95,14 +139,20 @@ export function searchAll(query: string): SearchResult[] {
       const tier = getPlaceMatchTier(place, trimmed);
       return tier === null ? null : { type: 'place' as const, place, tier };
     })
-    .filter((entry): entry is { type: 'place'; place: MockPlace; tier: MatchTier } => entry !== null);
+    .filter(
+      (entry): entry is { type: 'place'; place: MockPlace; tier: MatchTier } =>
+        entry !== null,
+    );
 
   const cityRanked = mockCities
     .map((city) => {
       const tier = getCityMatchTier(city, trimmed);
       return tier === null ? null : { type: 'city' as const, city, tier };
     })
-    .filter((entry): entry is { type: 'city'; city: MockCity; tier: MatchTier } => entry !== null);
+    .filter(
+      (entry): entry is { type: 'city'; city: MockCity; tier: MatchTier } =>
+        entry !== null,
+    );
 
   const merged = [...cityRanked, ...placeRanked].sort((a, b) => {
     if (a.tier !== b.tier) return a.tier - b.tier;
@@ -126,6 +176,52 @@ export function searchAll(query: string): SearchResult[] {
       subtitle: buildPlaceSubtitle(entry.place, trimmed),
     };
   });
+}
+
+/** @deprecated Utiliser `searchAllLocal` ou `searchAllAsync`. */
+export function searchAll(query: string): SearchResult[] {
+  return searchAllLocal(query);
+}
+
+/**
+ * Recherche POI via API si configurée, sinon mock local.
+ * Les villes mock restent disponibles dans les deux modes.
+ */
+export async function searchAllAsync(query: string): Promise<SearchResult[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const cityResults = searchCitiesLocal(trimmed);
+
+  if (!isApiConfigured()) {
+    return searchAllLocal(trimmed);
+  }
+
+  try {
+    const { items } = await fetchPois({
+      q: trimmed,
+      sort: 'relevance',
+      limit: 50,
+    });
+
+    const placeResults: SearchResult[] = items.map((poi) => ({
+      type: 'place' as const,
+      place: poiSummaryToMockPlaceSummary(poi),
+      subtitle: buildApiPlaceSubtitle(poi.title, poi.categories, trimmed),
+    }));
+
+    return [...cityResults, ...placeResults];
+  } catch {
+    return searchAllLocal(trimmed);
+  }
+}
+
+/** Convertit un résultat mock en preview catalogue (tests / UI). */
+export function searchResultToPreview(result: SearchPlaceResult): SearchCatalogueResult {
+  return {
+    place: mockPlaceToPreview(result.place),
+    subtitle: result.subtitle,
+  };
 }
 
 export { getCityBySlug };
