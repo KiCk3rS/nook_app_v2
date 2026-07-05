@@ -152,12 +152,12 @@ export default function PlaceDetailScreen() {
   }, [displayedGuides, place, playbackPlace?.id, syncPlaybackGuides]);
 
   useEffect(() => {
-    if (!hasPendingGuides) return;
+    if (!hasPendingGuides || createGuideVisible) return;
     const timer = setInterval(() => {
       void loadPrivateGuides();
     }, PRIVATE_GUIDE_POLL_MS);
     return () => clearInterval(timer);
-  }, [hasPendingGuides, loadPrivateGuides]);
+  }, [createGuideVisible, hasPendingGuides, loadPrivateGuides]);
 
   useEffect(() => {
     if (isAuthLoading || !place) return;

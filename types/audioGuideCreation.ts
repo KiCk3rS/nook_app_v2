@@ -2,6 +2,13 @@ export type DurationTier = 'short' | 'normal' | 'detailed';
 
 export type AudioGuideJobStatus = 'pending' | 'ready' | 'error';
 
+export interface AudioGuideJob {
+  id: string;
+  status: AudioGuideJobStatus;
+  guideId: string;
+  errorMessage: string | null;
+}
+
 export interface CreditsBalance {
   creditsBalance: number;
   subscriptionGenerationsRemaining: number;
@@ -24,7 +31,9 @@ export type GenerateAudioGuideErrorCode =
   | 'INVALID_URL'
   | 'RATE_LIMITED'
   | 'VALIDATION'
-  | 'NETWORK';
+  | 'NETWORK'
+  | 'POLL_TIMEOUT'
+  | 'JOB_NOT_FOUND';
 
 export class AudioGuideGenerationError extends Error {
   constructor(

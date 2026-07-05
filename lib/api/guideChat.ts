@@ -1,3 +1,9 @@
+import {
+  mapGuideChatMessagesResponse,
+  mapSendGuideChatMessageResponse,
+  type GuideChatMessagesApiResponse,
+  type SendGuideChatMessageApiResponse,
+} from '../mappers/guideChat';
 import type {
   GuideChatMessagesResponse,
   SendGuideChatMessagePayload,
@@ -5,19 +11,27 @@ import type {
 } from '../../types/guideChat';
 import { apiRequest } from './client';
 
-export function fetchGuideChatMessages(poiId: string): Promise<GuideChatMessagesResponse> {
-  return apiRequest<GuideChatMessagesResponse>(`/me/pois/${poiId}/guide-chat/messages`, {
-    auth: true,
-  });
+export async function fetchGuideChatMessages(
+  poiId: string,
+): Promise<GuideChatMessagesResponse> {
+  const api = await apiRequest<GuideChatMessagesApiResponse>(
+    `/me/pois/${poiId}/guide-chat/messages`,
+    { auth: true },
+  );
+  return mapGuideChatMessagesResponse(api);
 }
 
-export function sendGuideChatMessage(
+export async function sendGuideChatMessage(
   poiId: string,
   payload: SendGuideChatMessagePayload,
 ): Promise<SendGuideChatMessageResponse> {
-  return apiRequest<SendGuideChatMessageResponse>(`/me/pois/${poiId}/guide-chat/messages`, {
-    method: 'POST',
-    auth: true,
-    body: payload,
-  });
+  const api = await apiRequest<SendGuideChatMessageApiResponse>(
+    `/me/pois/${poiId}/guide-chat/messages`,
+    {
+      method: 'POST',
+      auth: true,
+      body: payload,
+    },
+  );
+  return mapSendGuideChatMessageResponse(api);
 }

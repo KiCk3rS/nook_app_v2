@@ -29,7 +29,7 @@ import {
 import { useCredits } from '../../contexts/CreditsContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePremium } from '../../contexts/PremiumContext';
-import { generateAudioGuide } from '../../lib/api/audioGuides';
+import { generateAudioGuideAndAwaitJob } from '../../lib/api/audioGuides';
 import {
   trackAudioGuideCreateError,
   trackAudioGuideCreateOpen,
@@ -53,6 +53,8 @@ interface CreateGuideSheetProps {
   onOpenCreditsPack: (requiredCredits: number) => void;
 }
 
+type CreationPhase = 'idle' | 'launching' | 'generating' | 'success' | 'error';
+
 export function CreateGuideSheet({
   visible,
   poiId,
@@ -70,9 +72,8 @@ export function CreateGuideSheet({
   const { user, isMockSession } = useAuth();
 
   const [selectedTier, setSelectedTier] = useState<DurationTier>(DEFAULT_DURATION_TIER);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [phase, setPhase] = useState<CreationPhase>('idle');
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [showSuccess, setShowSuccess] = useState(false);
 
   const canAfford = balance !== null && canAffordTier(selectedTier);
   const articleTitle = useMemo(
@@ -103,18 +104,18 @@ export function CreateGuideSheet({
   }, [balance, hasSubscription, t]);
 
   const handleClose = useCallback(() => {
-    if (isSubmitting) return;
+    if (phase === 'launching' || phase === 'generating') return;
     onClose();
-  }, [isSubmitting, onClose]);
+  }, [onClose, phase]);
 
   useEffect(() => {
     if (!visible) {
-      setShowSuccess(false);
+      setPhase('idle');
       return;
     }
     trackAudioGuideCreateOpen(poiId, 'place_detail');
     setSubmitError(null);
-    setShowSuccess(false);
+    setPhase('idle');
     void refreshBalance();
   }, [visible, poiId, refreshBalance]);
 
@@ -146,9 +147,9 @@ export function CreateGuideSheet({
     const paymentType = getTierPaymentLabel(selectedTier);
     trackAudioGuideCreateSubmit(poiId, selectedTier, paymentType ?? 'credits');
 
-    setIsSubmitting(true);
+    setPhase('launching');
     try {
-      const response = await generateAudioGuide(
+      const result = await generateAudioGuideAndAwaitJob(
         user.id,
         poiId,
         poiName,
@@ -158,13 +159,23 @@ export function CreateGuideSheet({
           language,
         },
         hasSubscription,
-        isMockSession,
+        {
+          demoSession: isMockSession,
+          onGenerating: () => setPhase('generating'),
+        },
       );
-      trackAudioGuideCreateSuccess(poiId, response.jobId, selectedTier);
+      trackAudioGuideCreateSuccess(poiId, result.response.jobId, selectedTier);
       await refreshBalance();
       onSuccess();
-      setShowSuccess(true);
+
+      if (result.outcome === 'failed') {
+        setSubmitError(result.errorMessage ?? t('createGuide:guideError'));
+        setPhase('error');
+        return;
+      }
+      setPhase('success');
     } catch (error) {
+      setPhase('error');
       if (error instanceof AudioGuideGenerationError) {
         trackAudioGuideCreateError(error.code, selectedTier);
         if (error.code === 'INSUFFICIENT_CREDITS') {
@@ -182,17 +193,17 @@ export function CreateGuideSheet({
         }
       }
       setSubmitError(t('createGuide:errorNetwork'));
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
+  const isBusy = phase === 'launching' || phase === 'generating';
+  const showSuccess = phase === 'success';
   const primaryCtaLabel =
     !isLoading && !canAfford
       ? t('createGuide:ctaInsufficientCredits')
       : t('createGuide:ctaGenerate', { cost: ctaCostLabel });
 
-  const primaryDisabled = isSubmitting || isLoading;
+  const primaryDisabled = isBusy || isLoading;
 
   return (
     <Modal
@@ -218,7 +229,7 @@ export function CreateGuideSheet({
               style={styles.closeBtn}
               accessibilityRole="button"
               accessibilityLabel={t('common:close')}
-              disabled={isSubmitting}
+              disabled={isBusy}
               hitSlop={8}
             >
               <Ionicons name="close" size={22} color={colors.ink} />
@@ -341,7 +352,7 @@ export function CreateGuideSheet({
               accessibilityLabel={primaryCtaLabel}
               accessibilityState={{ disabled: primaryDisabled }}
             >
-              {isSubmitting ? (
+              {isBusy ? (
                 <ActivityIndicator color={colors.onPrimary} />
               ) : (
                 <Text style={styles.primaryBtnText}>{primaryCtaLabel}</Text>
@@ -367,10 +378,14 @@ export function CreateGuideSheet({
             )}
           </ScrollView>
 
-          {isSubmitting ? (
+          {isBusy ? (
             <View style={styles.loadingOverlay} accessibilityLiveRegion="polite">
               <ActivityIndicator size="large" color={colors.primary} />
-              <Text style={styles.loadingText}>{t('createGuide:submitting')}</Text>
+              <Text style={styles.loadingText}>
+                {phase === 'generating'
+                  ? t('createGuide:guidePending')
+                  : t('createGuide:submitting')}
+              </Text>
             </View>
           ) : null}
         </View>

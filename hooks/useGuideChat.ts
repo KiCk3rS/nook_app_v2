@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useAuth } from '../contexts/AuthContext';
-import { isMockAccessToken } from '../constants/mockUser';
+import { shouldUseMockData } from '../lib/config';
 import * as guideChatApi from '../lib/api/guideChat';
-import { getMemoryAccessToken } from '../lib/api/client';
-import { isApiConfigured } from '../lib/config';
 import {
   trackGuideChatError,
   trackGuideChatSend,
@@ -15,16 +13,11 @@ import {
 } from '../lib/mockGuideChat';
 import type { GuideChatMessage } from '../types/guideChat';
 import { ApiError } from '../types/api';
+import { resolveGuideChatErrorCode } from '../lib/mappers/guideChat';
 
 const MAX_MESSAGE_LENGTH = 4000;
 
-export type GuideChatErrorCode =
-  | 'network'
-  | 'unauthorized'
-  | 'insufficient_credits'
-  | 'no_sources'
-  | 'rate_limited'
-  | 'unknown';
+export type { GuideChatErrorCode } from '../lib/mappers/guideChat';
 
 interface UseGuideChatOptions {
   poiId: string;
@@ -33,36 +26,21 @@ interface UseGuideChatOptions {
   enabled: boolean;
 }
 
-function resolveErrorCode(error: unknown): GuideChatErrorCode {
-  if (!(error instanceof ApiError)) {
-    return 'network';
-  }
-  if (error.statusCode === 401) return 'unauthorized';
-  if (error.statusCode === 402) return 'insufficient_credits';
-  if (error.statusCode === 422 && error.code === 'GUIDE_CHAT_NO_SOURCES') {
-    return 'no_sources';
-  }
-  if (error.statusCode === 429) return 'rate_limited';
-  return 'unknown';
-}
-
-function shouldUseMock(): boolean {
-  return !isApiConfigured() || isMockAccessToken(getMemoryAccessToken());
-}
-
 export function useGuideChat({
   poiId,
   poiName,
   guideTitle,
   enabled,
 }: UseGuideChatOptions) {
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading, isMockSession } = useAuth();
   const [messages, setMessages] = useState<GuideChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [errorCode, setErrorCode] = useState<GuideChatErrorCode | null>(null);
   const [creditsBalance, setCreditsBalance] = useState<number | null>(null);
   const loadVersionRef = useRef(0);
+
+  const useMock = shouldUseMockData(isMockSession);
 
   const loadMessages = useCallback(async () => {
     if (!isAuthenticated) return;
@@ -72,7 +50,7 @@ export function useGuideChat({
     setErrorCode(null);
 
     try {
-      const response = shouldUseMock()
+      const response = useMock
         ? await fetchMockGuideChatMessages(poiId)
         : await guideChatApi.fetchGuideChatMessages(poiId);
 
@@ -82,7 +60,7 @@ export function useGuideChat({
       setCreditsBalance(response.creditsBalance ?? null);
     } catch (error) {
       if (version !== loadVersionRef.current) return;
-      const code = resolveErrorCode(error);
+      const code = resolveGuideChatErrorCode(error);
       setErrorCode(code);
       trackGuideChatError(
         poiId,
@@ -94,7 +72,7 @@ export function useGuideChat({
         setIsLoading(false);
       }
     }
-  }, [isAuthenticated, poiId]);
+  }, [isAuthenticated, poiId, useMock]);
 
   useEffect(() => {
     if (!enabled || isAuthLoading || !isAuthenticated) {
@@ -126,7 +104,7 @@ export function useGuideChat({
       setErrorCode(null);
 
       try {
-        const response = shouldUseMock()
+        const response = useMock
           ? await sendMockGuideChatMessage(poiId, content, { guideTitle, poiName })
           : await guideChatApi.sendGuideChatMessage(poiId, { content });
 
@@ -139,7 +117,7 @@ export function useGuideChat({
         trackGuideChatSend(poiId, content.length);
         return true;
       } catch (error) {
-        const code = resolveErrorCode(error);
+        const code = resolveGuideChatErrorCode(error);
         setErrorCode(code);
         trackGuideChatError(
           poiId,
@@ -151,7 +129,7 @@ export function useGuideChat({
         setIsSending(false);
       }
     },
-    [guideTitle, isAuthenticated, isSending, poiId, poiName],
+    [guideTitle, isAuthenticated, isSending, poiId, poiName, useMock],
   );
 
   return {

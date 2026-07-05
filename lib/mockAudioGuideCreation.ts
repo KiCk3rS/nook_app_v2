@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { AudioGuide } from '../constants/mockPlaces';
 import { getTierCreditCost } from '../constants/audioGuideTiers';
 import type {
+  AudioGuideJob,
   CreditsBalance,
   DurationTier,
   GenerateAudioGuidePayload,
@@ -239,6 +240,57 @@ export async function mockGenerateAudioGuide(
   };
 }
 
+function advanceMockJobIfReady(
+  store: AudioGuideCreationStore,
+  job: StoredJob,
+  now = Date.now(),
+): boolean {
+  if (job.status !== 'pending' || now - job.createdAt < MOCK_READY_DELAY_MS) {
+    return false;
+  }
+
+  job.status = 'ready';
+  job.readyAt = now;
+  const placeName =
+    store.guides[job.guideId]?.title.split(' — ')[0] ?? 'Ce lieu';
+  store.guides[job.guideId] = makeGuideFromJob(job, placeName, 'ready');
+  return true;
+}
+
+function advancePendingMockJobsForPlace(
+  store: AudioGuideCreationStore,
+  userId: string,
+  poiId: string,
+  now = Date.now(),
+): boolean {
+  let changed = false;
+  for (const job of Object.values(store.jobs)) {
+    if (job.userId === userId && job.poiId === poiId && advanceMockJobIfReady(store, job, now)) {
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+export async function mockFetchAudioGuideJob(jobId: string): Promise<AudioGuideJob> {
+  const store = await loadStore();
+  const job = store.jobs[jobId];
+  if (!job) {
+    throw new AudioGuideGenerationError('JOB_NOT_FOUND', undefined, 404);
+  }
+
+  if (advanceMockJobIfReady(store, job)) {
+    await saveStore(store);
+  }
+
+  return {
+    id: job.id,
+    status: job.status,
+    guideId: job.guideId,
+    errorMessage: job.status === 'error' ? 'La génération a échoué.' : null,
+  };
+}
+
 async function completeMockJob(jobId: string, placeName: string): Promise<void> {
   const store = await loadStore();
   const job = store.jobs[jobId];
@@ -255,24 +307,10 @@ export async function mockFetchPrivateGuidesForPlace(
   poiId: string,
 ): Promise<AudioGuide[]> {
   const store = await loadStore();
-  const now = Date.now();
 
-  for (const job of Object.values(store.jobs)) {
-    if (
-      job.userId === userId &&
-      job.poiId === poiId &&
-      job.status === 'pending' &&
-      now - job.createdAt >= MOCK_READY_DELAY_MS
-    ) {
-      job.status = 'ready';
-      job.readyAt = now;
-      const placeName =
-        store.guides[job.guideId]?.title.split(' — ')[0] ?? 'Ce lieu';
-      store.guides[job.guideId] = makeGuideFromJob(job, placeName, 'ready');
-    }
+  if (advancePendingMockJobsForPlace(store, userId, poiId)) {
+    await saveStore(store);
   }
-
-  await saveStore(store);
 
   return Object.values(store.guides)
     .filter((guide) => guide.userId === userId && guide.poiId === poiId)
