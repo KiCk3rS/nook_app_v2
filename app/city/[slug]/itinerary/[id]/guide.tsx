@@ -15,6 +15,7 @@ import {
   textStyle,
 } from '../../../../../constants/theme';
 import { usePremium } from '../../../../../contexts/PremiumContext';
+import { guidanceStepsFromPoiIds } from '../../../../../lib/itineraryMap';
 
 export default function EditorialGuidanceScreen() {
   const { t } = useTranslation(['guidance', 'common']);
@@ -39,6 +40,11 @@ export default function EditorialGuidanceScreen() {
   const unlocked = itinerary
     ? isUnlocked(itinerary.id, itinerary.isPremium)
     : false;
+
+  const guidanceSteps = useMemo(
+    () => (itinerary ? guidanceStepsFromPoiIds(itinerary.stepPoiIds) : []),
+    [itinerary],
+  );
 
   const initialStepParam = useMemo(() => {
     if (typeof step !== 'string') return undefined;
@@ -80,7 +86,7 @@ export default function EditorialGuidanceScreen() {
       itineraryId={itinerary.id}
       title={itinerary.title}
       coverImageUrl={itinerary.coverImageUrl}
-      stepPoiIds={itinerary.stepPoiIds}
+      guidanceSteps={guidanceSteps}
       citySlug={city.slug}
       cityName={city.name}
       initialStepParam={initialStepParam}

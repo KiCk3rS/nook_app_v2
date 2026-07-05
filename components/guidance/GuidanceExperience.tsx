@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -34,7 +34,10 @@ import {
   estimateWalkMinutes,
   formatDistanceMeters,
 } from '../../lib/geo';
-import { buildFocusItineraryParam } from '../../lib/itineraryMap';
+import {
+  buildFocusItineraryParam,
+  type GuidanceStepPoint,
+} from '../../lib/itineraryMap';
 import {
   clearGuidanceProgress,
   getGuidanceProgress,
@@ -61,7 +64,7 @@ export interface GuidanceExperienceProps {
   itineraryId: string;
   title: string;
   coverImageUrl: string;
-  stepPoiIds: string[];
+  guidanceSteps: GuidanceStepPoint[];
   citySlug?: string;
   cityName?: string;
   initialStepParam?: number;
@@ -81,7 +84,7 @@ export function GuidanceExperience({
   itineraryId,
   title,
   coverImageUrl,
-  stepPoiIds,
+  guidanceSteps,
   citySlug,
   cityName,
   initialStepParam,
@@ -91,12 +94,7 @@ export function GuidanceExperience({
   const insets = useSafeAreaInsets();
   const startedRef = useRef(false);
 
-  const stepCount = stepPoiIds.length;
-  const places = useMemo(
-    () =>
-      stepPoiIds.map((id) => getPlaceById(id)).filter((p): p is MockPlace => p !== undefined),
-    [stepPoiIds],
-  );
+  const stepCount = guidanceSteps.length;
 
   const [stepIndex, setStepIndex] = useState(0);
   const [phase, setPhase] = useState<'loading' | 'resume' | 'active' | 'completed'>('loading');
@@ -114,18 +112,24 @@ export function GuidanceExperience({
   const miniPlayerInset =
     viewMode === 'mini' ? miniPlayerHeight + spacing.sm : 0;
 
-  const currentPlace = places[stepIndex];
-  const nextPlace = stepIndex < places.length - 1 ? places[stepIndex + 1] : null;
+  const currentStep = guidanceSteps[stepIndex];
+  const nextStep = stepIndex < guidanceSteps.length - 1 ? guidanceSteps[stepIndex + 1] : null;
+  const currentPlace = getPlaceById(currentStep?.id ?? '');
   const isLastStep = stepIndex >= stepCount - 1;
   const readyGuide = currentPlace ? getReadyGuide(currentPlace) : undefined;
 
   const distanceToNext =
-    currentPlace && nextPlace
+    currentStep &&
+    nextStep &&
+    currentStep.latitude != null &&
+    currentStep.longitude != null &&
+    nextStep.latitude != null &&
+    nextStep.longitude != null
       ? distanceMeters(
-          currentPlace.latitude,
-          currentPlace.longitude,
-          nextPlace.latitude,
-          nextPlace.longitude,
+          currentStep.latitude,
+          currentStep.longitude,
+          nextStep.latitude,
+          nextStep.longitude,
         )
       : null;
 
@@ -153,10 +157,10 @@ export function GuidanceExperience({
         sourceType,
         itineraryId,
         clamped,
-        stepPoiIds[clamped],
+        guidanceSteps[clamped]?.id ?? '',
       );
     },
-    [citySlug, itineraryId, sourceType, stepCount, stepPoiIds],
+    [citySlug, guidanceSteps, itineraryId, sourceType, stepCount],
   );
 
   useEffect(() => {
@@ -179,8 +183,8 @@ export function GuidanceExperience({
       }
 
       if (saved && saved.stepIndex > 0) {
-        const savedPlace = getPlaceById(stepPoiIds[saved.stepIndex] ?? '');
-        const name = savedPlace?.name ?? t('guidance:stepFallback');
+        const savedStep = guidanceSteps[saved.stepIndex];
+        const name = savedStep?.name ?? t('guidance:stepFallback');
         setResumeStepIndex(saved.stepIndex);
         setResumeStepName(name);
         trackGuidanceResumePromptShown(sourceType, itineraryId, saved.stepIndex);
@@ -196,7 +200,7 @@ export function GuidanceExperience({
     return () => {
       cancelled = true;
     };
-  }, [enterGuidance, initialStepParam, itineraryId, sourceType, stepPoiIds]);
+  }, [enterGuidance, guidanceSteps, initialStepParam, itineraryId, sourceType, t]);
 
   useEffect(() => {
     if (phase !== 'active') return;
@@ -275,7 +279,12 @@ export function GuidanceExperience({
     }
     const clamped = clampStep(nextIndex, stepCount);
     setStepIndex(clamped);
-    trackGuidanceStepViewed(sourceType, itineraryId, clamped, stepPoiIds[clamped]);
+    trackGuidanceStepViewed(
+      sourceType,
+      itineraryId,
+      clamped,
+      guidanceSteps[clamped]?.id ?? '',
+    );
   }
 
   function handlePrev() {
@@ -292,7 +301,7 @@ export function GuidanceExperience({
       sourceType,
       itineraryId,
       stepIndex,
-      stepPoiIds[stepIndex],
+      guidanceSteps[stepIndex]?.id ?? '',
     );
     goToStep(stepIndex + 1);
   }
@@ -305,7 +314,7 @@ export function GuidanceExperience({
       sourceType,
       itineraryId,
       stepIndex,
-      stepPoiIds[stepIndex],
+      guidanceSteps[stepIndex]?.id ?? '',
     );
     trackGuidanceCompleted(sourceType, itineraryId, stepCount);
     await persistProgress(stepIndex, Date.now());
@@ -372,8 +381,8 @@ export function GuidanceExperience({
     );
   }
 
-  const stepImageUrl = currentPlace?.imageUrl ?? coverImageUrl;
-  const stepName = currentPlace?.name ?? t('guidance:placeNotFoundStep');
+  const stepImageUrl = currentStep?.imageUrl ?? currentPlace?.imageUrl ?? coverImageUrl;
+  const stepName = currentStep?.name ?? t('guidance:placeNotFoundStep');
 
   return (
     <View style={styles.screen} accessibilityLabel={t('guidance:a11yScreen', { title })}>
@@ -425,15 +434,17 @@ export function GuidanceExperience({
             </View>
           </View>
           <Text style={styles.stepName}>{stepName}</Text>
-          {currentPlace?.address ? (
+          {currentStep?.address ? (
+            <Text style={styles.stepAddress}>{currentStep.address}</Text>
+          ) : currentPlace?.address ? (
             <Text style={styles.stepAddress}>{currentPlace.address}</Text>
           ) : null}
         </View>
 
-        {nextPlace ? (
+        {nextStep ? (
           <View style={styles.nextHint}>
             <Text style={styles.nextHintTitle}>
-              {t('guidance:nextStep', { name: nextPlace.name })}
+              {t('guidance:nextStep', { name: nextStep.name })}
             </Text>
             {distanceToNext !== null ? (
               <Text style={styles.nextHintMeta}>
@@ -470,7 +481,7 @@ export function GuidanceExperience({
         )}
 
         <GuidanceMapSection
-          places={places}
+          guidanceSteps={guidanceSteps}
           currentStepIndex={stepIndex}
           stepName={stepName}
           onOpenMap={handleMap}

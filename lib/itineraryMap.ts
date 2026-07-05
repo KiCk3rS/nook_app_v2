@@ -1,5 +1,6 @@
 import type { MockPlace } from '../constants/mockPlaces';
 import { getPlaceById } from '../constants/mockPlaces';
+import type { UserItineraryStep } from '../types/api';
 
 export interface MapRegion {
   latitude: number;
@@ -11,6 +12,16 @@ export interface MapRegion {
 export interface ParsedFocusItinerary {
   itineraryId: string;
   stepIndex?: number;
+}
+
+/** Point d'étape unifié pour guidage et cartes (API ou mock). */
+export interface GuidanceStepPoint {
+  id: string;
+  name: string;
+  latitude: number | null;
+  longitude: number | null;
+  imageUrl?: string;
+  address?: string;
 }
 
 /** Param route : `{itineraryId}` ou `{itineraryId}/{stepIndex}` (step 0-based). */
@@ -44,14 +55,69 @@ export function buildFocusItineraryParam(itineraryId: string, stepIndex?: number
 export function resolveItineraryPlaces(stepPoiIds: string[]): MockPlace[] {
   return stepPoiIds
     .map((id) => getPlaceById(id))
-    .filter((place): place is MockPlace => place != null);
+    .filter((place): place is MockPlace => place !== undefined);
+}
+
+export function guidanceStepsFromPoiIds(poiIds: string[]): GuidanceStepPoint[] {
+  return poiIds.map((poiId) => {
+    const place = getPlaceById(poiId);
+    return {
+      id: poiId,
+      name: place?.name ?? poiId,
+      latitude: place?.latitude ?? null,
+      longitude: place?.longitude ?? null,
+      imageUrl: place?.imageUrl,
+      address: place?.address,
+    };
+  });
+}
+
+export function guidanceStepsFromPlaces(places: MockPlace[]): GuidanceStepPoint[] {
+  return places.map((place) => ({
+    id: place.id,
+    name: place.name,
+    latitude: place.latitude,
+    longitude: place.longitude,
+    imageUrl: place.imageUrl,
+    address: place.address,
+  }));
+}
+
+export function guidanceStepsFromApiSteps(steps: UserItineraryStep[]): GuidanceStepPoint[] {
+  return [...steps]
+    .sort((a, b) => a.order - b.order)
+    .map((step) => {
+      const place = getPlaceById(step.poiId);
+      return {
+        id: step.poiId,
+        name: step.title || place?.name || step.poiId,
+        latitude: step.lat ?? place?.latitude ?? null,
+        longitude: step.lng ?? place?.longitude ?? null,
+        imageUrl: place?.imageUrl,
+        address: place?.address,
+      };
+    });
 }
 
 export function getRegionForPlaces(places: MockPlace[]): MapRegion | null {
-  if (places.length === 0) return null;
+  return getRegionForGuidanceSteps(guidanceStepsFromPlaces(places));
+}
 
-  const lats = places.map((p) => p.latitude);
-  const lngs = places.map((p) => p.longitude);
+export function getCoordinatesForPlaces(places: MockPlace[]) {
+  return getCoordinatesForGuidanceSteps(guidanceStepsFromPlaces(places));
+}
+
+export function getRegionForGuidanceSteps(
+  steps: GuidanceStepPoint[],
+): MapRegion | null {
+  const withCoords = steps.filter(
+    (step) => step.latitude != null && step.longitude != null,
+  ) as Array<GuidanceStepPoint & { latitude: number; longitude: number }>;
+
+  if (withCoords.length === 0) return null;
+
+  const lats = withCoords.map((step) => step.latitude);
+  const lngs = withCoords.map((step) => step.longitude);
   const minLat = Math.min(...lats);
   const maxLat = Math.max(...lats);
   const minLng = Math.min(...lngs);
@@ -67,11 +133,16 @@ export function getRegionForPlaces(places: MockPlace[]): MapRegion | null {
   };
 }
 
-export function getCoordinatesForPlaces(places: MockPlace[]) {
-  return places.map((p) => ({
-    latitude: p.latitude,
-    longitude: p.longitude,
-  }));
+export function getCoordinatesForGuidanceSteps(steps: GuidanceStepPoint[]) {
+  return steps
+    .filter(
+      (step): step is GuidanceStepPoint & { latitude: number; longitude: number } =>
+        step.latitude != null && step.longitude != null,
+    )
+    .map((step) => ({
+      latitude: step.latitude,
+      longitude: step.longitude,
+    }));
 }
 
 export function clampStepIndex(stepIndex: number | undefined, stepCount: number): number | undefined {

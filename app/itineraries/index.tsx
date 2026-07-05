@@ -20,7 +20,12 @@ import { MOCK_USER_ITINERARIES } from '../../constants/mockUserItineraries';
 import { colors, spacing, textStyle } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRequireAuth } from '../../hooks/useRequireAuth';
-import { deleteItinerary, fetchItineraries } from '../../lib/api/itineraries';
+import {
+  buildItinerariesLoadMoreQuery,
+  deleteItinerary,
+  fetchItineraries,
+  ITINERARIES_PAGE_SIZE,
+} from '../../lib/api/itineraries';
 import { isApiConfigured } from '../../lib/config';
 import type { UserItinerary } from '../../types/api';
 
@@ -32,9 +37,14 @@ export default function UserItinerariesScreen() {
   const { isMockSession } = useAuth();
 
   const [items, setItems] = useState<UserItinerary[]>([]);
+  const [total, setTotal] = useState(0);
+  const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  const hasMore = items.length < total;
 
   const load = useCallback(async (refresh = false) => {
     if (isMockSession) {
@@ -42,6 +52,8 @@ export default function UserItinerariesScreen() {
       else setIsLoading(true);
       await new Promise((resolve) => setTimeout(resolve, refresh ? 300 : 0));
       setItems(MOCK_USER_ITINERARIES);
+      setTotal(MOCK_USER_ITINERARIES.length);
+      setOffset(0);
       setLoadError(null);
       setIsLoading(false);
       setIsRefreshing(false);
@@ -50,6 +62,8 @@ export default function UserItinerariesScreen() {
     if (!isApiConfigured()) {
       setLoadError(t('userItineraries:loadError'));
       setItems([]);
+      setTotal(0);
+      setOffset(0);
       setIsLoading(false);
       setIsRefreshing(false);
       return;
@@ -58,15 +72,44 @@ export default function UserItinerariesScreen() {
     else setIsLoading(true);
     setLoadError(null);
     try {
-      const data = await fetchItineraries({ limit: 100 });
-      setItems(data);
+      const page = await fetchItineraries({
+        limit: ITINERARIES_PAGE_SIZE,
+        offset: 0,
+      });
+      setItems(page.items);
+      setTotal(page.total);
+      setOffset(page.offset + page.items.length);
     } catch {
       setLoadError(t('userItineraries:loadError'));
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [isMockSession]);
+  }, [isMockSession, t]);
+
+  const loadMore = useCallback(async () => {
+    if (isMockSession || !isApiConfigured() || isLoadingMore || !hasMore) {
+      return;
+    }
+    setIsLoadingMore(true);
+    try {
+      const nextQuery = buildItinerariesLoadMoreQuery({
+        offset: offset,
+        limit: ITINERARIES_PAGE_SIZE,
+        total,
+      });
+      if (!nextQuery) return;
+
+      const page = await fetchItineraries(nextQuery);
+      setItems((prev) => [...prev, ...page.items]);
+      setOffset(page.offset + page.items.length);
+      setTotal(page.total);
+    } catch {
+      setLoadError(t('userItineraries:loadError'));
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [hasMore, isLoadingMore, isMockSession, offset, t, total]);
 
   useEffect(() => {
     if (isReady) void load();
@@ -93,6 +136,7 @@ export default function UserItinerariesScreen() {
           onPress: () => {
             if (isMockSession) {
               setItems((prev) => prev.filter((item) => item.id !== itinerary.id));
+              setTotal((prev) => Math.max(0, prev - 1));
               Alert.alert('', t('userItineraries:deletedToast'));
               return;
             }
@@ -100,6 +144,7 @@ export default function UserItinerariesScreen() {
               try {
                 await deleteItinerary(itinerary.id);
                 setItems((prev) => prev.filter((item) => item.id !== itinerary.id));
+                setTotal((prev) => Math.max(0, prev - 1));
                 Alert.alert('', t('userItineraries:deletedToast'));
               } catch {
                 Alert.alert('', t('userItineraries:loadError'));
@@ -159,6 +204,16 @@ export default function UserItinerariesScreen() {
               refreshing={isRefreshing}
               onRefresh={() => void load(true)}
             />
+          }
+          onEndReached={() => void loadMore()}
+          onEndReachedThreshold={0.3}
+          ListFooterComponent={
+            isLoadingMore ? (
+              <ActivityIndicator
+                style={styles.footerLoader}
+                color={colors.primary}
+              />
+            ) : null
           }
           renderItem={({ item }) => (
             <UserItineraryCard
@@ -220,5 +275,8 @@ const styles = StyleSheet.create({
   list: {
     paddingHorizontal: spacing.base,
     paddingBottom: spacing.xxl,
+  },
+  footerLoader: {
+    paddingVertical: spacing.md,
   },
 });

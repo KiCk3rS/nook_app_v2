@@ -166,6 +166,17 @@ export interface AuthResponse {
   user: User;
 }
 
+export type ItineraryDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
+
+/** F-010 — une étape de parcours utilisateur (réponse API détail). */
+export interface UserItineraryStep {
+  order: number;
+  poiId: string;
+  title: string;
+  lat: number | null;
+  lng: number | null;
+}
+
 export interface UserItinerary {
   id: string;
   title: string;
@@ -173,7 +184,7 @@ export interface UserItinerary {
   poiIds?: string[];
   estimatedDurationMinutes?: number | null;
   distanceMeters?: number | null;
-  difficulty?: string | null;
+  difficulty?: ItineraryDifficulty | null;
   updatedAt?: string;
   createdAt?: string;
 }

@@ -3,7 +3,6 @@ import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import type { MockPlace } from '../../constants/mockPlaces';
 import {
   colors,
   componentSizes,
@@ -13,12 +12,13 @@ import {
   textStyle,
 } from '../../constants/theme';
 import {
-  getCoordinatesForPlaces,
-  getRegionForPlaces,
+  getCoordinatesForGuidanceSteps,
+  getRegionForGuidanceSteps,
+  type GuidanceStepPoint,
 } from '../../lib/itineraryMap';
 
 interface GuidanceMapSectionProps {
-  places: MockPlace[];
+  guidanceSteps: GuidanceStepPoint[];
   currentStepIndex: number;
   stepName: string;
   onOpenMap: () => void;
@@ -27,7 +27,7 @@ interface GuidanceMapSectionProps {
 }
 
 export function GuidanceMapSection({
-  places,
+  guidanceSteps,
   currentStepIndex,
   stepName,
   onOpenMap,
@@ -36,13 +36,13 @@ export function GuidanceMapSection({
 }: GuidanceMapSectionProps) {
   const { t } = useTranslation('guidance');
 
-  if (places.length === 0) {
+  if (guidanceSteps.length === 0) {
     return null;
   }
 
   const mapProvider = Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined;
-  const region = getRegionForPlaces(places);
-  const coordinates = getCoordinatesForPlaces(places);
+  const region = getRegionForGuidanceSteps(guidanceSteps);
+  const coordinates = getCoordinatesForGuidanceSteps(guidanceSteps);
 
   if (!region) {
     return null;
@@ -81,13 +81,18 @@ export function GuidanceMapSection({
                 strokeWidth={3}
               />
             ) : null}
-            {places.map((place, index) => (
-              <Marker
-                key={place.id}
-                coordinate={{ latitude: place.latitude, longitude: place.longitude }}
-                pinColor={index === currentStepIndex ? colors.primary : colors.muted}
-              />
-            ))}
+            {guidanceSteps.map((step, index) => {
+              if (step.latitude == null || step.longitude == null) {
+                return null;
+              }
+              return (
+                <Marker
+                  key={step.id}
+                  coordinate={{ latitude: step.latitude, longitude: step.longitude }}
+                  pinColor={index === currentStepIndex ? colors.primary : colors.muted}
+                />
+              );
+            })}
           </MapView>
           <View style={styles.expandHint} pointerEvents="none">
             <View style={styles.expandBadge}>

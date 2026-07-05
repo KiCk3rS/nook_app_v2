@@ -1,5 +1,19 @@
-import type { UserItinerary } from '../types/api';
+import { getPlaceById } from '../constants/mockPlaces';
 import type { UserItineraryDetail } from '../lib/api/itineraries';
+import type { UserItinerary, UserItineraryStep } from '../types/api';
+
+function buildMockSteps(poiIds: string[]): UserItineraryStep[] {
+  return poiIds.map((poiId, order) => {
+    const place = getPlaceById(poiId);
+    return {
+      order,
+      poiId,
+      title: place?.name ?? poiId,
+      lat: place?.latitude ?? null,
+      lng: place?.longitude ?? null,
+    };
+  });
+}
 
 const MOCK_USER_ITINERARY_DETAILS: UserItineraryDetail[] = [
   {
@@ -7,8 +21,10 @@ const MOCK_USER_ITINERARY_DETAILS: UserItineraryDetail[] = [
     title: 'Balade du Marais',
     stepCount: 5,
     poiIds: ['6', '12', '11', '13', '10'],
+    steps: buildMockSteps(['6', '12', '11', '13', '10']),
     estimatedDurationMinutes: 90,
     distanceMeters: 3200,
+    difficulty: 'MEDIUM',
     updatedAt: '2026-06-10T14:00:00Z',
   },
   {
@@ -16,8 +32,10 @@ const MOCK_USER_ITINERARY_DETAILS: UserItineraryDetail[] = [
     title: 'Monuments de Paris',
     stepCount: 4,
     poiIds: ['1', '2', '4', '6'],
+    steps: buildMockSteps(['1', '2', '4', '6']),
     estimatedDurationMinutes: 120,
     distanceMeters: 5100,
+    difficulty: 'MEDIUM',
     updatedAt: '2026-06-05T09:30:00Z',
   },
   {
@@ -25,8 +43,10 @@ const MOCK_USER_ITINERARY_DETAILS: UserItineraryDetail[] = [
     title: 'Pause café & culture',
     stepCount: 1,
     poiIds: ['5'],
+    steps: buildMockSteps(['5']),
     estimatedDurationMinutes: 45,
     distanceMeters: 800,
+    difficulty: 'EASY',
     updatedAt: '2026-05-28T16:15:00Z',
   },
 ];

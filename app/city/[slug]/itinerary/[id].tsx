@@ -45,7 +45,7 @@ import {
   trackEditorialItineraryMapTapped,
   trackEditorialItineraryViewed,
 } from '../../../../lib/analytics';
-import { buildFocusItineraryParam, resolveItineraryPlaces } from '../../../../lib/itineraryMap';
+import { buildFocusItineraryParam, guidanceStepsFromPoiIds } from '../../../../lib/itineraryMap';
 
 const FREE_STEPS_PREVIEW = 2;
 
@@ -64,8 +64,8 @@ export default function EditorialItineraryScreen() {
     () => (typeof id === 'string' ? getItineraryById(id) : undefined),
     [id],
   );
-  const itineraryPlaces = useMemo(
-    () => (itinerary ? resolveItineraryPlaces(itinerary.stepPoiIds) : []),
+  const guidanceSteps = useMemo(
+    () => (itinerary ? guidanceStepsFromPoiIds(itinerary.stepPoiIds) : []),
     [itinerary],
   );
 
@@ -207,7 +207,7 @@ export default function EditorialItineraryScreen() {
           </View>
 
           <ItineraryRouteMapPreview
-            places={itineraryPlaces}
+            guidanceSteps={guidanceSteps}
             onPress={handleMapCta}
           />
 

@@ -18,6 +18,7 @@ import { useRequireAuth } from '../../../hooks/useRequireAuth';
 import { fetchItineraryById } from '../../../lib/api/itineraries';
 import { isApiConfigured } from '../../../lib/config';
 import type { UserItineraryDetail } from '../../../lib/api/itineraries';
+import { guidanceStepsFromApiSteps } from '../../../lib/itineraryMap';
 
 export default function UserGuidanceScreen() {
   const { t } = useTranslation(['guidance', 'common']);
@@ -38,6 +39,11 @@ export default function UserGuidanceScreen() {
     const parsed = parseInt(step, 10);
     return Number.isNaN(parsed) ? undefined : parsed;
   }, [step]);
+
+  const guidanceSteps = useMemo(
+    () => (itinerary ? guidanceStepsFromApiSteps(itinerary.steps) : []),
+    [itinerary],
+  );
 
   useEffect(() => {
     if (!isReady || typeof id !== 'string') return;
@@ -82,7 +88,7 @@ export default function UserGuidanceScreen() {
     );
   }
 
-  if (loadError || !itinerary || itinerary.poiIds.length < 2) {
+  if (loadError || !itinerary || guidanceSteps.length < 2) {
     return (
       <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
         <Text style={styles.notFoundTitle}>{t('guidance:notFoundTitle')}</Text>
@@ -105,7 +111,7 @@ export default function UserGuidanceScreen() {
       itineraryId={itinerary.id}
       title={itinerary.title}
       coverImageUrl=""
-      stepPoiIds={itinerary.poiIds}
+      guidanceSteps={guidanceSteps}
       initialStepParam={initialStepParam}
     />
   );

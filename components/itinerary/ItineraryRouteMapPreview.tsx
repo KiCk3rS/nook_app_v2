@@ -3,7 +3,6 @@ import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import type { MockPlace } from '../../constants/mockPlaces';
 import {
   colors,
   componentSizes,
@@ -12,19 +11,20 @@ import {
   textStyle,
 } from '../../constants/theme';
 import {
-  getCoordinatesForPlaces,
-  getRegionForPlaces,
+  getCoordinatesForGuidanceSteps,
+  getRegionForGuidanceSteps,
+  type GuidanceStepPoint,
 } from '../../lib/itineraryMap';
 
 interface ItineraryRouteMapPreviewProps {
-  places: MockPlace[];
+  guidanceSteps: GuidanceStepPoint[];
   currentStepIndex?: number;
   onPress: () => void;
   accessibilityLabel?: string;
 }
 
 export function ItineraryRouteMapPreview({
-  places,
+  guidanceSteps,
   currentStepIndex,
   onPress,
   accessibilityLabel,
@@ -32,13 +32,13 @@ export function ItineraryRouteMapPreview({
   const { t } = useTranslation('hub');
   const mapCtaLabel = accessibilityLabel ?? t('itineraryMapCta');
 
-  if (places.length === 0) {
+  if (guidanceSteps.length === 0) {
     return null;
   }
 
   const mapProvider = Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined;
-  const region = getRegionForPlaces(places);
-  const coordinates = getCoordinatesForPlaces(places);
+  const region = getRegionForGuidanceSteps(guidanceSteps);
+  const coordinates = getCoordinatesForGuidanceSteps(guidanceSteps);
 
   if (!region) {
     return null;
@@ -71,15 +71,20 @@ export function ItineraryRouteMapPreview({
               strokeWidth={3}
             />
           ) : null}
-          {places.map((place, index) => (
-            <Marker
-              key={place.id}
-              coordinate={{ latitude: place.latitude, longitude: place.longitude }}
-              pinColor={
-                currentStepIndex === index ? colors.primary : colors.muted
-              }
-            />
-          ))}
+          {guidanceSteps.map((step, index) => {
+            if (step.latitude == null || step.longitude == null) {
+              return null;
+            }
+            return (
+              <Marker
+                key={step.id}
+                coordinate={{ latitude: step.latitude, longitude: step.longitude }}
+                pinColor={
+                  currentStepIndex === index ? colors.primary : colors.muted
+                }
+              />
+            );
+          })}
         </MapView>
         <View style={styles.overlay} pointerEvents="none">
           <View style={styles.ctaBar}>
