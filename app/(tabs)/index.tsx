@@ -21,6 +21,7 @@ import { PermissionSheet } from '../../components/home/PermissionSheet';
 
 import { PoiPreviewCard } from '../../components/home/PoiPreviewCard';
 
+import { SearchHeader } from '../../components/home/SearchHeader';
 import { ServiceDegradedBanner } from '../../components/home/ServiceDegradedBanner';
 
 import { SearchSheet } from '../../components/search/SearchSheet';

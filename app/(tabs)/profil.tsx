@@ -123,8 +123,8 @@ export default function ProfilScreen() {
       return;
     }
     try {
-      const items = await fetchItineraries({ limit: 100 });
-      setRoutesCount(items.length);
+      const response = await fetchItineraries({ limit: 100 });
+      setRoutesCount(response.total);
     } catch {
       setRoutesCount(0);
     }
