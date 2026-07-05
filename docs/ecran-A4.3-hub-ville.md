@@ -148,15 +148,18 @@ Liste configurable côté éditorial ; les slugs absents du catalogue ville ne g
 | `hub_city_map_cta_tapped` | `city_id` |
 | `hub_city_shared` | `city_id` |
 
-## Contrat API cible (provisoire — non implémenté)
+## Contrat API cible (F-018 — spec, non implémenté)
 
-Endpoint suggéré pour évolution backend :
+Spec canonique : **[`nook_api_v2/docs/spec-f018-hubs-ville.md`](../../../nook_api_v2/docs/spec-f018-hubs-ville.md)** (dépôt API).
+
+Endpoints principaux :
 
 ```
+GET /api/v1/cities
 GET /api/v1/cities/:slugOrId/hub
 ```
 
-Réponse minimale (DTO provisoire) :
+Réponse hub minimale (extrait — voir spec complète) :
 
 ```json
 {
@@ -175,7 +178,7 @@ Réponse minimale (DTO provisoire) :
 }
 ```
 
-En MVP : données mock locales ; pas d’endpoint dans [api-client-reference.md](./api-client-reference.md) à ce jour.
+En MVP : données mock locales ; contrat HTTP dans la spec F-018 (pas encore déployé).
 
 ## Critères d’acceptation
 

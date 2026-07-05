@@ -1,6 +1,5 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { getCategoryLabel, type MockPlace } from '../../constants/mockPlaces';
 import {
   colors,
   radius,
@@ -9,10 +8,10 @@ import {
   textStyle,
   typography,
 } from '../../constants/theme';
+import type { DiscoveryCardItem } from '../../lib/mappers/discovery';
 
 interface DiscoveryPlaceCardProps {
-  place: MockPlace;
-  subtitle: string;
+  item: DiscoveryCardItem;
   onPress: () => void;
 }
 
@@ -21,30 +20,37 @@ const IMAGE_HEIGHT = 112;
 const TITLE_LINE_HEIGHT = typography.titleMd.fontSize * typography.titleMd.lineHeight;
 const TITLE_MIN_HEIGHT = TITLE_LINE_HEIGHT * 2;
 
-export function DiscoveryPlaceCard({ place, subtitle, onPress }: DiscoveryPlaceCardProps) {
-  const categoryLabel = getCategoryLabel(place.categoryId);
+export function DiscoveryPlaceCard({ item, onPress }: DiscoveryPlaceCardProps) {
+  const showImage = item.imageUrl != null && !item.usesPlaceholder;
 
   return (
     <Pressable
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${place.name} — ${subtitle}`}
+      accessibilityLabel={`${item.title} — ${item.subtitle}`}
     >
       <View style={styles.imageWrap}>
-        <Image
-          source={{ uri: place.imageUrl }}
-          style={styles.image}
-          resizeMode="cover"
-          accessibilityIgnoresInvertColors
-        />
+        {showImage ? (
+          <Image
+            source={{ uri: item.imageUrl! }}
+            style={styles.image}
+            resizeMode="cover"
+            accessibilityIgnoresInvertColors
+          />
+        ) : (
+          <View
+            style={[styles.image, styles.imagePlaceholder]}
+            accessibilityLabel={item.title}
+          />
+        )}
       </View>
       <View style={styles.body}>
         <Text style={styles.title} numberOfLines={2}>
-          {place.name}
+          {item.title}
         </Text>
         <Text style={styles.meta} numberOfLines={1}>
-          {categoryLabel} · {subtitle}
+          {item.categoryLabel} · {item.subtitle}
         </Text>
       </View>
     </Pressable>
@@ -72,6 +78,9 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
+  },
+  imagePlaceholder: {
+    backgroundColor: colors.surfaceStrong,
   },
   body: {
     paddingHorizontal: spacing.base,

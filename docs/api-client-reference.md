@@ -216,6 +216,22 @@ Implémentation : `src/discovery/discovery.controller.ts`.
 
 ---
 
+### Villes et hubs territoriaux (F-018 — proposé, non implémenté)
+
+> Spec détaillée (dépôt API) : [`nook_api_v2/docs/spec-f018-hubs-ville.md`](../../../nook_api_v2/docs/spec-f018-hubs-ville.md)
+
+| Méthode | Chemin | Auth | Description | Codes notables |
+|--------|--------|------|-------------|----------------|
+| GET | `/api/v1/cities` | none | Liste / recherche villes publiées (F-018-a) | 200 ; 422 |
+| GET | `/api/v1/cities/:slugOrId/hub` | none | Vitrine hub ville A4.3 (F-018-b) | 200 ; 404 ; 422 |
+
+**`GET /cities`** — query : `q`, `promoted`, `popular`, `limit`, `offset`  
+Réponse : `PaginatedResponse<CityListItemDto>` (cover pré-signée, stats, `isPromoted`).
+
+**`GET /cities/:slugOrId/hub`** — réponse : `CityHubResponseDto` (héros, `map`, catégories itinéraires, incontournables, premium, affiliation).
+
+---
+
 ### Itinéraires (parcours utilisateur)
 
 **Périmètre app actuel :** consultation (`GET`) et suppression (`DELETE`) uniquement. Création et édition (`POST` / `PATCH`) hors périmètre.
@@ -457,7 +473,8 @@ Implémentation : `src/audio-generation/audio-generation.controller.ts`, `audio-
 | Ressource | Emplacement |
 |-----------|-------------|
 | Swagger UI (contrat interactif) | `{API_BASE_URL}/api/docs` |
-| Cas d’usage et F-XXX | [docs/api-fonctionnalites-et-cas-d-usage.md](./api-fonctionnalites-et-cas-d-usage.md) |
+| Cas d’usage et F-XXX | Dépôt API : [api-fonctionnalites-et-cas-d-usage.md](../../../nook_api_v2/docs/api-fonctionnalites-et-cas-d-usage.md) |
+| Hubs ville (spec F-018) | Dépôt API : [spec-f018-hubs-ville.md](../../../nook_api_v2/docs/spec-f018-hubs-ville.md) |
 | Vision produit / stack | [docs/brief.md](./brief.md) |
 | Filtre d’erreurs HTTP | Dépôt API : `src/common/filters/http-exception.filter.ts` |
 | Bootstrap (préfixe, versioning, validation) | Dépôt API : `src/main.ts` |

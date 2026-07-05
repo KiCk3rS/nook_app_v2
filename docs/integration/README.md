@@ -40,7 +40,7 @@ Découpage du plan d'intégration [`nook_api_v2` → `nook_app_v2`](../../.curso
 | T02 | ✅ terminé | 2026-07-05 | 2026-07-05 | Endpoints /me/credits, génération audio user, tests Jest 178/178 |
 | T03 | ✅ terminé | 2026-07-05 | 2026-07-05 | POI carte/recherche/fiche, mappers, hooks, tests 35/35 |
 | T04 | ✅ terminé | 2026-07-05 | 2026-07-05 | Playback URL signée, play-event, listen-history, tests 51/51 |
-| T05 | ⬜ à faire | | | |
+| T05 | ✅ terminé | 2026-07-05 | 2026-07-05 | Discovery API (3 sections), pagination offset, fallback mock, tests 63/63 |
 | T06 | ⬜ à faire | | | |
 | T07 | ⬜ à faire | | | |
 | T08 | ⬜ à faire | | | |
@@ -67,8 +67,8 @@ Chaque fiche **T00–T10** contient une section **Tests unitaires** avec fichier
 
 **Principe app** : tester la logique pure et les clients API (mock `fetch`) ; éviter de tester les composants RN lourds (Maps, expo-av) en unitaire — réservés à la matrice manuelle T10.
 
-## Hors périmètre (rester mock)
+## Hors périmètre (rester mock jusqu’à F-018)
 
-- Hubs ville / pays / quartier (pas d'endpoint API)
+- Hubs ville / pays / quartier — spec [F-018](../../../nook_api_v2/docs/spec-f018-hubs-ville.md) (non implémenté API)
 - Itinéraires éditoriaux NOOK (pas d'endpoint API public)
 - Réinitialisation mot de passe (pas d'endpoint API)

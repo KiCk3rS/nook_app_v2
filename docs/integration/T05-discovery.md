@@ -13,7 +13,7 @@ Alimenter le fil de découverte depuis les 3 endpoints API au lieu de `discovery
 
 ## Prérequis
 
-- [ ] T03 : navigation vers fiche lieu par `poiId` API
+- [x] T03 : navigation vers fiche lieu par `poiId` API
 
 ## Endpoints
 
@@ -27,29 +27,31 @@ Query : `limit`, `offset` — réponse `{ items, total, limit, offset }`.
 
 ## Étapes
 
-- [ ] Créer `lib/api/discovery.ts` :
+- [x] Créer `lib/api/discovery.ts` :
   - `fetchDiscoveryLatest(query)`
   - `fetchDiscoveryPopular(query)`
   - `fetchDiscoveryTopRated(query)`
-- [ ] Refactor `components/discovery/DiscoveryFeedView.tsx` :
+- [x] Refactor `components/discovery/DiscoveryFeedView.tsx` :
   - 3 sections parallèles (Promise.all)
   - Pagination `loadMore` via offset
   - Placeholder si `coverImage: null`
-- [ ] Adapter `components/discovery/DiscoveryPlaceCard.tsx` aux champs `DiscoveryPoiItemDto`
-- [ ] Supprimer ou isoler `constants/discoveryFeed.ts` (fallback mock si `!isApiConfigured()`)
+- [x] Adapter `components/discovery/DiscoveryPlaceCard.tsx` aux champs `DiscoveryPoiItemDto`
+- [x] Supprimer ou isoler `constants/discoveryFeed.ts` (fallback mock si `!isApiConfigured()`)
 
 ## Fichiers concernés
 
 - `lib/api/discovery.ts` (nouveau)
+- `hooks/useDiscoveryFeed.ts` (nouveau)
+- `lib/mappers/discovery.ts` (nouveau)
 - `components/discovery/DiscoveryFeedView.tsx`, `DiscoveryPlaceCard.tsx`
 - `constants/discoveryFeed.ts`
 
 ## Critères d'acceptation
 
-- [ ] Les 3 sections affichent des POI réels avec API configurée
-- [ ] Scroll / load more charge la page suivante (offset)
-- [ ] Tap sur carte → fiche lieu API (T03)
-- [ ] Fallback mock si pas d'API
+- [x] Les 3 sections affichent des POI réels avec API configurée
+- [x] Scroll / load more charge la page suivante (offset)
+- [x] Tap sur carte → fiche lieu API (T03)
+- [x] Fallback mock si pas d'API
 
 ## Notes
 
@@ -59,15 +61,15 @@ Query : `limit`, `offset` — réponse `{ items, total, limit, offset }`.
 
 ### App
 
-- [ ] `lib/api/__tests__/discovery.test.ts` :
+- [x] `lib/api/__tests__/discovery.test.ts` :
   - 3 fonctions appellent les bons chemins (`/latest`, `/popular`, `/top-rated`)
   - parse réponse paginée ; `loadMore` incrémente `offset`
-- [ ] Test mapper carte discovery → props `DiscoveryPlaceCard` (`coverImage: null` → placeholder flag)
+- [x] Test mapper carte discovery → props `DiscoveryPlaceCard` (`coverImage: null` → placeholder flag)
 
 ### API — si touché
 
-- [ ] `discovery.service.spec.ts` à jour
+- [ ] `discovery.service.spec.ts` à jour (non touché)
 
 ### Exécution
 
-- [ ] `npm test` vert dans `nook_app_v2`
+- [x] `npm test` vert dans `nook_app_v2`

@@ -1,4 +1,4 @@
-/** Fil de découverte A4.1 — mock éditorial (MVP). */
+/** Fil de découverte A4.1 — mock éditorial (fallback si `!isApiConfigured()`). */
 
 import {
   formatLatestGuideSubtitle,
