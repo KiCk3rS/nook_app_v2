@@ -10,7 +10,7 @@ import { FavoritesEmptyState } from '../../components/favorites/FavoritesEmptySt
 import { UndoSnackbar } from '../../components/ui/UndoSnackbar';
 import { colors, spacing, textStyle } from '../../constants/theme';
 import { useFavorites } from '../../contexts/FavoritesContext';
-import { getPlaceHref } from '../../lib/placeNavigation';
+import { getPlaceHrefById } from '../../lib/placeNavigation';
 
 const UNDO_MS = 4000;
 
@@ -166,7 +166,7 @@ export default function FavorisScreen() {
                   key={place.id}
                   place={place}
                   isPendingRemoval={isPlacePending(place.id)}
-                  onPress={() => router.push(getPlaceHref(place))}
+                  onPress={() => router.push(getPlaceHrefById(place.id))}
                   onRemove={() =>
                     requestRemoval(
                       { kind: 'place', id: place.id },

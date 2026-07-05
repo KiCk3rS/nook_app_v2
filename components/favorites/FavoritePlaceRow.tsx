@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { getCategoryLabel, type MockPlace } from '../../constants/mockPlaces';
 import {
   colors,
   componentSizes,
@@ -10,9 +9,10 @@ import {
   spacing,
   textStyle,
 } from '../../constants/theme';
+import type { FavoritePlaceView } from '../../types/favorites';
 
 interface FavoritePlaceRowProps {
-  place: MockPlace;
+  place: FavoritePlaceView;
   isPendingRemoval?: boolean;
   onPress: () => void;
   onRemove: () => void;
@@ -27,7 +27,6 @@ export function FavoritePlaceRow({
   onRemove,
 }: FavoritePlaceRowProps) {
   const { t } = useTranslation(['favorites', 'common']);
-  const categoryLabel = getCategoryLabel(place.categoryId);
 
   return (
     <View style={[styles.row, isPendingRemoval && styles.rowPending]}>
@@ -39,19 +38,27 @@ export function FavoritePlaceRow({
         accessibilityLabel={t('favorites:openPlace', { name: place.name })}
         accessibilityState={{ disabled: isPendingRemoval }}
       >
-        <Image
-          source={{ uri: place.imageUrl }}
-          style={styles.thumbnail}
-          resizeMode="cover"
-          accessibilityIgnoresInvertColors
-        />
+        {place.imageUrl ? (
+          <Image
+            source={{ uri: place.imageUrl }}
+            style={styles.thumbnail}
+            resizeMode="cover"
+            accessibilityIgnoresInvertColors
+          />
+        ) : (
+          <View style={[styles.thumbnail, styles.thumbnailPlaceholder]}>
+            <Ionicons name="location-outline" size={24} color={colors.mutedSoft} />
+          </View>
+        )}
         <View style={styles.content}>
           <Text style={styles.title} numberOfLines={2}>
             {place.name}
           </Text>
-          <Text style={styles.meta} numberOfLines={1}>
-            {categoryLabel}
-          </Text>
+          {place.subtitle ? (
+            <Text style={styles.meta} numberOfLines={1}>
+              {place.subtitle}
+            </Text>
+          ) : null}
         </View>
         <Ionicons name="chevron-forward" size={18} color={colors.mutedSoft} />
       </Pressable>
@@ -100,6 +107,10 @@ const styles = StyleSheet.create({
     height: THUMB_SIZE,
     borderRadius: radius.sm,
     backgroundColor: colors.surfaceStrong,
+  },
+  thumbnailPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   content: {
     flex: 1,

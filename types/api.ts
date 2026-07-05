@@ -135,6 +135,19 @@ export interface ListenHistoryPoiSnippet {
   status: string;
 }
 
+export interface FavoritePoiSnippet {
+  title: string;
+  status: string;
+}
+
+/** Entrée favori (`GET/POST /api/v1/me/favorites`). */
+export interface FavoriteItem {
+  id: string;
+  poiId: string;
+  createdAt: string;
+  poi: FavoritePoiSnippet;
+}
+
 /** Entrée historique (`GET/POST /api/v1/me/listen-history`). */
 export interface ListenHistoryEntry {
   id: string;
