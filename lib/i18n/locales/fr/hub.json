@@ -69,5 +69,11 @@
   "a11yStepDetail": "Étape {{order}}{{details}}",
   "a11yStepLocked": ", verrouillée",
   "backTo": "Retour à {{name}}",
-  "mapLoadError": "Impossible de charger les lieux sur la carte."
+  "mapLoadError": "Impossible de charger les lieux sur la carte.",
+  "serviceOfflineTitle": "Hors ligne",
+  "serviceOfflineBody": "NOOK ne peut pas joindre le serveur. Vérifiez votre connexion internet.",
+  "serviceUnavailableTitle": "Service indisponible",
+  "serviceUnavailableBody": "Le service NOOK est momentanément indisponible. Certaines fonctions peuvent être limitées.",
+  "serviceRetry": "Réessayer",
+  "serviceContinueLimited": "Continuer en mode limité"
 }

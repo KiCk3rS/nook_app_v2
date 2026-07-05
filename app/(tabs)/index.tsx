@@ -21,7 +21,7 @@ import { PermissionSheet } from '../../components/home/PermissionSheet';
 
 import { PoiPreviewCard } from '../../components/home/PoiPreviewCard';
 
-import { SearchHeader } from '../../components/home/SearchHeader';
+import { ServiceDegradedBanner } from '../../components/home/ServiceDegradedBanner';
 
 import { SearchSheet } from '../../components/search/SearchSheet';
 
@@ -32,6 +32,7 @@ import { getCityBySlug } from '../../constants/mockCities';
 import { getDistrictBySlug } from '../../constants/mockDistricts';
 import { getItineraryById } from '../../constants/mockItineraries';
 import { useAudioPlayback } from '../../contexts/AudioPlaybackContext';
+import { useServiceHealth } from '../../contexts/ServiceHealthContext';
 import { colors, miniPlayerHeight, spacing, textStyle, zIndex, radius } from '../../constants/theme';
 
 import { useLocationPermission } from '../../hooks/useLocationPermission';
@@ -174,6 +175,13 @@ export default function CarteScreen() {
 
   const [poiCardHeight, setPoiCardHeight] = useState(0);
   const { viewMode } = useAudioPlayback();
+  const {
+    shouldShowDegradedBanner,
+    failure,
+    isChecking,
+    checkHealth,
+    enterLimitedMode,
+  } = useServiceHealth();
 
   const selectedPreview = useMemo(() => {
     if (!selectedPlaceId) return null;
@@ -381,6 +389,17 @@ export default function CarteScreen() {
           </View>
         ) : null}
 
+        {shouldShowDegradedBanner && failure ? (
+          <View style={styles.serviceBanner}>
+            <ServiceDegradedBanner
+              failure={failure}
+              isChecking={isChecking}
+              onRetry={() => void checkHealth()}
+              onContinueLimited={enterLimitedMode}
+            />
+          </View>
+        ) : null}
+
       </SafeAreaView>
 
       <View
@@ -511,6 +530,11 @@ const styles = StyleSheet.create({
 
     marginHorizontal: spacing.base,
 
+  },
+
+  serviceBanner: {
+    marginTop: spacing.sm,
+    marginHorizontal: spacing.base,
   },
 
   geolocControl: {

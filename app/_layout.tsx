@@ -18,7 +18,7 @@ import { GlobalAudioChrome } from '../components/audio/GlobalAudioChrome';
 import { I18nSync } from '../components/I18nSync';
 import { AudioPlaybackProvider } from '../contexts/AudioPlaybackContext';
 import { CreditsProvider } from '../contexts/CreditsContext';
-import { AuthProvider } from '../contexts/AuthContext';
+import { ServiceHealthProvider } from '../contexts/ServiceHealthContext';
 import { FavoritesProvider } from '../contexts/FavoritesContext';
 import { PremiumProvider } from '../contexts/PremiumContext';
 import { colors, fontFamilyForWeight, typography } from '../constants/theme';
@@ -48,6 +48,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
+        <ServiceHealthProvider>
         <AuthProvider>
         <AudioPlaybackProvider>
           <I18nSync />
@@ -154,6 +155,7 @@ export default function RootLayout() {
           </FavoritesProvider>
         </AudioPlaybackProvider>
         </AuthProvider>
+        </ServiceHealthProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

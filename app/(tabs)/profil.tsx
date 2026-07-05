@@ -11,7 +11,6 @@ import { ProfileAnonymousView } from '../../components/profile/ProfileAnonymousV
 import {
   ProfileAuthenticatedView,
   ProfileLoadingView,
-  type ProfileDashboardStats,
 } from '../../components/profile/ProfileAuthenticatedView';
 import { ProfileEditSheet } from '../../components/profile/ProfileEditSheet';
 import {
@@ -24,11 +23,17 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useCredits } from '../../contexts/CreditsContext';
 import { useFavorites } from '../../contexts/FavoritesContext';
 import { fetchItineraries } from '../../lib/api/itineraries';
-import { isApiConfigured, shouldShowDemoLogin } from '../../lib/config';
+import { fetchListenHistory } from '../../lib/api/listenHistory';
+import { isApiConfigured, shouldShowDemoLogin, shouldUseMockData } from '../../lib/config';
+import {
+  buildProfileStats,
+  mapRecentListensFromHistory,
+  type ProfileRecentListen,
+} from '../../lib/profile/profileStats';
 import { ApiError } from '../../types/api';
 
 export default function ProfilScreen() {
-  const { t } = useTranslation(['profile', 'creditsPack']);
+  const { t, i18n } = useTranslation(['profile', 'creditsPack']);
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const {
@@ -50,31 +55,62 @@ export default function ProfilScreen() {
   const [purchasedCredits, setPurchasedCredits] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [routesCount, setRoutesCount] = useState(MOCK_SAVED_ROUTES_COUNT);
+  const [listenHistoryTotal, setListenHistoryTotal] = useState<number | null>(null);
+  const [recentListens, setRecentListens] = useState<ProfileRecentListen[]>([]);
 
-  const favoritesCount = favoritePlaceIds.size + favoriteItineraryIds.size;
+  const useMockData = shouldUseMockData(isMockSession);
 
-  const dashboardStats = useMemo<ProfileDashboardStats>(
-    () => ({
-      routesCount: routesCount ?? 0,
-      favoritesCount,
-      listenCount: isMockSession ? MOCK_PROFILE_INSIGHTS.listenCount : 0,
-      citiesCount: isMockSession ? MOCK_PROFILE_INSIGHTS.citiesCount : 0,
-      memberSinceLabel: isMockSession
-        ? t('profile:mockMemberSince')
-        : undefined,
-    }),
-    [favoritesCount, isMockSession, routesCount, t],
+  const dashboardStats = useMemo(
+    () =>
+      buildProfileStats({
+        useMockData,
+        routesCount: routesCount ?? 0,
+        placeFavoritesCount: favoritePlaceIds.size,
+        itineraryFavoritesCount: favoriteItineraryIds.size,
+        listenHistory:
+          listenHistoryTotal == null ? null : { total: listenHistoryTotal, items: [] },
+        mockListenCount: MOCK_PROFILE_INSIGHTS.listenCount,
+        mockCitiesCount: MOCK_PROFILE_INSIGHTS.citiesCount,
+        memberSinceLabel: t('profile:mockMemberSince'),
+      }),
+    [
+      favoriteItineraryIds.size,
+      favoritePlaceIds.size,
+      listenHistoryTotal,
+      routesCount,
+      t,
+      useMockData,
+    ],
   );
 
   const recentRoutes = useMemo(
-    () => (isMockSession ? MOCK_USER_ITINERARIES.slice(0, 3) : []),
-    [isMockSession],
+    () => (useMockData ? MOCK_USER_ITINERARIES.slice(0, 3) : []),
+    [useMockData],
   );
 
-  const recentListens = useMemo(
-    () => (isMockSession ? getMockRecentListenPlaces() : []),
-    [isMockSession],
-  );
+  const loadListenInsights = useCallback(async () => {
+    if (!isAuthenticated) return;
+    if (useMockData) {
+      setListenHistoryTotal(MOCK_PROFILE_INSIGHTS.listenCount);
+      setRecentListens(getMockRecentListenPlaces());
+      return;
+    }
+    if (!isApiConfigured()) {
+      setListenHistoryTotal(0);
+      setRecentListens([]);
+      return;
+    }
+    try {
+      const response = await fetchListenHistory({ limit: 3, offset: 0 });
+      setListenHistoryTotal(response.total);
+      setRecentListens(
+        mapRecentListensFromHistory(response.items, i18n.language, 3),
+      );
+    } catch {
+      setListenHistoryTotal(0);
+      setRecentListens([]);
+    }
+  }, [i18n.language, isAuthenticated, useMockData]);
 
   const loadRoutesCount = useCallback(async () => {
     if (!isAuthenticated) return;
@@ -99,7 +135,7 @@ export default function ProfilScreen() {
     setLoadError(null);
     try {
       await refreshProfile();
-      await loadRoutesCount();
+      await Promise.all([loadRoutesCount(), loadListenInsights()]);
     } catch (error) {
       if (isMockSession) return;
       if (ApiError.isUnauthorized(error)) {
@@ -108,7 +144,14 @@ export default function ProfilScreen() {
         setLoadError(t('loadError'));
       }
     }
-  }, [isAuthenticated, isMockSession, loadRoutesCount, refreshProfile]);
+  }, [
+    isAuthenticated,
+    isMockSession,
+    loadListenInsights,
+    loadRoutesCount,
+    refreshProfile,
+    t,
+  ]);
 
   useFocusEffect(
     useCallback(() => {

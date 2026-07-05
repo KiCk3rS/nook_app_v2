@@ -1,5 +1,11 @@
 import Constants from 'expo-constants';
 
+/**
+ * Règles démo vs API (T09) :
+ * - Sans `API_BASE_URL` : données mock ; bouton démo visible.
+ * - Avec API en prod : auth réelle uniquement ; pas de session mock silencieuse.
+ * - Avec API en dev (`__DEV__`) : bouton démo explicite sur le profil.
+ */
 export function getApiBaseUrl(): string {
   const fromExtra = Constants.expoConfig?.extra?.apiBaseUrl;
   if (typeof fromExtra === 'string' && fromExtra.length > 0) {

@@ -17,6 +17,7 @@ import {
 import * as authApi from '../lib/api/auth';
 import * as meApi from '../lib/api/me';
 import { isApiConfigured } from '../lib/config';
+import { assertApiAuthAvailable } from '../lib/auth/demoSessionPolicy';
 import {
   loadMockProfile,
   patchMockPreferences,
@@ -246,10 +247,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (email: string, password: string) => {
-      if (!isApiConfigured()) {
-        await loginAsMock();
-        return;
-      }
+      assertApiAuthAvailable(isApiConfigured());
       const response = await authApi.login({ email: email.trim(), password });
       applySession(response.accessToken, response.refreshToken);
       setUser(response.user);
@@ -259,7 +257,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setPreferences(defaultPreferences);
       }
     },
-    [applySession, loadProfile, loginAsMock],
+    [applySession, loadProfile],
   );
 
   const register = useCallback(
@@ -268,13 +266,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password: string,
       extras?: { displayName?: string },
     ) => {
-      if (!isApiConfigured()) {
-        if (extras?.displayName?.trim()) {
-          await patchMockUser({ displayName: extras.displayName.trim() });
-        }
-        await loginAsMock();
-        return;
-      }
+      assertApiAuthAvailable(isApiConfigured());
       const response = await authApi.register({
         email: email.trim(),
         password,
@@ -288,7 +280,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setPreferences(defaultPreferences);
       }
     },
-    [applySession, loadProfile, loginAsMock],
+    [applySession, loadProfile],
   );
 
   const logout = useCallback(async () => {

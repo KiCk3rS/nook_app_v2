@@ -69,5 +69,11 @@
   "a11yStepDetail": "Step {{order}}{{details}}",
   "a11yStepLocked": ", locked",
   "backTo": "Back to {{name}}",
-  "mapLoadError": "Unable to load places on the map."
+  "mapLoadError": "Unable to load places on the map.",
+  "serviceOfflineTitle": "Offline",
+  "serviceOfflineBody": "NOOK cannot reach the server. Check your internet connection.",
+  "serviceUnavailableTitle": "Service unavailable",
+  "serviceUnavailableBody": "The NOOK service is temporarily unavailable. Some features may be limited.",
+  "serviceRetry": "Try again",
+  "serviceContinueLimited": "Continue in limited mode"
 }

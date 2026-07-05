@@ -44,7 +44,7 @@ Découpage du plan d'intégration [`nook_api_v2` → `nook_app_v2`](../../.curso
 | T06 | ✅ terminé | 2026-07-05 | 2026-07-05 | Favoris API (GET/POST/DELETE), sync login, FavoritesContext, rollback optimiste, tests 103/103 |
 | T07 | ✅ terminé | 2026-07-05 | 2026-07-05 | Client parcours user : pagination, CRUD, guidage steps API |
 | T08 | ✅ terminé | 2026-07-05 | 2026-07-05 | Crédits/génération API, `generateAudioGuideAndAwaitJob`, guide-chat `credits.balance`, mappers, tests 91/91 |
-| T09 | ⬜ à faire | | | |
+| T09 | ✅ terminé | 2026-07-05 | 2026-07-05 | Auth/démo sans fallback silencieux, health + mode limité, stats profil API, tests 131/131 |
 | T10 | ⬜ à faire | | | |
 
 Légende statut : ⬜ à faire · 🔄 en cours · ✅ terminé · ⏸️ bloqué
