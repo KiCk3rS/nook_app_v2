@@ -1,6 +1,6 @@
 # Intégration API NOOK — Tâches exécutables
 
-Découpage du plan d'intégration [`nook_api_v2` → `nook_app_v2`](../../.cursor/plans/intégration_api_nook_6cfc7cdc.plan.md) en **11 tâches** à exécuter une par une.
+Découpage du plan d'intégration [`nook_api_v2` → `nook_app_v2`](../../.cursor/plans/intégration_api_nook_6cfc7cdc.plan.md) en **11 tâches** (T00–T10), puis **11 tâches post-audit mock** (T11–T21) dérivées de [mock-inventory.md](./mock-inventory.md).
 
 ## Comment utiliser ce dossier
 
@@ -25,11 +25,35 @@ Découpage du plan d'intégration [`nook_api_v2` → `nook_app_v2`](../../.curso
 | 9 | [T09-auth-ux-degrade.md](./T09-auth-ux-degrade.md) | App | 1–2 j | T04, T06 |
 | 10 | [T10-qa-production.md](./T10-qa-production.md) | API + App | 2–3 j | T02–T09 |
 
+### Post-T10 — fermeture des mocks (audit 2026-07-05)
+
+| # | Fichier | Dépôt | Durée | Dépend de | P |
+|---|---------|-------|-------|-----------|---|
+| 11 | [T11-api-poi-media-sources.md](./T11-api-poi-media-sources.md) | API | 2–3 j | T10 | P0 |
+| 12 | [T12-app-poi-media-sources.md](./T12-app-poi-media-sources.md) | App | 1–2 j | T11 | P0 |
+| 13 | [T13-api-transcript-audio.md](./T13-api-transcript-audio.md) | API | 2–3 j | T10 | P1 |
+| 14 | [T14-app-transcript-audio.md](./T14-app-transcript-audio.md) | App | 1 j | T13 | P1 |
+| 15 | [T15-api-cities-f018-phase1.md](./T15-api-cities-f018-phase1.md) | API | 3–5 j | T10 | P1 |
+| 16 | [T16-app-cities-recherche.md](./T16-app-cities-recherche.md) | App | 2–3 j | T15 | P1 |
+| 17 | [T17-api-hub-ville-f018.md](./T17-api-hub-ville-f018.md) | API | 4–6 j | T15 | P2 |
+| 18 | [T18-app-hub-ville.md](./T18-app-hub-ville.md) | App | 3–4 j | T16, T17 | P2 |
+| 19 | [T19-hubs-quartier-f018.md](./T19-hubs-quartier-f018.md) | API + App | 3–5 j | T18 | P2 |
+| 20 | [T20-app-profil-residus.md](./T20-app-profil-residus.md) | App (+ API mineure) | 2–3 j | T07, T12 | P2 |
+| 21 | [T21-backlog-p3.md](./T21-backlog-p3.md) | API + App | epic | T10, décision produit | P3 |
+
 ## Parallélisation possible
 
 - **T02** (API endpoints user) ∥ **T03, T05, T07** après T01.
 - **T04** attend T03 ; **T06** attend T03 ; **T08** attend T02.
 - **T09** attend T04 + T06 ; **T10** en dernier.
+
+**Post-T10 :**
+
+- **T11** ∥ **T13** ∥ **T15** après T10 (P0/P1 indépendants).
+- **T12** attend T11 ; **T14** attend T13 ; **T16** attend T15.
+- **T17** attend T15 ; **T18** attend T16 + T17.
+- **T19** attend T18 ; **T20** peut démarrer après **T12** (en parallèle de F-018).
+- **T21** : bloqué décisions produit D2/D3.
 
 ## Suivi d'avancement
 
@@ -46,6 +70,17 @@ Découpage du plan d'intégration [`nook_api_v2` → `nook_app_v2`](../../.curso
 | T08 | ✅ terminé | 2026-07-05 | 2026-07-05 | Crédits/génération API, `generateAudioGuideAndAwaitJob`, guide-chat `credits.balance`, mappers, tests 91/91 |
 | T09 | ✅ terminé | 2026-07-05 | 2026-07-05 | Auth/démo sans fallback silencieux, health + mode limité, stats profil API, tests 131/131 |
 | T10 | ✅ terminé | 2026-07-05 | 2026-07-05 | E2E Supertest API, CI GH Actions, runbook, eas.json, me.test.ts — API 178u+28e2e, App 137u |
+| T11 | ⬜ à faire | | | POI `coverImage` + `wikipediaUrl` — API |
+| T12 | ⬜ à faire | | | POI média & Wikipedia — App |
+| T13 | ⬜ à faire | | | Transcript audio — API |
+| T14 | ⬜ à faire | | | Transcript — App |
+| T15 | ⬜ à faire | | | F-018 `GET /cities` |
+| T16 | ⬜ à faire | | | Villes recherche & discovery — App |
+| T17 | ⬜ à faire | | | F-018 hub ville — API |
+| T18 | ⬜ à faire | | | Hub ville A4.3 — App |
+| T19 | ⬜ à faire | | | Hubs quartier A4.5 |
+| T20 | ⬜ à faire | | | Profil & résidus hybrides |
+| T21 | ⏸️ bloqué | | | Backlog P3 — décision produit |
 
 Légende statut : ⬜ à faire · 🔄 en cours · ✅ terminé · ⏸️ bloqué
 
@@ -63,12 +98,31 @@ Légende statut : ⬜ à faire · 🔄 en cours · ✅ terminé · ⏸️ bloqu�
 | **nook_api_v2** | Jest + ts-jest (existant) | `npm test` | Obligatoire pour tout code sous `src/` — voir `nook-api-tests-per-feature` |
 | **nook_app_v2** | Jest + jest-expo (à installer en **T00**) | `npm test` | Obligatoire pour `lib/api/*`, mappers, helpers purs ; contexts via helpers extraits |
 
-Chaque fiche **T00–T10** contient une section **Tests unitaires** avec fichiers cibles et cas à couvrir. T10 valide que les deux suites passent avant clôture.
+Chaque fiche **T00–T21** contient une section **Tests unitaires** avec fichiers cibles et cas à couvrir. T10 valide que les deux suites passent avant clôture de la phase intégration initiale.
 
 **Principe app** : tester la logique pure et les clients API (mock `fetch`) ; éviter de tester les composants RN lourds (Maps, expo-av) en unitaire — réservés à la matrice manuelle T10.
+
+## Post-T10 : mocks restants
+
+Audit documentaire réalisé le **2026-07-05** : [mock-inventory.md](./mock-inventory.md).
+
+**Synthèse (mode prod, API branchée, session réelle) :**
+
+| Priorité | Lacune | Tâche(s) |
+|----------|--------|----------|
+| P0 | `wikipediaUrl` + images POI | [T11](./T11-api-poi-media-sources.md), [T12](./T12-app-poi-media-sources.md) |
+| P1 | Transcript lecteur audio | [T13](./T13-api-transcript-audio.md), [T14](./T14-app-transcript-audio.md) |
+| P1 | Villes recherche / discovery | [T15](./T15-api-cities-f018-phase1.md), [T16](./T16-app-cities-recherche.md) |
+| P2 | Hubs ville / quartier | [T17](./T17-api-hub-ville-f018.md) → [T19](./T19-hubs-quartier-f018.md) |
+| P2 | Profil & résidus hybrides | [T20](./T20-app-profil-residus.md) |
+| P3 | Éditorial, reset MDP, IAP | [T21](./T21-backlog-p3.md) ⏸️ |
+
+**Conservés volontairement :** session démo (`shouldUseMockData`), fallback `!isApiConfigured()`, mocks Jest.
 
 ## Hors périmètre (rester mock jusqu’à F-018)
 
 - Hubs ville / pays / quartier — spec [F-018](../../../nook_api_v2/docs/spec-f018-hubs-ville.md) (non implémenté API)
 - Itinéraires éditoriaux NOOK (pas d'endpoint API public)
 - Réinitialisation mot de passe (pas d'endpoint API)
+
+Voir le détail et la matrice complète dans [mock-inventory.md](./mock-inventory.md).
