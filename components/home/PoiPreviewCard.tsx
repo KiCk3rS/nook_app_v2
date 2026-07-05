@@ -68,7 +68,10 @@ export function PoiPreviewCard({ place, onClose }: PoiPreviewCardProps) {
             style={styles.iconButton}
             onPress={(e) => {
               e.stopPropagation();
-              togglePlaceFavorite(place.id);
+              togglePlaceFavorite(place.id, {
+                title: place.name,
+                imageUrl: place.imageUrl,
+              });
             }}
             accessibilityRole="button"
             accessibilityLabel={

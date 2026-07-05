@@ -17,6 +17,17 @@ describe('favoriteItemToPlaceView', () => {
       imageUrl: null,
     });
   });
+
+  it('évite un nom vide si le snippet API est incomplet', () => {
+    const view = favoriteItemToPlaceView({
+      id: 'fav-1',
+      poiId: '00000000-0000-4000-8000-000000000099',
+      createdAt: '2026-07-05T10:00:00.000Z',
+      poi: { title: '', status: 'PUBLISHED' },
+    });
+
+    expect(view.name).toBe('00000000-0000-4000-8000-000000000099');
+  });
 });
 
 describe('resolveFavoritePlaceViews', () => {

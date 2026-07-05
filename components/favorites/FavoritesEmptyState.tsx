@@ -143,7 +143,12 @@ export function FavoritesEmptyState() {
                   subtitle={buildPlaceSuggestionSubtitle(place)}
                   imageUrl={place.imageUrl}
                   onPress={() => router.push(getPlaceHref(place))}
-                  onAdd={() => togglePlaceFavorite(place.id)}
+                  onAdd={() =>
+                    togglePlaceFavorite(place.id, {
+                      title: place.name,
+                      imageUrl: place.imageUrl,
+                    })
+                  }
                 />
               ))}
             </View>

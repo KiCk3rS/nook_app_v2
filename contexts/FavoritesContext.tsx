@@ -27,7 +27,7 @@ import {
 import { saveStoredFavorites } from '../lib/favoritesStorage';
 import { resolveFavoritePlaceViews } from '../lib/mappers/favorites';
 import type { FavoriteItem } from '../types/api';
-import type { FavoritePlaceView } from '../types/favorites';
+import type { FavoritePlaceView, PlaceFavoriteHint } from '../types/favorites';
 
 interface FavoritesContextValue {
   isReady: boolean;
@@ -37,7 +37,7 @@ interface FavoritesContextValue {
   favoriteItineraries: EditorialItinerary[];
   isPlaceFavorite: (placeId: string) => boolean;
   isItineraryFavorite: (itineraryId: string) => boolean;
-  togglePlaceFavorite: (placeId: string) => void;
+  togglePlaceFavorite: (placeId: string, hint?: PlaceFavoriteHint) => void;
   toggleItineraryFavorite: (itineraryId: string) => void;
 }
 
@@ -96,7 +96,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     });
   }, [favoriteItineraryIds, isReady, placeState.order]);
 
-  const togglePlaceFavorite = useCallback((placeId: string) => {
+  const togglePlaceFavorite = useCallback((placeId: string, hint?: PlaceFavoriteHint) => {
     const generation = (toggleGenerationRef.current.get(placeId) ?? 0) + 1;
     toggleGenerationRef.current.set(placeId, generation);
 
@@ -112,7 +112,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         prev,
         placeId,
         adding,
-        adding ? createOptimisticPlaceItem(placeId) : undefined,
+        adding ? createOptimisticPlaceItem(placeId, hint) : undefined,
       );
     });
 

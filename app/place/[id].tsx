@@ -305,7 +305,12 @@ export default function PlaceDetailScreen() {
       <PlaceHeroControls
         isFavorite={isFavorite}
         onBack={handleBack}
-        onToggleFavorite={() => togglePlaceFavorite(place.id)}
+        onToggleFavorite={() =>
+          togglePlaceFavorite(place.id, {
+            title: place.name,
+            imageUrl: place.imageUrl,
+          })
+        }
         onShare={() => void handleShare()}
       />
 

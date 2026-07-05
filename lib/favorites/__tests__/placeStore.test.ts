@@ -28,6 +28,18 @@ describe('placeStateFromItems', () => {
   });
 });
 
+describe('createOptimisticPlaceItem', () => {
+  it('utilise le hint title quand fourni', () => {
+    const item = createOptimisticPlaceItem('poi-api', { title: 'Tour Eiffel' });
+    expect(item.poi.title).toBe('Tour Eiffel');
+  });
+
+  it('retombe sur le mock local si pas de hint', () => {
+    const item = createOptimisticPlaceItem('1');
+    expect(item.poi.title).toBeTruthy();
+  });
+});
+
 describe('setPlaceFavoriteInState', () => {
   it('ajoute un favori avec item', () => {
     const item = createOptimisticPlaceItem('poi-b');

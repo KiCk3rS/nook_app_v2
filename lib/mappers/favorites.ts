@@ -23,9 +23,11 @@ export function favoriteItemToPlaceView(item: FavoriteItem): FavoritePlaceView {
     return mockPlaceToFavoritePlaceView(mock);
   }
 
+  const name = item.poi.title?.trim() || item.poiId;
+
   return {
     id: item.poiId,
-    name: item.poi.title,
+    name,
     subtitle: formatPoiStatus(item.poi.status),
     imageUrl: null,
   };

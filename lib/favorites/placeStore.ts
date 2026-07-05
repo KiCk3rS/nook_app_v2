@@ -1,4 +1,6 @@
+import { getPlaceById } from '../../constants/mockPlaces';
 import type { FavoriteItem } from '../../types/api';
+import type { PlaceFavoriteHint } from '../../types/favorites';
 
 /** État unifié des lieux favoris (local ou serveur). */
 export interface FavoritePlacesState {
@@ -59,12 +61,18 @@ export function setPlaceFavoriteInState(
   return { order, items };
 }
 
-/** Stub affichable le temps de la requête POST (enrichi via mock si disponible). */
-export function createOptimisticPlaceItem(poiId: string): FavoriteItem {
+/** Stub affichable le temps de la requête POST (enrichi via hint ou mock si disponible). */
+export function createOptimisticPlaceItem(
+  poiId: string,
+  hint?: PlaceFavoriteHint,
+): FavoriteItem {
+  const mock = getPlaceById(poiId);
+  const title = hint?.title?.trim() || mock?.name || '';
+
   return {
     id: '',
     poiId,
     createdAt: new Date().toISOString(),
-    poi: { title: '', status: 'PUBLISHED' },
+    poi: { title, status: 'PUBLISHED' },
   };
 }
