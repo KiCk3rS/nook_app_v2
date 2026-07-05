@@ -1,4 +1,5 @@
-import { favoriteItemToPlaceView } from '../favorites';
+import { favoriteItemToPlaceView, resolveFavoritePlaceViews } from '../favorites';
+import { placeStateFromItems } from '../../favorites/placeStore';
 
 describe('favoriteItemToPlaceView', () => {
   it('utilise le snippet API quand le POI mock est absent', () => {
@@ -15,5 +16,23 @@ describe('favoriteItemToPlaceView', () => {
       subtitle: '',
       imageUrl: null,
     });
+  });
+});
+
+describe('resolveFavoritePlaceViews', () => {
+  it('résout depuis l’état unifié', () => {
+    const views = resolveFavoritePlaceViews(
+      placeStateFromItems([
+        {
+          id: 'f1',
+          poiId: '00000000-0000-4000-8000-000000000002',
+          createdAt: '2026-07-05T10:00:00.000Z',
+          poi: { title: 'Orsay', status: 'PUBLISHED' },
+        },
+      ]),
+    );
+
+    expect(views).toHaveLength(1);
+    expect(views[0]?.name).toBe('Orsay');
   });
 });

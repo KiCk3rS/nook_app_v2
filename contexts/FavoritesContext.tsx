@@ -12,15 +12,19 @@ import {
 import type { EditorialItinerary } from '../constants/mockItineraries';
 import { getItineraryById } from '../constants/mockItineraries';
 import { useAuth } from './AuthContext';
-import { addFavorite, fetchAllFavorites, removeFavorite } from '../lib/api/favorites';
+import { bootstrapFavoritePlaces, shouldUseServerFavorites } from '../lib/favorites/bootstrapFavorites';
 import {
-  applyPlaceToggle,
-  favoriteItemsToMap,
-  mergeFavoritePlaceIds,
-  rollbackPlaceToggle,
-  shouldUseServerFavorites,
-} from '../lib/favorites/syncFavorites';
-import { loadStoredFavorites, saveStoredFavorites } from '../lib/favoritesStorage';
+  createOptimisticPlaceItem,
+  emptyPlaceState,
+  isPlaceInState,
+  setPlaceFavoriteInState,
+  type FavoritePlacesState,
+} from '../lib/favorites/placeStore';
+import {
+  shouldApplyToggleResult,
+  syncPlaceFavoriteWithServer,
+} from '../lib/favorites/syncPlaceFavorite';
+import { saveStoredFavorites } from '../lib/favoritesStorage';
 import { resolveFavoritePlaceViews } from '../lib/mappers/favorites';
 import type { FavoriteItem } from '../types/api';
 import type { FavoritePlaceView } from '../types/favorites';
@@ -46,57 +50,34 @@ function toUniqueIds(ids: string[]): string[] {
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated, isMockSession, isLoading: isAuthLoading, user } = useAuth();
   const [isReady, setIsReady] = useState(false);
-  const [favoritePlaceIds, setFavoritePlaceIds] = useState<Set<string>>(new Set());
+  const [placeState, setPlaceState] = useState<FavoritePlacesState>(emptyPlaceState);
   const [favoriteItineraryIds, setFavoriteItineraryIds] = useState<Set<string>>(new Set());
-  const [apiPlaceItems, setApiPlaceItems] = useState<Map<string, FavoriteItem>>(new Map());
   const skipNextPersist = useRef(true);
   const useServerRef = useRef(false);
-  const syncGenerationRef = useRef(0);
+  const bootstrapGenerationRef = useRef(0);
+  const toggleGenerationRef = useRef(new Map<string, number>());
 
   useEffect(() => {
     if (isAuthLoading) return;
 
     const useServer = shouldUseServerFavorites(isAuthenticated, isMockSession);
     useServerRef.current = useServer;
-    const generation = ++syncGenerationRef.current;
+    const generation = ++bootstrapGenerationRef.current;
     let cancelled = false;
 
-    async function bootstrapLocal(): Promise<void> {
-      const stored = await loadStoredFavorites();
-      if (cancelled || generation !== syncGenerationRef.current) return;
-      setFavoritePlaceIds(new Set(stored.placeIds));
-      setFavoriteItineraryIds(new Set(stored.itineraryIds));
-      setApiPlaceItems(new Map());
+    async function runBootstrap() {
+      setIsReady(false);
+      const result = await bootstrapFavoritePlaces(useServer);
+      if (cancelled || generation !== bootstrapGenerationRef.current) return;
+
+      useServerRef.current = result.useServer;
+      setPlaceState(result.places);
+      setFavoriteItineraryIds(new Set(result.itineraryIds));
       skipNextPersist.current = true;
       setIsReady(true);
     }
 
-    async function bootstrapServer(): Promise<void> {
-      const stored = await loadStoredFavorites();
-      if (cancelled || generation !== syncGenerationRef.current) return;
-
-      try {
-        const serverItems = await fetchAllFavorites();
-        if (cancelled || generation !== syncGenerationRef.current) return;
-
-        const serverIds = serverItems.map((item) => item.poiId);
-        const mergedIds = mergeFavoritePlaceIds(serverIds, stored.placeIds);
-        setFavoritePlaceIds(new Set(mergedIds));
-        setFavoriteItineraryIds(new Set(stored.itineraryIds));
-        setApiPlaceItems(favoriteItemsToMap(serverItems));
-      } catch {
-        if (cancelled || generation !== syncGenerationRef.current) return;
-        setFavoritePlaceIds(new Set(stored.placeIds));
-        setFavoriteItineraryIds(new Set(stored.itineraryIds));
-        setApiPlaceItems(new Map());
-      }
-
-      skipNextPersist.current = true;
-      setIsReady(true);
-    }
-
-    setIsReady(false);
-    void (useServer ? bootstrapServer() : bootstrapLocal());
+    void runBootstrap();
 
     return () => {
       cancelled = true;
@@ -110,43 +91,50 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       return;
     }
     void saveStoredFavorites({
-      placeIds: [...favoritePlaceIds],
+      placeIds: placeState.order,
       itineraryIds: [...favoriteItineraryIds],
     });
-  }, [favoritePlaceIds, favoriteItineraryIds, isReady]);
+  }, [favoriteItineraryIds, isReady, placeState.order]);
 
   const togglePlaceFavorite = useCallback((placeId: string) => {
-    setFavoritePlaceIds((prev) => {
-      const wasFavorite = prev.has(placeId);
-      const adding = !wasFavorite;
+    const generation = (toggleGenerationRef.current.get(placeId) ?? 0) + 1;
+    toggleGenerationRef.current.set(placeId, generation);
 
-      if (useServerRef.current) {
-        void (async () => {
-          try {
-            if (adding) {
-              const item = await addFavorite(placeId);
-              setApiPlaceItems((items) => {
-                const next = new Map(items);
-                next.set(placeId, item);
-                return next;
-              });
-            } else {
-              await removeFavorite(placeId);
-              setApiPlaceItems((items) => {
-                const next = new Map(items);
-                next.delete(placeId);
-                return next;
-              });
-            }
-          } catch {
-            setFavoritePlaceIds((current) =>
-              rollbackPlaceToggle(current, placeId, wasFavorite),
-            );
-          }
-        })();
+    let wasFavorite = false;
+    let adding = false;
+    let previousItem: FavoriteItem | undefined;
+
+    setPlaceState((prev) => {
+      wasFavorite = isPlaceInState(prev, placeId);
+      adding = !wasFavorite;
+      previousItem = prev.items.get(placeId);
+      return setPlaceFavoriteInState(
+        prev,
+        placeId,
+        adding,
+        adding ? createOptimisticPlaceItem(placeId) : undefined,
+      );
+    });
+
+    if (!useServerRef.current) return;
+
+    void syncPlaceFavoriteWithServer(placeId, adding).then((result) => {
+      if (!shouldApplyToggleResult(toggleGenerationRef.current.get(placeId), generation)) {
+        return;
       }
 
-      return applyPlaceToggle(prev, placeId, adding);
+      if (!result.success) {
+        setPlaceState((current) =>
+          setPlaceFavoriteInState(current, placeId, wasFavorite, previousItem),
+        );
+        return;
+      }
+
+      if (result.item) {
+        setPlaceState((current) =>
+          setPlaceFavoriteInState(current, placeId, true, result.item ?? undefined),
+        );
+      }
     });
   }, []);
 
@@ -162,9 +150,11 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const favoritePlaceIds = useMemo(() => new Set(placeState.order), [placeState.order]);
+
   const isPlaceFavorite = useCallback(
-    (placeId: string) => favoritePlaceIds.has(placeId),
-    [favoritePlaceIds],
+    (placeId: string) => placeState.order.includes(placeId),
+    [placeState.order],
   );
 
   const isItineraryFavorite = useCallback(
@@ -173,9 +163,8 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   );
 
   const favoritePlaces = useMemo(
-    () =>
-      resolveFavoritePlaceViews(toUniqueIds([...favoritePlaceIds]), apiPlaceItems),
-    [apiPlaceItems, favoritePlaceIds],
+    () => resolveFavoritePlaceViews(placeState),
+    [placeState],
   );
 
   const favoriteItineraries = useMemo(
