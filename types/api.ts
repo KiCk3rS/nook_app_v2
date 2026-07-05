@@ -110,6 +110,42 @@ export interface PlaybackUrl {
   expiresAt: string;
 }
 
+/** Réponse `GET /api/v1/pois/:poiId/audios`. */
+export interface ListAudiosResponse {
+  audios: AudioTrack[];
+}
+
+/** Corps `POST /api/v1/pois/:id/play-event` (F-013). */
+export interface PlayEventPayload {
+  audioId?: string;
+  listenPercent?: number;
+  durationSeconds?: number;
+  clientEventId?: string;
+}
+
+export interface ListenHistoryAudioSnippet {
+  id: string;
+  title: string | null;
+  /** Présent quand l’API l’expose — permet le % de progression réel. */
+  durationSeconds?: number | null;
+}
+
+export interface ListenHistoryPoiSnippet {
+  title: string;
+  status: string;
+}
+
+/** Entrée historique (`GET/POST /api/v1/me/listen-history`). */
+export interface ListenHistoryEntry {
+  id: string;
+  audioId: string;
+  poiId: string | null;
+  listenedAt: string;
+  progressSeconds: number | null;
+  audio: ListenHistoryAudioSnippet;
+  poi: ListenHistoryPoiSnippet | null;
+}
+
 export interface UserPreferences {
   language?: 'fr' | 'en';
   notifications?: {

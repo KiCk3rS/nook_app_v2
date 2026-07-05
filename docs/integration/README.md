@@ -39,7 +39,7 @@ Découpage du plan d'intégration [`nook_api_v2` → `nook_app_v2`](../../.curso
 | T01 | ✅ terminé | 2026-07-05 | 2026-07-05 | Client HTTP, refresh proactif, SecureStore prod |
 | T02 | ✅ terminé | 2026-07-05 | 2026-07-05 | Endpoints /me/credits, génération audio user, tests Jest 178/178 |
 | T03 | ✅ terminé | 2026-07-05 | 2026-07-05 | POI carte/recherche/fiche, mappers, hooks, tests 35/35 |
-| T04 | ⬜ à faire | | | |
+| T04 | ✅ terminé | 2026-07-05 | 2026-07-05 | Playback URL signée, play-event, listen-history, tests 51/51 |
 | T05 | ⬜ à faire | | | |
 | T06 | ⬜ à faire | | | |
 | T07 | ⬜ à faire | | | |

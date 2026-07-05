@@ -48,8 +48,8 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
+        <AuthProvider>
         <AudioPlaybackProvider>
-          <AuthProvider>
           <I18nSync />
           <FavoritesProvider>
           <PremiumProvider>
@@ -152,8 +152,8 @@ export default function RootLayout() {
           </CreditsProvider>
           </PremiumProvider>
           </FavoritesProvider>
-          </AuthProvider>
         </AudioPlaybackProvider>
+        </AuthProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

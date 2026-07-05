@@ -25,6 +25,9 @@ export function GlobalAudioChrome() {
     skipBack,
     skipForward,
     seekTo,
+    playbackLoading,
+    playbackError,
+    retryPlayback,
     playbackRate,
     voiceBoostEnabled,
     trimSilencesEnabled,
@@ -69,6 +72,8 @@ export function GlobalAudioChrome() {
           isPlaying={isPlaying}
           positionMs={positionMs}
           durationMs={durationMs}
+          playbackLoading={playbackLoading}
+          playbackError={playbackError}
           playbackRate={playbackRate}
           voiceBoostEnabled={voiceBoostEnabled}
           trimSilencesEnabled={trimSilencesEnabled}
@@ -78,6 +83,7 @@ export function GlobalAudioChrome() {
           onSkipBack={skipBack}
           onSkipForward={skipForward}
           onSeek={seekTo}
+          onRetryPlayback={retryPlayback}
           onCyclePlaybackRate={cyclePlaybackRate}
           onVoiceBoostChange={setVoiceBoostEnabled}
           onTrimSilencesChange={setTrimSilencesEnabled}

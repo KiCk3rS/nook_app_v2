@@ -133,16 +133,17 @@ export function getMockListenHistory(): ListenHistoryItem[] {
   );
 }
 
+/** Sections prêtes pour `SectionList` (`data`, pas `items`). */
 export interface ListenHistorySection {
   key: ListenHistorySectionKey;
   title: string;
-  items: ListenHistoryItem[];
+  data: ListenHistoryItem[];
 }
 
 export function groupListenHistory(items: ListenHistoryItem[]): ListenHistorySection[] {
   return LISTEN_HISTORY_SECTION_ORDER.map((key) => ({
     key,
     title: formatListenHistorySectionKey(key),
-    items: items.filter((item) => item.sectionKey === key),
-  })).filter((section) => section.items.length > 0);
+    data: items.filter((item) => item.sectionKey === key),
+  })).filter((section) => section.data.length > 0);
 }

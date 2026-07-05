@@ -10,7 +10,9 @@ import {
 import type { AudioGuide, MockPlace } from '../constants/mockPlaces';
 import type { SleepTimerValue } from '../constants/audioPlayerOptions';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
+import { usePlaybackEngagement } from '../hooks/usePlaybackEngagement';
 import { trackAudioPlayerExpand, trackAudioThemeSelect } from '../lib/analytics';
+import { useAuth } from './AuthContext';
 
 export type AudioPlayerViewMode = 'idle' | 'mini' | 'expanded';
 
@@ -23,6 +25,8 @@ interface AudioPlaybackContextValue {
   isPlaying: boolean;
   positionMs: number;
   durationMs: number;
+  playbackLoading: boolean;
+  playbackError: string | null;
   startPlayback: (place: MockPlace, guide: AudioGuide, guides?: AudioGuide[]) => void;
   syncPlaybackGuides: (guides: AudioGuide[]) => void;
   switchGuide: (guideId: string) => void;
@@ -34,6 +38,7 @@ interface AudioPlaybackContextValue {
   seekTo: (ms: number) => void;
   skipBack: () => void;
   skipForward: () => void;
+  retryPlayback: () => void;
   playbackRate: number;
   voiceBoostEnabled: boolean;
   trimSilencesEnabled: boolean;
@@ -47,6 +52,7 @@ interface AudioPlaybackContextValue {
 const AudioPlaybackContext = createContext<AudioPlaybackContextValue | null>(null);
 
 export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
+  const { isAuthenticated, isMockSession } = useAuth();
   const [place, setPlace] = useState<MockPlace | null>(null);
   const [guide, setGuide] = useState<AudioGuide | null>(null);
   const [playbackGuides, setPlaybackGuides] = useState<AudioGuide[]>([]);
@@ -54,7 +60,12 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
 
   const sessionActive = viewMode !== 'idle' && guide !== null;
 
-  const playback = useAudioPlayer({ guide, place, active: sessionActive });
+  const playback = useAudioPlayer({
+    guide,
+    place,
+    active: sessionActive,
+    isMockSession,
+  });
   const {
     togglePlay,
     pause,
@@ -62,9 +73,12 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
     isPlaying,
     positionMs,
     durationMs,
+    playbackLoading,
+    playbackError,
     seekTo,
     skipBack,
     skipForward,
+    retryPlayback,
     playbackRate,
     voiceBoostEnabled,
     trimSilencesEnabled,
@@ -74,6 +88,18 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
     setTrimSilencesEnabled,
     setSleepTimer,
   } = playback;
+
+  usePlaybackEngagement({
+    poiId: place?.id ?? null,
+    audioId: guide?.id ?? null,
+    positionMs,
+    durationMs,
+    isPlaying,
+    active: sessionActive,
+    viewMode,
+    isAuthenticated,
+    isMockSession,
+  });
 
   const startPlayback = useCallback(
     (nextPlace: MockPlace, nextGuide: AudioGuide, guides?: AudioGuide[]) => {
@@ -137,6 +163,8 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
       isPlaying,
       positionMs,
       durationMs,
+      playbackLoading,
+      playbackError,
       startPlayback,
       syncPlaybackGuides,
       switchGuide,
@@ -148,6 +176,7 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
       seekTo,
       skipBack,
       skipForward,
+      retryPlayback,
       playbackRate,
       voiceBoostEnabled,
       trimSilencesEnabled,
@@ -165,11 +194,14 @@ export function AudioPlaybackProvider({ children }: { children: ReactNode }) {
       isPlaying,
       positionMs,
       durationMs,
+      playbackLoading,
+      playbackError,
       togglePlay,
       pause,
       seekTo,
       skipBack,
       skipForward,
+      retryPlayback,
       playbackRate,
       voiceBoostEnabled,
       trimSilencesEnabled,

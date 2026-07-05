@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -14,12 +13,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ListenHistoryEmptyState } from '../../components/listenHistory/ListenHistoryEmptyState';
 import { ListenHistoryRow } from '../../components/listenHistory/ListenHistoryRow';
-import {
-  getMockListenHistory,
-  groupListenHistory,
-} from '../../constants/mockListenHistory';
-import { colors, componentSizes, spacing, textStyle } from '../../constants/theme';
+import { colors, componentSizes, radius, spacing, textStyle } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
+import { useListenHistory } from '../../hooks/useListenHistory';
 import { useRequireAuth } from '../../hooks/useRequireAuth';
 
 export default function ListenHistoryScreen() {
@@ -28,14 +24,7 @@ export default function ListenHistoryScreen() {
   const insets = useSafeAreaInsets();
   const { isReady } = useRequireAuth('/listen-history');
   const { isMockSession } = useAuth();
-
-  const sections = useMemo(() => {
-    if (!isMockSession) return [];
-    return groupListenHistory(getMockListenHistory()).map(({ title, items }) => ({
-      title,
-      data: items,
-    }));
-  }, [isMockSession]);
+  const { sections, loading, error, reload } = useListenHistory(isReady, isMockSession);
 
   if (!isReady) {
     return (
@@ -62,7 +51,23 @@ export default function ListenHistoryScreen() {
         <View style={styles.backBtn} />
       </View>
 
-      {sections.length === 0 ? (
+      {loading ? (
+        <View style={styles.loadingBody}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : error ? (
+        <View style={styles.errorWrap}>
+          <Text style={styles.errorText}>{t('listenHistory:loadError')}</Text>
+          <Pressable
+            onPress={reload}
+            style={({ pressed }) => [styles.retryButton, pressed && styles.retryPressed]}
+            accessibilityRole="button"
+            accessibilityLabel={t('common:retry')}
+          >
+            <Text style={styles.retryText}>{t('common:retry')}</Text>
+          </Pressable>
+        </View>
+      ) : sections.length === 0 ? (
         <ListenHistoryEmptyState />
       ) : (
         <SectionList
@@ -118,6 +123,38 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  loadingBody: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.lg,
+    gap: spacing.md,
+  },
+  errorText: {
+    ...textStyle('bodyMd'),
+    color: colors.muted,
+    textAlign: 'center',
+  },
+  retryButton: {
+    minHeight: componentSizes.buttonPrimaryHeight,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.xl,
+  },
+  retryPressed: {
+    backgroundColor: colors.primaryActive,
+  },
+  retryText: {
+    ...textStyle('buttonMd'),
+    color: colors.onPrimary,
   },
   list: {
     paddingHorizontal: spacing.base,

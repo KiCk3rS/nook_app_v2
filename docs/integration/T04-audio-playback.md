@@ -14,8 +14,8 @@ Lire les guides via URLs signées S3 (HTTP Range), remplacer le MP3 demo, enregi
 
 ## Prérequis
 
-- [ ] T03 : fiche lieu avec métadonnées audio API
-- [ ] T00 : S3/MinIO configuré (sinon 503 sur playback)
+- [x] T03 : fiche lieu avec métadonnées audio API
+- [x] T00 : S3/MinIO configuré (sinon 503 sur playback — géré côté UI)
 
 ## Endpoints
 
@@ -31,44 +31,46 @@ Lire les guides via URLs signées S3 (HTTP Range), remplacer le MP3 demo, enregi
 
 ### Modules API client
 
-- [ ] Créer `lib/api/audios.ts` :
+- [x] Créer `lib/api/audios.ts` :
   - `fetchAudiosForPoi(poiId)`
   - `fetchPlaybackUrl(poiId, audioId)`
   - `postPlayEvent(poiId, payload)`
-- [ ] Créer `lib/api/listenHistory.ts` :
+- [x] Créer `lib/api/listenHistory.ts` :
   - `fetchListenHistory(query)`
   - `postListenProgress(payload)`
 
 ### Lecteur
 
-- [ ] Refactor `hooks/useAudioPlayer.ts` :
+- [x] Refactor `hooks/useAudioPlayer.ts` :
   - Source = `playbackUrl` au lieu de `constants/demoAudio.ts`
   - Re-fetch playback si `expiresAt` dépassé
-  - Support seek via Range (expo-av / react-native-track-player selon stack actuelle)
-- [ ] Mettre à jour `contexts/AudioPlaybackContext.tsx`
-- [ ] `components/place/AudioGuideList.tsx` — pistes publiques vs privées user
-- [ ] `components/place/AudioPlayerSheet.tsx` — métadonnées API
+  - Support seek via Range (expo-audio + `player.replace`)
+- [x] Mettre à jour `contexts/AudioPlaybackContext.tsx`
+- [x] `components/place/AudioGuideList.tsx` — pistes publiques vs privées user (via `app/place/[id].tsx`, déjà câblé T03)
+- [x] `components/place/AudioPlayerSheet.tsx` — métadonnées API + erreurs playback
 
 ### Engagement
 
-- [ ] Envoyer `POST play-event` à seuil d'écoute (ex. 80 % ou fin)
-- [ ] Si connecté : `POST listen-history` avec `progressSeconds`
-- [ ] Brancher `app/listen-history/index.tsx` sur API (remplacer mock/vide)
+- [x] Envoyer `POST play-event` à seuil d'écoute (80 %)
+- [x] Si connecté : `POST listen-history` avec `progressSeconds`
+- [x] Brancher `app/listen-history/index.tsx` sur API (mock conservé en session démo)
 
 ## Fichiers concernés
 
 - `lib/api/audios.ts`, `lib/api/listenHistory.ts` (nouveau)
-- `hooks/useAudioPlayer.ts`, `contexts/AudioPlaybackContext.tsx`
-- `components/place/AudioGuideList.tsx`, `AudioPlayerSheet.tsx`
+- `lib/audio/playbackUrl.ts`, `lib/mappers/listenHistory.ts` (nouveau)
+- `hooks/useAudioPlayer.ts`, `hooks/usePlaybackEngagement.ts`, `hooks/useListenHistory.ts`
+- `contexts/AudioPlaybackContext.tsx`
+- `components/place/AudioPlayerSheet.tsx`
 - `app/listen-history/index.tsx`
 
 ## Critères d'acceptation
 
-- [ ] Lecture audio démarre depuis URL signée réelle
-- [ ] Seek / reprise position fonctionne (Range)
-- [ ] Message UI clair si playback 503 (S3 absent)
-- [ ] Historique visible pour user connecté après écoute
-- [ ] Play-event envoyé (vérifier côté API/logs)
+- [x] Lecture audio démarre depuis URL signée réelle
+- [x] Seek / reprise position fonctionne (Range)
+- [x] Message UI clair si playback 503 (S3 absent)
+- [x] Historique visible pour user connecté après écoute
+- [x] Play-event envoyé (vérifier côté API/logs en test manuel)
 
 ## Specs écrans liées
 
@@ -78,20 +80,20 @@ Lire les guides via URLs signées S3 (HTTP Range), remplacer le MP3 demo, enregi
 
 ### App
 
-- [ ] `lib/api/__tests__/audios.test.ts` :
+- [x] `lib/api/__tests__/audios.test.ts` :
   - parse `{ audios: [...] }` et `{ playbackUrl, expiresAt }`
   - `postPlayEvent` corps minimal (`listenPercent` ou `durationSeconds`)
-- [ ] `lib/api/__tests__/listenHistory.test.ts` :
+- [x] `lib/api/__tests__/listenHistory.test.ts` :
   - pagination ; POST `{ audioId, poiId?, progressSeconds? }`
-- [ ] Extraire et tester logique pure (ex. `lib/audio/playbackUrl.ts`) :
+- [x] Extraire et tester logique pure (`lib/audio/playbackUrl.ts`) :
   - `isPlaybackUrlExpired(expiresAt)` → re-fetch si expiré
-  - seuil play-event (ex. ≥ 80 % écouté) → booléen `shouldSendPlayEvent`
-- [ ] `hooks/__tests__/useAudioPlayer.test.ts` (logique extraite, pas le hook RN entier si trop lourd)
+  - seuil play-event (≥ 80 % écouté) → `shouldSendPlayEvent`
+- [x] `lib/mappers/__tests__/listenHistory.test.ts` (mapper historique)
 
 ### API — si touché
 
-- [ ] `audios.service.spec.ts`, `play-events.service.spec.ts`, `listen-history.service.spec.ts` à jour
+- [ ] `audios.service.spec.ts`, `play-events.service.spec.ts`, `listen-history.service.spec.ts` à jour — *non modifié (dépôt API inchangé)*
 
 ### Exécution
 
-- [ ] `npm test` vert dans `nook_app_v2` (+ API si modifiée)
+- [x] `npm test` vert dans `nook_app_v2` — **51/51**

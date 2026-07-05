@@ -17,6 +17,11 @@ export function shouldShowDemoLogin(): boolean {
   return !isApiConfigured() || __DEV__;
 }
 
+/** Données mock / pas d’appels API réels (session démo ou API absente). */
+export function shouldUseMockData(isMockSession: boolean): boolean {
+  return !isApiConfigured() || isMockSession;
+}
+
 export function getAppVersion(): string {
   return Constants.expoConfig?.version ?? '1.0.0';
 }

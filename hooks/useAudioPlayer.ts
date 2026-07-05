@@ -12,6 +12,10 @@ import {
   PLAYBACK_RATES,
   type SleepTimerValue,
 } from '../constants/audioPlayerOptions';
+import { shouldUseMockData } from '../lib/config';
+import { fetchPlaybackUrl } from '../lib/api/audios';
+import { isPlaybackUrlExpired } from '../lib/audio/playbackUrl';
+import { ApiError } from '../types/api';
 
 const SKIP_BACK_SEC = 15;
 const SKIP_FORWARD_SEC = 30;
@@ -39,6 +43,7 @@ interface UseAudioPlayerOptions {
   place: MockPlace | null;
   /** Session active — false uniquement après dismiss explicite. */
   active: boolean;
+  isMockSession: boolean;
 }
 
 function getFallbackDurationMs(guide: AudioGuide | null): number {
@@ -64,18 +69,28 @@ function runIfPlayerAvailable(action: () => void) {
     // Native AudioPlayer already released (dismiss, hot reload, etc.)
   }
 }
-
-export function useAudioPlayer({ guide, place, active }: UseAudioPlayerOptions) {
-  const player = useExpoAudioPlayer(DEMO_AUDIO_SOURCE, { updateInterval: 250 });
+export function useAudioPlayer({
+  guide,
+  place,
+  active,
+  isMockSession,
+}: UseAudioPlayerOptions) {
+  const player = useExpoAudioPlayer(null, { updateInterval: 250 });
   const status = useAudioPlayerStatus(player);
   const lockScreenActiveRef = useRef(false);
   const sleepTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeRef = useRef(active);
+  const playbackCacheRef = useRef<{ url: string; expiresAt: string } | null>(null);
+  const loadRequestIdRef = useRef(0);
 
   const [playbackRate, setPlaybackRateState] = useState<number>(1);
   const [voiceBoostEnabled, setVoiceBoostEnabled] = useState(false);
   const [trimSilencesEnabled, setTrimSilencesEnabled] = useState(false);
   const [sleepTimer, setSleepTimer] = useState<SleepTimerValue>({ mode: 'off' });
+  const [playbackLoading, setPlaybackLoading] = useState(false);
+  const [playbackError, setPlaybackError] = useState<string | null>(null);
+
+  const useMockPlayback = shouldUseMockData(isMockSession);
 
   useEffect(() => {
     activeRef.current = active;
@@ -109,6 +124,83 @@ export function useAudioPlayer({ guide, place, active }: UseAudioPlayerOptions) 
     });
   }, [player]);
 
+  const loadPlaybackSource = useCallback(
+    async (poiId: string, audioId: string): Promise<boolean> => {
+      const requestId = loadRequestIdRef.current + 1;
+      loadRequestIdRef.current = requestId;
+      setPlaybackLoading(true);
+      setPlaybackError(null);
+
+      if (useMockPlayback) {
+        playbackCacheRef.current = null;
+        runIfPlayerAvailable(() => {
+          player.replace(DEMO_AUDIO_SOURCE);
+        });
+        if (loadRequestIdRef.current === requestId) {
+          setPlaybackLoading(false);
+        }
+        return true;
+      }
+
+      try {
+        const playback = await fetchPlaybackUrl(poiId, audioId);
+        if (loadRequestIdRef.current !== requestId) {
+          return false;
+        }
+
+        playbackCacheRef.current = {
+          url: playback.playbackUrl,
+          expiresAt: playback.expiresAt,
+        };
+        runIfPlayerAvailable(() => {
+          player.replace({ uri: playback.playbackUrl });
+        });
+        return true;
+      } catch (error) {
+        if (loadRequestIdRef.current !== requestId) {
+          return false;
+        }
+
+        playbackCacheRef.current = null;
+        if (error instanceof ApiError && error.statusCode === 503) {
+          setPlaybackError('playbackUnavailable');
+        } else {
+          setPlaybackError('playbackLoadFailed');
+        }
+        return false;
+      } finally {
+        if (loadRequestIdRef.current === requestId) {
+          setPlaybackLoading(false);
+        }
+      }
+    },
+    [player, useMockPlayback],
+  );
+
+  const ensurePlaybackSource = useCallback(async (): Promise<boolean> => {
+    if (!place || !guide) {
+      return false;
+    }
+
+    if (useMockPlayback) {
+      return true;
+    }
+
+    const cached = playbackCacheRef.current;
+    if (!cached || isPlaybackUrlExpired(cached.expiresAt)) {
+      return loadPlaybackSource(place.id, guide.id);
+    }
+
+    return true;
+  }, [guide, loadPlaybackSource, place, useMockPlayback]);
+
+  const retryPlayback = useCallback(() => {
+    if (!place || !guide) {
+      return;
+    }
+    void loadPlaybackSource(place.id, guide.id);
+  }, [guide, loadPlaybackSource, place]);
+
   useEffect(() => {
     void setAudioModeAsync({
       playsInSilentMode: true,
@@ -116,6 +208,17 @@ export function useAudioPlayer({ guide, place, active }: UseAudioPlayerOptions) 
       interruptionMode: 'doNotMix',
     });
   }, []);
+
+  useEffect(() => {
+    if (!active || !place || !guide) {
+      playbackCacheRef.current = null;
+      setPlaybackError(null);
+      setPlaybackLoading(false);
+      return;
+    }
+
+    void loadPlaybackSource(place.id, guide.id);
+  }, [active, guide?.id, loadPlaybackSource, place?.id]);
 
   useEffect(() => {
     if (!active || sleepTimer.mode !== 'endOfGuide' || !status.didJustFinish) {
@@ -146,24 +249,41 @@ export function useAudioPlayer({ guide, place, active }: UseAudioPlayerOptions) 
   }, [active, clearSleepTimer, pauseIfActive, sleepTimer]);
 
   useEffect(() => {
-    if (!active || !guide) {
-      runIfPlayerAvailable(() => {
-        player.pause();
-        void player.seekTo(0);
-      });
-      deactivateLockScreen();
+    if (!active || !guide || playbackError || playbackLoading) {
+      if (!active || !guide) {
+        runIfPlayerAvailable(() => {
+          player.pause();
+          void player.seekTo(0);
+        });
+        deactivateLockScreen();
+      }
       return;
     }
 
-    runIfPlayerAvailable(() => {
-      player.play();
-    });
-  }, [active, deactivateLockScreen, guide?.id, guide, player]);
+    void (async () => {
+      const ready = await ensurePlaybackSource();
+      if (!ready || !activeRef.current) {
+        return;
+      }
+
+      runIfPlayerAvailable(() => {
+        player.play();
+      });
+    })();
+  }, [
+    active,
+    deactivateLockScreen,
+    ensurePlaybackSource,
+    guide,
+    playbackError,
+    playbackLoading,
+    player,
+  ]);
 
   useEffect(() => {
     const metadata = getLockScreenMetadata(guide, place);
 
-    if (!active || !metadata) {
+    if (!active || !metadata || playbackError) {
       deactivateLockScreen();
       return;
     }
@@ -198,6 +318,7 @@ export function useAudioPlayer({ guide, place, active }: UseAudioPlayerOptions) 
     place?.id,
     place?.name,
     place?.imageUrl,
+    playbackError,
     player,
     status.playing,
     deactivateLockScreen,
@@ -218,27 +339,53 @@ export function useAudioPlayer({ guide, place, active }: UseAudioPlayerOptions) 
       : getFallbackDurationMs(guide);
 
   const togglePlay = useCallback(() => {
+    if (playbackError) {
+      retryPlayback();
+      return;
+    }
+
     if (status.playing) {
       player.pause();
       return;
     }
 
-    if (
-      status.didJustFinish ||
-      (status.duration > 0 && status.currentTime >= status.duration)
-    ) {
-      void player.seekTo(0);
-    }
+    void (async () => {
+      const ready = await ensurePlaybackSource();
+      if (!ready) {
+        return;
+      }
 
-    player.play();
-  }, [player, status.currentTime, status.didJustFinish, status.duration, status.playing]);
+      if (
+        status.didJustFinish ||
+        (status.duration > 0 && status.currentTime >= status.duration)
+      ) {
+        void player.seekTo(0);
+      }
+
+      player.play();
+    })();
+  }, [
+    ensurePlaybackSource,
+    playbackError,
+    player,
+    retryPlayback,
+    status.currentTime,
+    status.didJustFinish,
+    status.duration,
+    status.playing,
+  ]);
 
   const seekTo = useCallback(
     async (ms: number) => {
+      const ready = await ensurePlaybackSource();
+      if (!ready) {
+        return;
+      }
+
       const clampedSec = Math.min(Math.max(ms, 0), durationMs) / 1000;
       await player.seekTo(clampedSec);
     },
-    [durationMs, player],
+    [durationMs, ensurePlaybackSource, player],
   );
 
   const skipBack = useCallback(() => {
@@ -256,6 +403,9 @@ export function useAudioPlayer({ guide, place, active }: UseAudioPlayerOptions) 
   const reset = useCallback(() => {
     clearSleepTimer();
     activeRef.current = false;
+    playbackCacheRef.current = null;
+    setPlaybackError(null);
+    setPlaybackLoading(false);
     runIfPlayerAvailable(() => {
       player.pause();
       void player.seekTo(0);
@@ -287,12 +437,15 @@ export function useAudioPlayer({ guide, place, active }: UseAudioPlayerOptions) 
     voiceBoostEnabled,
     trimSilencesEnabled,
     sleepTimer,
+    playbackLoading,
+    playbackError,
     togglePlay,
     seekTo,
     skipBack,
     skipForward,
     pause,
     reset,
+    retryPlayback,
     cyclePlaybackRate,
     setVoiceBoostEnabled,
     setTrimSilencesEnabled,

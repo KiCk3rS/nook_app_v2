@@ -74,6 +74,8 @@ interface AudioPlayerSheetProps {
   isPlaying: boolean;
   positionMs: number;
   durationMs: number;
+  playbackLoading: boolean;
+  playbackError: string | null;
   playbackRate: number;
   voiceBoostEnabled: boolean;
   trimSilencesEnabled: boolean;
@@ -83,6 +85,7 @@ interface AudioPlayerSheetProps {
   onSkipBack: () => void;
   onSkipForward: () => void;
   onSeek: (ms: number) => void;
+  onRetryPlayback: () => void;
   onCyclePlaybackRate: () => void;
   onVoiceBoostChange: (enabled: boolean) => void;
   onTrimSilencesChange: (enabled: boolean) => void;
@@ -98,6 +101,8 @@ export function AudioPlayerSheet({
   isPlaying,
   positionMs,
   durationMs,
+  playbackLoading,
+  playbackError,
   playbackRate,
   voiceBoostEnabled,
   trimSilencesEnabled,
@@ -107,6 +112,7 @@ export function AudioPlayerSheet({
   onSkipBack,
   onSkipForward,
   onSeek,
+  onRetryPlayback,
   onCyclePlaybackRate,
   onVoiceBoostChange,
   onTrimSilencesChange,
@@ -173,6 +179,13 @@ export function AudioPlayerSheet({
   const compactHero = showDiscussionPanel && keyboardOffset > 0;
   const panelExpanded =
     showDiscussionPanel || showContentPanel || showThemesPanel;
+  const controlsDisabled = Boolean(playbackError) || playbackLoading;
+  const playbackErrorMessage =
+    playbackError === 'playbackUnavailable'
+      ? t('audioPlayer:playbackUnavailable')
+      : playbackError
+        ? t('audioPlayer:playbackLoadFailed')
+        : null;
 
   function renderPanelBody() {
     if (showOptionsPanel) {
@@ -228,14 +241,34 @@ export function AudioPlayerSheet({
           ) : null}
 
           <View style={styles.timelineBlock}>
+            {playbackLoading ? (
+              <Text style={styles.playbackStatusText}>{t('audioPlayer:playbackLoading')}</Text>
+            ) : null}
+            {playbackErrorMessage ? (
+              <View style={styles.playbackErrorBlock}>
+                <Text style={styles.playbackErrorText}>{playbackErrorMessage}</Text>
+                <Pressable
+                  onPress={onRetryPlayback}
+                  style={styles.playbackRetryButton}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('audioPlayer:retryPlayback')}
+                >
+                  <Text style={styles.playbackRetryText}>{t('common:retry')}</Text>
+                </Pressable>
+              </View>
+            ) : null}
             <Pressable
               style={styles.progressTrack}
               onLayout={(event) => {
                 trackWidthRef.current = event.nativeEvent.layout.width;
               }}
-              onPress={(event) => handleSeekPress(event.nativeEvent.locationX)}
+              onPress={(event) => {
+                if (controlsDisabled) return;
+                handleSeekPress(event.nativeEvent.locationX);
+              }}
               accessibilityRole="adjustable"
               accessibilityLabel={t('common:audioPosition')}
+              accessibilityState={{ disabled: controlsDisabled }}
               accessibilityValue={{
                 min: 0,
                 max: durationMs,
@@ -260,8 +293,10 @@ export function AudioPlayerSheet({
             <Pressable
               style={styles.skipButton}
               onPress={onSkipBack}
+              disabled={controlsDisabled}
               accessibilityRole="button"
               accessibilityLabel={t('common:rewind15')}
+              accessibilityState={{ disabled: controlsDisabled }}
             >
               <Ionicons name="play-back" size={28} color={colors.ink} />
               <Text style={styles.skipLabel}>15 s</Text>
@@ -271,10 +306,18 @@ export function AudioPlayerSheet({
               style={({ pressed }) => [
                 styles.playButton,
                 pressed && styles.playButtonPressed,
+                controlsDisabled && styles.playButtonDisabled,
               ]}
               onPress={onTogglePlay}
+              disabled={playbackLoading}
               accessibilityRole="button"
-              accessibilityLabel={isPlaying ? t('common:pauseGuide') : t('common:playGuide')}
+              accessibilityLabel={
+                playbackError
+                  ? t('audioPlayer:retryPlayback')
+                  : isPlaying
+                    ? t('common:pauseGuide')
+                    : t('common:playGuide')
+              }
             >
               <Ionicons
                 name={isPlaying ? 'pause' : 'play'}
@@ -287,8 +330,10 @@ export function AudioPlayerSheet({
             <Pressable
               style={styles.skipButton}
               onPress={onSkipForward}
+              disabled={controlsDisabled}
               accessibilityRole="button"
               accessibilityLabel={t('common:forward30')}
+              accessibilityState={{ disabled: controlsDisabled }}
             >
               <Ionicons name="play-forward" size={28} color={colors.ink} />
               <Text style={styles.skipLabel}>30 s</Text>
@@ -524,6 +569,36 @@ const styles = StyleSheet.create({
   },
   timelineBlock: {
     gap: spacing.sm,
+  },
+  playbackStatusText: {
+    ...textStyle('bodySm'),
+    color: colors.muted,
+    textAlign: 'center',
+  },
+  playbackErrorBlock: {
+    gap: spacing.sm,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceStrong,
+  },
+  playbackErrorText: {
+    ...textStyle('bodySm'),
+    color: colors.ink,
+    textAlign: 'center',
+  },
+  playbackRetryButton: {
+    alignSelf: 'center',
+    minHeight: componentSizes.iconControlSize,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.md,
+  },
+  playbackRetryText: {
+    ...textStyle('buttonSm'),
+    color: colors.primary,
+    fontWeight: '600',
+  },
+  playButtonDisabled: {
+    opacity: 0.55,
   },
   progressTrack: {
     height: 4,
