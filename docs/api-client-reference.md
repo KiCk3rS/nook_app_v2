@@ -229,7 +229,8 @@ Implémentation : `src/discovery/discovery.controller.ts`.
 
 **`GET /cities`** — query : `q`, `promoted`, `popular`, `limit`, `offset`  
 Réponse : `PaginatedResponse<CityListItemDto>` (`nook_api_v2/src/cities/dto/list-cities.response.dto.ts`) — cover pré-signée, `stats` (stubs 0 en phase 1), `isPromoted`.  
-Seules les villes `status = PUBLISHED`. Tri : `sortOrder DESC, name ASC, id ASC` (éditorial / `popular`) ; `name ASC, id ASC` si `q`.
+Seules les villes `status = PUBLISHED`. Tri : `sortOrder DESC, name ASC, id ASC` (éditorial / `popular` / `promoted`) ; `name ASC, id ASC` si `q`.  
+`popular=true` : alias section A4.1 — même jeu et tri que la liste par défaut (pas de filtre additionnel).
 
 **`GET /cities/:slugOrId/hub`** — réponse cible : `CityHubResponseDto` — **T17**.
 
