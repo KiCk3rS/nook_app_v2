@@ -16,9 +16,9 @@ Implémenter `GET /api/v1/cities/:slugOrId/hub` — vitrine hub ville (héros, c
 
 ## Prérequis
 
-- [ ] T15 : module `Cities` + seed Paris/Lyon
-- [ ] POI publiés référençables pour `mustSeePois` / `recommendedPois`
-- [ ] Spec F-018 phase 2 lue (itineraries éditoriaux peuvent rester vides ou mock côté app en phase 2)
+- [x] T15 : module `Cities` + seed Paris/Lyon
+- [x] POI publiés référençables pour `mustSeePois` / `recommendedPois`
+- [x] Spec F-018 phase 2 lue (itineraries éditoriaux peuvent rester vides ou mock côté app en phase 2)
 
 ## Endpoint
 
@@ -28,27 +28,27 @@ Implémenter `GET /api/v1/cities/:slugOrId/hub` — vitrine hub ville (héros, c
 
 ### Contenu minimal MVP hub
 
-- [ ] Métadonnées ville (nom, subtitle, `coverImage`, `map` bbox)
-- [ ] `mustSeePois[]` — snippets POI ordonnés (réutiliser DTO POI summary)
-- [ ] `recommendedPois[]` (optionnel phase 2)
-- [ ] `itineraryCategories[]` — slugs + labels (peut être vide)
-- [ ] `featuredPremiumItinerary` — null OK si pas d'API éditoriale (T21)
-- [ ] `touristPasses[]`, `affiliateExperiences[]` — optionnel ou tableau vide
+- [x] Métadonnées ville (nom, subtitle, `coverImage`, `map` bbox)
+- [x] `mustSeePois[]` — snippets POI ordonnés (réutiliser DTO POI summary)
+- [x] `recommendedPois[]` (optionnel phase 2)
+- [x] `itineraryCategories[]` — slugs + labels (peut être vide)
+- [x] `featuredPremiumItinerary` — null OK si pas d'API éditoriale (T21)
+- [x] `touristPasses[]`, `affiliateExperiences[]` — optionnel ou tableau vide
 
 ## Étapes
 
-- [ ] DTO `CityHubResponseDto` sous `src/cities/dto/`
-- [ ] Service : agrégation POI + relations ville (pas de N+1 — voir règle query optimization)
-- [ ] 404 ville absente / non publiée
-- [ ] Seed hub Paris aligné contenu mock actuel (must-see IDs API)
-- [ ] Swagger + contrat + copie app
+- [x] DTO `CityHubResponseDto` sous `src/cities/dto/`
+- [x] Service : agrégation POI + relations ville (pas de N+1 — voir règle query optimization)
+- [x] 404 ville absente / non publiée
+- [x] Seed hub Paris aligné contenu mock actuel (must-see IDs API)
+- [x] Swagger + contrat + copie app
 
 ## Critères d'acceptation
 
-- [ ] `GET /cities/paris/hub` retourne hub complet exploitable par `TerritorialHubView`
-- [ ] POI must-see résolus avec id/titre/coords/catégorie
-- [ ] `npm test` vert + e2e hub
-- [ ] EXPLAIN sur requêtes hub si SQL non trivial
+- [x] `GET /cities/paris/hub` retourne hub complet exploitable par `TerritorialHubView`
+- [x] POI must-see résolus avec id/titre/coords/catégorie
+- [x] `npm test` vert + e2e hub
+- [ ] EXPLAIN sur requêtes hub si SQL non trivial (à valider sur DB locale après migrate/seed)
 
 ## Références
 

@@ -1,4 +1,4 @@
-import type { CitySummary, PaginatedResponse } from '../../types/api';
+import type { CityHub, CitySummary, PaginatedResponse } from '../../types/api';
 import { apiRequest, buildQuery } from './client';
 
 export interface ListCitiesQuery {
@@ -51,4 +51,10 @@ export async function searchCities(
   if (!trimmed) return [];
   const { items } = await fetchCities({ q: trimmed, limit, offset: 0 });
   return items;
+}
+
+/** `GET /api/v1/cities/:slugOrId/hub` — vitrine hub ville (F-018-b). */
+export function fetchCityHub(slugOrId: string): Promise<CityHub> {
+  const key = slugOrId.trim();
+  return apiRequest<CityHub>(`/cities/${encodeURIComponent(key)}/hub`);
 }

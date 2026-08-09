@@ -120,6 +120,63 @@ export interface CitySummary {
   isPromoted: boolean;
 }
 
+/** Centre / bbox hub ville (`GET /api/v1/cities/:slugOrId/hub`). */
+export interface CityHubMapCenter {
+  lat: number;
+  lng: number;
+}
+
+export interface CityHubMapBbox {
+  north: number;
+  south: number;
+  east: number;
+  west: number;
+}
+
+export interface CityHubMap {
+  center: CityHubMapCenter | null;
+  bbox: CityHubMapBbox | null;
+  latitudeDelta: number;
+  longitudeDelta: number;
+}
+
+export interface CityHubStats {
+  publishedPoiCount: number;
+  editorialItineraryCount: number;
+}
+
+/** Snippet POI hub — aligné discovery sans `publishedAt`. */
+export interface CityHubPoiSnippet {
+  id: string;
+  title: string;
+  parentPoiId: string | null;
+  lat: number | null;
+  lng: number | null;
+  categories: PoiCategory[];
+  popularity: DiscoveryPopularity | null;
+  coverImage: DiscoveryCoverImage | null;
+}
+
+/**
+ * Réponse `GET /api/v1/cities/:slugOrId/hub` (F-018-b).
+ * Catégories / premium / affiliation : clés présentes, payloads différés.
+ */
+export interface CityHub {
+  id: string;
+  slug: string;
+  name: string;
+  subtitle: string | null;
+  coverImage: DiscoveryCoverImage | null;
+  map: CityHubMap;
+  stats: CityHubStats;
+  itineraryCategories: Record<string, unknown>[];
+  featuredPremiumItinerary: Record<string, unknown> | null;
+  mustSeePois: CityHubPoiSnippet[];
+  recommendedPois: CityHubPoiSnippet[];
+  touristPasses: Record<string, unknown>[];
+  affiliateExperiences: Record<string, unknown>[];
+}
+
 export interface AudioAudience {
   slug: string;
   label: string;

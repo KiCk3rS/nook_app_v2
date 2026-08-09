@@ -1,5 +1,6 @@
 import {
   fetchCities,
+  fetchCityHub,
   fetchPopularCities,
   fetchPromotedCities,
   searchCities,
@@ -30,6 +31,38 @@ const sampleCity = {
     districtHubCount: 0,
   },
   isPromoted: true,
+};
+
+const sampleHub = {
+  id: 'city-paris',
+  slug: 'paris',
+  name: 'Paris',
+  subtitle: '9 guides audio · 5 parcours',
+  coverImage: null,
+  map: {
+    center: { lat: 48.8566, lng: 2.3522 },
+    bbox: { north: 48.92, south: 48.8, east: 2.45, west: 2.22 },
+    latitudeDelta: 0.06,
+    longitudeDelta: 0.115,
+  },
+  stats: { publishedPoiCount: 5, editorialItineraryCount: 0 },
+  itineraryCategories: [],
+  featuredPremiumItinerary: null,
+  mustSeePois: [
+    {
+      id: 'poi-1',
+      title: 'Notre-Dame de Paris',
+      parentPoiId: null,
+      lat: 48.853,
+      lng: 2.3499,
+      categories: [{ slug: 'culture', label: 'Culture' }],
+      popularity: null,
+      coverImage: null,
+    },
+  ],
+  recommendedPois: [],
+  touristPasses: [],
+  affiliateExperiences: [],
 };
 
 describe('fetchCities', () => {
@@ -124,5 +157,26 @@ describe('fetchPromotedCities / fetchPopularCities / searchCities', () => {
       expect.any(Object),
     );
     expect(items[0]?.id).toBe('city-paris');
+  });
+});
+
+describe('fetchCityHub', () => {
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+
+  it('appelle GET /cities/:slugOrId/hub', async () => {
+    global.fetch = jest.fn().mockResolvedValue(
+      jsonResponse(sampleHub),
+    ) as typeof fetch;
+
+    const hub = await fetchCityHub('paris');
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:3000/api/v1/cities/paris/hub',
+      expect.any(Object),
+    );
+    expect(hub.slug).toBe('paris');
+    expect(hub.mustSeePois).toHaveLength(1);
   });
 });
