@@ -1,22 +1,7 @@
-export {
-  bootstrapFavoritePlaces,
-  shouldUseServerFavorites,
-  type FavoriteBootstrapResult,
-} from './bootstrapFavorites';
-
-export {
-  createOptimisticPlaceItem,
-  emptyPlaceState,
-  isPlaceInState,
-  placeStateFromItems,
-  placeStateFromLocalIds,
-  setPlaceFavoriteInState,
-  type FavoritePlacesState,
-} from './placeStore';
-
-export {
-  shouldApplyToggleResult,
-  syncPlaceFavoriteWithServer,
-  type PlaceFavoriteSyncApi,
-  type PlaceFavoriteSyncResult,
-} from './syncPlaceFavorite';
+/** Ignore le résultat si une bascule plus récente a été lancée pour la même cible. */
+export function shouldApplyToggleResult(
+  currentGeneration: number | undefined,
+  expectedGeneration: number,
+): boolean {
+  return currentGeneration === expectedGeneration;
+}

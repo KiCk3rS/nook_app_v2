@@ -42,3 +42,30 @@ export function logout(refreshToken: string): Promise<{ ok: boolean }> {
     body: { refreshToken },
   });
 }
+
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export function requestForgotPassword(
+  payload: ForgotPasswordPayload,
+): Promise<{ ok: boolean }> {
+  return apiRequest<{ ok: boolean }>('/auth/forgot-password', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  password: string;
+}
+
+export function resetPassword(
+  payload: ResetPasswordPayload,
+): Promise<{ ok: boolean }> {
+  return apiRequest<{ ok: boolean }>('/auth/reset-password', {
+    method: 'POST',
+    body: payload,
+  });
+}

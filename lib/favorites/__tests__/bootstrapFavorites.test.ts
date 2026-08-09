@@ -11,6 +11,7 @@ jest.mock('../../favoritesStorage', () => ({
 
 jest.mock('../../api/favorites', () => ({
   fetchAllFavorites: jest.fn(),
+  partitionFavoriteItems: jest.requireActual('../../api/favorites').partitionFavoriteItems,
 }));
 
 const { shouldUseMockData } = jest.requireMock('../../config') as {
@@ -55,30 +56,43 @@ describe('bootstrapFavoritePlaces', () => {
 
     expect(fetchAllFavorites).not.toHaveBeenCalled();
     expect(result.places.order).toEqual(['mock-a']);
-    expect(result.itineraryIds).toEqual(['itin-1']);
+    expect(result.itineraries.order).toEqual(['itin-1']);
     expect(result.useServer).toBe(false);
   });
 
-  it('mode serveur : source of truth API et purge des placeIds locaux', async () => {
+  it('mode serveur : source of truth API (POI + éditoriaux) et purge locale', async () => {
     loadStoredFavorites.mockResolvedValue({
       placeIds: ['ghost-local'],
-      itineraryIds: ['itin-1'],
+      itineraryIds: ['itin-local'],
     });
     fetchAllFavorites.mockResolvedValue([
       {
-        id: 'f1',
-        poiId: 'poi-server',
+        targetType: 'poi',
+        id: 'poi-server',
         createdAt: '2026-07-05T10:00:00.000Z',
-        poi: { title: 'Serveur', status: 'PUBLISHED' },
+        target: { id: 'poi-server', title: 'Serveur', status: 'PUBLISHED' },
+      },
+      {
+        targetType: 'editorial_itinerary',
+        id: 'ei-server',
+        createdAt: '2026-07-05T09:00:00.000Z',
+        target: {
+          id: 'ei-server',
+          slug: 'balade',
+          title: 'Balade',
+          coverImageUrl: null,
+        },
       },
     ]);
 
     const result = await bootstrapFavoritePlaces(true);
 
     expect(result.places.order).toEqual(['poi-server']);
+    expect(result.itineraries.order).toEqual(['ei-server']);
+    expect(result.itineraries.items.get('ei-server')?.target.title).toBe('Balade');
     expect(saveStoredFavorites).toHaveBeenCalledWith({
       placeIds: [],
-      itineraryIds: ['itin-1'],
+      itineraryIds: [],
     });
     expect(result.useServer).toBe(true);
   });
@@ -86,13 +100,14 @@ describe('bootstrapFavoritePlaces', () => {
   it('mode serveur offline : fallback local sans merge fantôme post-fetch', async () => {
     loadStoredFavorites.mockResolvedValue({
       placeIds: ['offline-a'],
-      itineraryIds: [],
+      itineraryIds: ['itin-offline'],
     });
     fetchAllFavorites.mockRejectedValue(new Error('network'));
 
     const result = await bootstrapFavoritePlaces(true);
 
     expect(result.places.order).toEqual(['offline-a']);
+    expect(result.itineraries.order).toEqual(['itin-offline']);
     expect(saveStoredFavorites).not.toHaveBeenCalled();
   });
 });

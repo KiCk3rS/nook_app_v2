@@ -4,6 +4,11 @@ import type {
   TouristPassItem,
 } from '../../constants/mockCities';
 import type { MockDistrict } from '../../constants/mockDistricts';
+import { itineraryCategories } from '../../constants/itineraryCategories';
+import {
+  countItinerariesByCategory,
+  getItineraryById,
+} from '../../constants/mockItineraries';
 import { getPlaceById, type MockPlace } from '../../constants/mockPlaces';
 import { PLACE_IMAGE_PLACEHOLDER } from '../../constants/placeImages';
 import type {
@@ -12,7 +17,12 @@ import type {
   CityHubPoiSnippet,
   DistrictHub,
   DistrictHubRef,
+  EditorialItinerary,
 } from '../../types/api';
+import {
+  mapEditorialItineraryCategoryCounts,
+  mapEditorialItineraryHubSummary,
+} from './editorialItineraries';
 import { poiCardLikeToMockPlace } from './poi';
 
 /** Région carte pour CTA hub → A1.1. */
@@ -32,7 +42,8 @@ export interface TerritorialHubData {
   subtitle: string;
   mustSeePlaces: MockPlace[];
   recommendedPlaces: MockPlace[];
-  featuredPremiumItineraryId: string | null;
+  featuredPremiumItinerary: EditorialItinerary | null;
+  itineraryCategoryCounts: Record<string, number>;
   touristPasses: TouristPassItem[];
   affiliateExperiences: AffiliateExperienceItem[];
   parentCityName?: string;
@@ -60,6 +71,25 @@ function mapHubPois(pois: CityHubPoiSnippet[]): MockPlace[] {
   return pois.map(cityHubPoiSnippetToMockPlace);
 }
 
+function mockFeaturedFromId(
+  featuredId: string | null | undefined,
+): EditorialItinerary | null {
+  if (!featuredId) return null;
+  return getItineraryById(featuredId) ?? null;
+}
+
+function mockCategoryCounts(
+  citySlug: string,
+  districtSlug?: string,
+): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const cat of itineraryCategories) {
+    const n = countItinerariesByCategory(citySlug, cat.slug, districtSlug);
+    if (n > 0) counts[cat.slug] = n;
+  }
+  return counts;
+}
+
 export function cityHubPoiSnippetToMockPlace(poi: CityHubPoiSnippet): MockPlace {
   return poiCardLikeToMockPlace({
     id: poi.id,
@@ -82,16 +112,27 @@ function hubCoreToData(
     | 'map'
     | 'mustSeePois'
     | 'recommendedPois'
+    | 'itineraryCategories'
+    | 'featuredPremiumItinerary'
   >,
   extras: Pick<
     TerritorialHubData,
     'citySlug' | 'districtSlug' | 'parentCityName'
   > & {
-    featuredPremiumItineraryId?: string | null;
+    featuredPremiumItinerary?: EditorialItinerary | null;
+    itineraryCategoryCounts?: Record<string, number>;
     touristPasses?: TouristPassItem[];
     affiliateExperiences?: AffiliateExperienceItem[];
   },
 ): TerritorialHubData {
+  const featured =
+    extras.featuredPremiumItinerary ??
+    mapEditorialItineraryHubSummary(
+      hub.featuredPremiumItinerary,
+      extras.citySlug,
+      extras.districtSlug ?? null,
+    );
+
   return {
     citySlug: extras.citySlug,
     districtSlug: extras.districtSlug,
@@ -100,7 +141,10 @@ function hubCoreToData(
     subtitle: hub.subtitle?.trim() ?? '',
     mustSeePlaces: mapHubPois(hub.mustSeePois),
     recommendedPlaces: mapHubPois(hub.recommendedPois),
-    featuredPremiumItineraryId: extras.featuredPremiumItineraryId ?? null,
+    featuredPremiumItinerary: featured,
+    itineraryCategoryCounts:
+      extras.itineraryCategoryCounts ??
+      mapEditorialItineraryCategoryCounts(hub.itineraryCategories),
     touristPasses: extras.touristPasses ?? [],
     affiliateExperiences: extras.affiliateExperiences ?? [],
     parentCityName: extras.parentCityName,
@@ -110,7 +154,7 @@ function hubCoreToData(
 
 /**
  * `GET /cities/:slug/hub` → données TerritorialHubView.
- * Pass / premium / expériences : stubs API vides jusqu’à F-018-d / T21.
+ * Pass / expériences : stubs API vides jusqu’à F-018-d.
  */
 export function cityHubToHubData(hub: CityHub): TerritorialHubData {
   return hubCoreToData(hub, { citySlug: hub.slug });
@@ -130,6 +174,7 @@ export function districtHubToHubData(hub: DistrictHub): TerritorialHubData {
 
 /** Mode démo (`!isApiConfigured()`). */
 export function mockCityToHubData(city: MockCity): TerritorialHubData {
+  const featured = mockFeaturedFromId(city.featuredPremiumItineraryId);
   return {
     citySlug: city.slug,
     name: city.name,
@@ -137,7 +182,8 @@ export function mockCityToHubData(city: MockCity): TerritorialHubData {
     subtitle: city.subtitle,
     mustSeePlaces: resolveMockPlacesByIds(city.mustSeePoiIds),
     recommendedPlaces: resolveMockPlacesByIds(city.recommendedPoiIds),
-    featuredPremiumItineraryId: city.featuredPremiumItineraryId,
+    featuredPremiumItinerary: featured,
+    itineraryCategoryCounts: mockCategoryCounts(city.slug),
     touristPasses: city.touristPasses,
     affiliateExperiences: city.affiliateExperiences,
     mapRegion: city.mapRegion,
@@ -161,7 +207,7 @@ export function mockDistrictToHubData(
         }
       : p,
   );
-  // Ancre peut ne pas être dans must-see : on n’enrichit que les lieux résolus.
+  const featured = mockFeaturedFromId(district.featuredPremiumItineraryId);
   return {
     citySlug,
     districtSlug: district.slug,
@@ -170,7 +216,8 @@ export function mockDistrictToHubData(
     subtitle: district.subtitle,
     mustSeePlaces: places,
     recommendedPlaces: resolveMockPlacesByIds(district.recommendedPoiIds),
-    featuredPremiumItineraryId: district.featuredPremiumItineraryId,
+    featuredPremiumItinerary: featured,
+    itineraryCategoryCounts: mockCategoryCounts(citySlug, district.slug),
     touristPasses: [],
     affiliateExperiences: district.affiliateExperiences,
     parentCityName: cityName,

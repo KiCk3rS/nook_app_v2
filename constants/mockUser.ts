@@ -14,6 +14,7 @@ export const DEFAULT_MOCK_USER: User = {
   lastName: 'Martin',
   birthDate: null,
   role: 'USER',
+  createdAt: '2025-03-01T00:00:00.000Z',
 };
 
 export const DEFAULT_MOCK_PROFILE: MeProfile = {

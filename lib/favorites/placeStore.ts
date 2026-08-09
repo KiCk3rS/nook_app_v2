@@ -1,24 +1,24 @@
 import { getPlaceById } from '../../constants/mockPlaces';
-import type { FavoriteItem } from '../../types/api';
+import type { FavoritePoiItem } from '../../types/api';
 import type { PlaceFavoriteHint } from '../../types/favorites';
 
 /** État unifié des lieux favoris (local ou serveur). */
 export interface FavoritePlacesState {
   order: string[];
-  items: Map<string, FavoriteItem>;
+  items: Map<string, FavoritePoiItem>;
 }
 
 export function emptyPlaceState(): FavoritePlacesState {
   return { order: [], items: new Map() };
 }
 
-export function placeStateFromItems(items: readonly FavoriteItem[]): FavoritePlacesState {
-  const map = new Map<string, FavoriteItem>();
+export function placeStateFromItems(items: readonly FavoritePoiItem[]): FavoritePlacesState {
+  const map = new Map<string, FavoritePoiItem>();
   const order: string[] = [];
   for (const item of items) {
-    if (map.has(item.poiId)) continue;
-    map.set(item.poiId, item);
-    order.push(item.poiId);
+    if (map.has(item.id)) continue;
+    map.set(item.id, item);
+    order.push(item.id);
   }
   return { order, items: map };
 }
@@ -38,7 +38,7 @@ export function setPlaceFavoriteInState(
   state: FavoritePlacesState,
   poiId: string,
   favorite: boolean,
-  item?: FavoriteItem,
+  item?: FavoritePoiItem,
 ): FavoritePlacesState {
   const order = [...state.order];
   const items = new Map(state.items);
@@ -65,14 +65,14 @@ export function setPlaceFavoriteInState(
 export function createOptimisticPlaceItem(
   poiId: string,
   hint?: PlaceFavoriteHint,
-): FavoriteItem {
+): FavoritePoiItem {
   const mock = getPlaceById(poiId);
   const title = hint?.title?.trim() || mock?.name || '';
 
   return {
-    id: '',
-    poiId,
+    targetType: 'poi',
+    id: poiId,
     createdAt: new Date().toISOString(),
-    poi: { title, status: 'PUBLISHED' },
+    target: { id: poiId, title, status: 'PUBLISHED' },
   };
 }

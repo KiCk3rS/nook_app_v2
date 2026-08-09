@@ -1,10 +1,19 @@
 import type {
   PaginatedResponse,
+  UserItinerary,
   UserItineraryStep,
 } from '../../types/api';
 import type { UserItineraryDetail } from '../api/itineraries';
 
 export const ITINERARIES_PAGE_SIZE = 20;
+
+/** Cover API si présente ; sinon `undefined` → placeholder UI (pas de mock silencieux). */
+export function resolveCoverImageUrl(
+  itinerary: Pick<UserItinerary, 'coverImageUrl'>,
+): string | undefined {
+  const url = itinerary.coverImageUrl?.trim();
+  return url || undefined;
+}
 
 /** Réponse brute GET/POST/PATCH `/itineraries/:id`. */
 export interface ItineraryDetailApiResponse {

@@ -4,6 +4,13 @@ export interface PlaceFavoriteHint {
   imageUrl?: string | null;
 }
 
+/** Hint optimiste pour favori itinéraire éditorial (UUID + méta affichables). */
+export interface ItineraryFavoriteHint {
+  title?: string;
+  slug?: string;
+  coverImageUrl?: string | null;
+}
+
 /** Lieu favori affiché dans la liste (mock ou snippet API). */
 export interface FavoritePlaceView {
   id: string;

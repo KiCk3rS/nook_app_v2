@@ -66,18 +66,17 @@ shouldShowDemoLogin() = !isApiConfigured() OU __DEV__
 
 **`mockItineraries`** — 15 imports : hubs ville, favoris itinéraires, paywall, guidage éditorial.
 
-**`getPlaceById` en prod (appels résiduels hors démo)** :
+**`getPlaceById` en prod (appels résiduels hors démo)** — post-T20 :
 
-| Fichier | Contexte |
-|---------|----------|
-| `app/(tabs)/index.tsx` | Preview POI sélectionné hors bbox courante |
-| `lib/mappers/favorites.ts` | Enrichissement image/catégorie favori |
-| `lib/favorites/placeStore.ts` | Hint optimiste sans snippet API |
-| `components/itineraries/UserItineraryCard.tsx` | Cover image parcours user |
-| `components/city/TerritorialHubView.tsx` | Must-see / recommended POI du hub |
-| `app/city/.../itinerary/[id].tsx` | Étapes itinéraire éditorial |
-| `lib/itineraryMap.ts` | Carte parcours (IDs → coordonnées) |
-| `components/guidance/GuidanceExperience.tsx` | Guidage éditorial mock |
+| Fichier | Contexte | Statut |
+|---------|----------|--------|
+| `lib/favorites/placeStore.ts` | Hint optimiste sans snippet API | Résidu mineur (titre hint) |
+| `components/city/TerritorialHubView.tsx` / `lib/mappers/cityHub.ts` | Must-see / recommended POI du hub | Éditorial → [T21](./T21-backlog-p3.md) |
+| `app/city/.../itinerary/[id].tsx` | Étapes itinéraire éditorial | Éditorial → T21 |
+| `lib/itineraryMap.ts` | Carte parcours (IDs → coordonnées) | Éditorial → T21 |
+| `components/guidance/GuidanceExperience.tsx` | Guidage éditorial mock | Éditorial → T21 |
+
+Résidus traités en T20 : preview carte hors bbox (accepte `null`), favoris (`favoriteItemToPlaceView` snippet API), covers parcours user (placeholder / `coverImageUrl`).
 
 ---
 
@@ -87,7 +86,7 @@ Matrice : **API** = branché · **Mock** = données locales · **Hybride** = API
 
 | Écran / flux | Spec | Source prod | Cat. | Besoin API / app |
 |--------------|------|-------------|------|------------------|
-| Carte accueil | A1.1 | `GET /pois` (bbox) | API | Preview hors bbox → `getPlaceById` (**C**) |
+| Carte accueil | A1.1 | `GET /pois` (bbox) | API | Preview hors bbox → `null` (T20) |
 | Recherche POI | A2.1 | `GET /pois?q=` | API | Villes → `mockCities` (**B**, F-018-a) |
 | Recherche — villes promues | A2.1 | `searchDiscovery` + `mockCities` | Mock | `GET /cities?promoted=true` |
 | Discovery (3 sections) | A4.1 | `GET /discovery/*` | API | Erreur API → vide (pas fallback mock) |
@@ -97,16 +96,16 @@ Matrice : **API** = branché · **Mock** = données locales · **Hybride** = API
 | Lecteur — transcript | A3.2 | `mockGuideTranscripts` | Mock | `GET /audio-guides/:id/transcript` (**B**) |
 | Lecteur — chat | A3.2 | `GET/POST .../guide-chat` | API | OK (F-016) |
 | Création guide IA | A3.3 | `POST .../audio-guides/generate` | API | URL Wikipedia non pré-remplie si POI hors seed mock (**B**) |
-| Favoris lieux | A8.4 | `GET/POST/DELETE /me/favorites` | Hybride | Snippet API ; fallback `getPlaceById` (**C**) |
+| Favoris lieux | A8.4 | `GET/POST/DELETE /me/favorites` | API | Snippet API (T20) ; hint mock démo uniquement |
 | Favoris itinéraires | A8.4 | `mockItineraries` + AsyncStorage | Mock | Décision produit (§6) |
 | Historique écoute | A8.3 | `GET /me/listen-history` | API | OK (F-012) |
-| Liste parcours user | A5.1 | `GET /itineraries` | API | Cover via `getPlaceById` (**C**) |
+| Liste parcours user | A5.1 | `GET /itineraries` | API | Cover : `coverImageUrl` ou placeholder (T20) |
 | Guidage parcours user | A5.5 | `GET /itineraries/:id` | API | OK (F-010) |
 | Hub ville | A4.3 | `mockCities` | Mock | F-018-b |
 | Hub quartier | A4.5 | `mockDistricts` | Mock | F-018 (phase 3) |
 | Itinéraires éditoriaux | A5.6–A5.7 | `mockItineraries` | Mock | Endpoint éditorial à définir |
-| Profil — compteurs | A6.2 | API `me`, listen-history, itineraries | Hybride | `routesCount` API ; `recentRoutes` vide (**C**, app only) |
-| Profil — memberSince / villes | A6.2 | mock en démo ; absent en prod | — | Champ `user.createdAt` ou stats dédiées |
+| Profil — compteurs | A6.2 | API `me`, listen-history, itineraries | API | `routesCount` + `recentRoutes` via `GET /itineraries?limit=3` (T20) |
+| Profil — memberSince / villes | A6.2 | `user.createdAt` ; villes 0 en prod | API / — | memberSince formaté (T20) ; villes reportées |
 | Crédits / packs | A3.3 | `GET /me/credits`, `POST .../purchase` | Hybride | `CREDIT_PACK_OPTIONS` hardcodé ; purchase stub API |
 | Auth login/register | A6.1 | API auth | API | OK |
 | Mot de passe oublié | A6.3 | `setTimeout` simulé | Mock | `POST /auth/forgot-password` |
@@ -125,7 +124,7 @@ Analyse code + matrice [T10-qa-production.md](./T10-qa-production.md), session *
 | 3 | Fiche lieu API → onglet Contenu | Transcript vide sauf guides `1-a` / `2-a` (IDs seed mock) | Mock | **Mock confirmé** |
 | 4 | Fiche lieu API → créer guide IA | `wikipediaUrl` vide : `poiDetailToMockPlace` ne mappe pas le champ ; `getPlaceWikipediaUrl` retourne `undefined` | Lacune | **Bloquant P0** |
 | 5 | Favoris → onglet itinéraires | Liste depuis `getItineraryById` sur IDs locaux AsyncStorage | Mock | **Mock confirmé** |
-| 6 | Profil → parcours récents | `recentRoutes = []` si `!useMockData` ; `routesCount` depuis API | Hybride | **App gap P2** |
+| 6 | Profil → parcours récents | `fetchItineraries({ limit: 3 })` si `!useMockData` | API | **OK (T20)** |
 
 ### Matrice T10 complétée (source de données, prod)
 
@@ -155,13 +154,13 @@ Analyse code + matrice [T10-qa-production.md](./T10-qa-production.md), session *
 | INV-04 | Liste / recherche villes | `mockCities`, `searchPlaces`, `searchDiscovery` | Toujours mock | `GET /api/v1/cities` (`q`, `promoted`, `popular`) | F-018-a | **P1** | API L · App M |
 | INV-05 | Hub ville A4.3 | `mockCities`, `TerritorialHubView`, `app/city/[slug]` | 100 % mock | `GET /api/v1/cities/:slug/hub` | F-018-b | **P2** | API L · App L |
 | INV-06 | Hub quartier A4.5 | `mockDistricts`, `app/city/.../district` | 100 % mock | Extension F-018 hub ou `districts` | F-018 | **P2** | API L · App M |
-| INV-07 | Parcours récents profil | `profil.tsx` L86–88 | Vide en prod | `GET /itineraries?limit=3` (existe) — branchement app | F-010 | **P2** | App S |
-| INV-08 | Cover image parcours user | `UserItineraryCard.tsx` | Fallback `getPlaceById` | Snippet POI dans réponse `GET /itineraries` ou fetch cover | F-010 | **P2** | API S · App S |
-| INV-09 | `memberSince` / villes visitées profil | `profileStats.ts` | Absent / 0 en prod | `user.createdAt` sur `GET /me` ; stats villes TBD | F-003 | **P2** | API S · App S |
-| INV-10 | Itinéraires éditoriaux + favoris | `mockItineraries`, `FavoritesContext` | 100 % mock | Module editorial + extension favoris | — | **P3** | API XL · App M |
-| INV-11 | Reset mot de passe | `forgot-password.tsx` | Simulé | `POST /auth/forgot-password` | Auth | **P3** | API M · App S |
-| INV-12 | Catalogue packs IAP | `CREDIT_PACK_OPTIONS` | Hardcodé | Catalogue produits + validation store sur `purchase` | F-015 | **P3** | API M · App M |
-| INV-13 | Preview carte hors bbox | `index.tsx` | Fallback silencieux | Optionnel : `GET /pois/:id` léger ou accepter vide | F-004 | **P3** | App S → [T20](./T20-app-profil-residus.md) lot D |
+| INV-07 | Parcours récents profil | `profil.tsx` | ✅ T20 — `fetchItineraries({ limit: 3 })` | — | F-010 | **P2** | App S |
+| INV-08 | Cover image parcours user | `UserItineraryCard.tsx` | ✅ T20 — `coverImageUrl` ou placeholder (pas mock) | Extension `coverPoi` API reportée | F-010 | **P2** | API S · App S |
+| INV-09 | `memberSince` / villes visitées profil | `profileStats.ts` | ✅ T20 — `createdAt` ; villes 0 / non affichées | Stats villes TBD | F-003 | **P2** | API S · App S |
+| INV-10 | Itinéraires éditoriaux + favoris | `mockItineraries`, `FavoritesContext` | ✅ T21 — API éditorial + favoris `editorial_itinerary` (mock démo) | — | F-018-c | **P3** | API XL · App M |
+| INV-11 | Reset mot de passe | `forgot-password.tsx` | ✅ T21 — `POST /auth/forgot-password` (+ reset ; token logué en dev) | SMTP réel | Auth | **P3** | API M · App S |
+| INV-12 | Catalogue packs IAP | `CREDIT_PACK_OPTIONS` | ✅ T21 — `GET /me/credits/packs` + purchase stub | Validation reçus store | F-015 | **P3** | API M · App M |
+| INV-13 | Preview carte hors bbox | `index.tsx` | ✅ T20 — accepte `null` (pas de mock) | Optionnel : `GET /pois/:id` léger | F-004 | **P3** | App S |
 
 **Légende effort :** S = quelques heures · M = 1–3 j · L = 1–2 sem · XL = epic produit
 
@@ -184,8 +183,8 @@ Analyse code + matrice [T10-qa-production.md](./T10-qa-production.md), session *
 | # | Question | Options | Recommandation audit | Impact si « non » |
 |---|----------|---------|----------------------|-------------------|
 | D1 | Implémenter F-018 hubs ville ? | Oui phase 1→3 / Reporter | **Oui** — débloque recherche + 9 écrans `app/city/**` | Garder `mockCities` / `mockDistricts` |
-| D2 | Exposer itinéraires éditoriaux via API ? | Module dédié / Rester mock | **Reporter P3** — périmètre explicite hors T10 | Favoris itinéraires restent locaux |
-| D3 | Synchroniser favoris itinéraires serveur ? | Étendre `me/favorites` / Local only | **Local only** tant que D2 = non | AsyncStorage cross-device perdu |
+| D2 | Exposer itinéraires éditoriaux via API ? | Module dédié / Rester mock | ✅ **Module dédié** (T21a, 2026-08-09) | — |
+| D3 | Synchroniser favoris itinéraires serveur ? | Étendre `me/favorites` / Local only | ✅ **Étendre `me/favorites`** `editorial_itinerary` (T21b) | — |
 | D4 | Transcript : public ou auth ? | Public si guide public / Bearer | Aligner sur politique audio (F-007) | — |
 | D5 | Images POI publiques : URLs signées sur détail ? | Oui (comme discovery) / CDN public | **Oui** — cohérence discovery | Placeholder permanent |
 

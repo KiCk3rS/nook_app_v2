@@ -8,19 +8,28 @@ import {
   type ReactNode,
 } from 'react';
 
-import { fetchCreditsBalance, purchaseCreditsPack as apiPurchaseCreditsPack } from '../lib/api/audioGuides';
-import type { CreditsBalance, DurationTier } from '../types/audioGuideCreation';
+import { DEMO_CREDIT_PACKS } from '../constants/creditPacks';
+import {
+  fetchCreditPacks,
+  fetchCreditsBalance,
+  purchaseCreditsPack as apiPurchaseCreditsPack,
+} from '../lib/api/audioGuides';
+import type { CreditPack, CreditsBalance, DurationTier } from '../types/audioGuideCreation';
 import { resolveAffordance } from '../lib/mockAudioGuideCreation';
 import { useAuth } from './AuthContext';
 import { usePremium } from './PremiumContext';
 
 interface CreditsContextValue {
   balance: CreditsBalance | null;
+  packs: CreditPack[];
   isLoading: boolean;
+  isLoadingPacks: boolean;
+  packsError: string | null;
   refreshBalance: () => Promise<void>;
+  loadPacks: () => Promise<void>;
   canAffordTier: (tier: DurationTier) => boolean;
   getTierPaymentLabel: (tier: DurationTier) => 'subscription_quota' | 'credits' | null;
-  purchasePack: (credits: number) => Promise<void>;
+  purchasePack: (productId: string) => Promise<void>;
 }
 
 const CreditsContext = createContext<CreditsContextValue | null>(null);
@@ -29,7 +38,10 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
   const { hasSubscription } = usePremium();
   const { isMockSession } = useAuth();
   const [balance, setBalance] = useState<CreditsBalance | null>(null);
+  const [packs, setPacks] = useState<CreditPack[]>(DEMO_CREDIT_PACKS);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingPacks, setIsLoadingPacks] = useState(false);
+  const [packsError, setPacksError] = useState<string | null>(null);
 
   const refreshBalance = useCallback(async () => {
     setIsLoading(true);
@@ -45,6 +57,20 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     }
   }, [hasSubscription, isMockSession]);
+
+  const loadPacks = useCallback(async () => {
+    setIsLoadingPacks(true);
+    setPacksError(null);
+    try {
+      const res = await fetchCreditPacks(isMockSession);
+      setPacks(res.items.length > 0 ? res.items : DEMO_CREDIT_PACKS);
+    } catch {
+      setPacks(DEMO_CREDIT_PACKS);
+      setPacksError('packs_load_failed');
+    } finally {
+      setIsLoadingPacks(false);
+    }
+  }, [isMockSession]);
 
   useEffect(() => {
     void refreshBalance();
@@ -66,21 +92,39 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     [balance, hasSubscription],
   );
 
-  const purchasePack = useCallback(async (credits: number) => {
-    const next = await apiPurchaseCreditsPack(credits, isMockSession);
-    setBalance(next);
-  }, [isMockSession]);
+  const purchasePack = useCallback(
+    async (productId: string) => {
+      const next = await apiPurchaseCreditsPack(productId, isMockSession);
+      setBalance(next);
+    },
+    [isMockSession],
+  );
 
   const value = useMemo(
     () => ({
       balance,
+      packs,
       isLoading,
+      isLoadingPacks,
+      packsError,
       refreshBalance,
+      loadPacks,
       canAffordTier,
       getTierPaymentLabel,
       purchasePack,
     }),
-    [balance, isLoading, refreshBalance, canAffordTier, getTierPaymentLabel, purchasePack],
+    [
+      balance,
+      packs,
+      isLoading,
+      isLoadingPacks,
+      packsError,
+      refreshBalance,
+      loadPacks,
+      canAffordTier,
+      getTierPaymentLabel,
+      purchasePack,
+    ],
   );
 
   return <CreditsContext.Provider value={value}>{children}</CreditsContext.Provider>;

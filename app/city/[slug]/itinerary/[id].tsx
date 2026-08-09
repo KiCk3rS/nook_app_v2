@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ActivityIndicator,
   Pressable,
   ScrollView,
   Share,
@@ -24,14 +25,9 @@ import {
 import { PaywallSheet } from '../../../../components/paywall/PaywallSheet';
 import { getCategoryLabel } from '../../../../constants/itineraryCategories';
 import { getCityBySlug } from '../../../../constants/mockCities';
-import {
-  getItineraryDifficultyLabel,
-  formatItineraryDistance,
-  formatItineraryDuration,
-  getItineraryById,
-} from '../../../../constants/mockItineraries';
-import { formatStepsCount } from '../../../../lib/i18n/formatters';
-import { getPlaceById } from '../../../../constants/mockPlaces';
+import { getItineraryDifficultyLabel } from '../../../../constants/mockItineraries';
+import { PLACE_IMAGE_PLACEHOLDER } from '../../../../constants/placeImages';
+import { getPlaceById, type MockPlace } from '../../../../constants/mockPlaces';
 import {
   colors,
   componentSizes,
@@ -41,13 +37,47 @@ import {
 } from '../../../../constants/theme';
 import { usePremium } from '../../../../contexts/PremiumContext';
 import { useFavorites } from '../../../../contexts/FavoritesContext';
+import { useEditorialItineraryDetail } from '../../../../hooks/useEditorialItineraryDetail';
 import {
   trackEditorialItineraryMapTapped,
   trackEditorialItineraryViewed,
 } from '../../../../lib/analytics';
-import { buildFocusItineraryParam, guidanceStepsFromPoiIds } from '../../../../lib/itineraryMap';
+import {
+  formatItineraryDistance,
+  formatItineraryDuration,
+  formatStepsCount,
+} from '../../../../lib/i18n/formatters';
+import {
+  editorialCoverImageUrl,
+  editorialItineraryNavKey,
+  editorialStepCount,
+} from '../../../../lib/mappers/editorialItineraries';
+import {
+  buildFocusItineraryParam,
+  guidanceStepsFromApiSteps,
+  guidanceStepsFromPoiIds,
+} from '../../../../lib/itineraryMap';
 
 const FREE_STEPS_PREVIEW = 2;
+
+function stepToPlaceLike(step: {
+  poiId: string;
+  title: string;
+  lat: number | null;
+  lng: number | null;
+}): MockPlace {
+  return {
+    id: step.poiId,
+    name: step.title || step.poiId,
+    latitude: step.lat ?? 0,
+    longitude: step.lng ?? 0,
+    categoryId: 'culture',
+    address: '',
+    imageUrl: PLACE_IMAGE_PLACEHOLDER,
+    description: '',
+    audioGuides: [],
+  };
+}
 
 export default function EditorialItineraryScreen() {
   const { t } = useTranslation(['hub', 'common']);
@@ -56,47 +86,52 @@ export default function EditorialItineraryScreen() {
   const { height: windowHeight } = useWindowDimensions();
   const { slug, id } = useLocalSearchParams<{ slug: string; id: string }>();
 
+  const citySlug = typeof slug === 'string' ? slug : '';
+  const idOrSlug = typeof id === 'string' ? id : '';
+
   const city = useMemo(
-    () => (typeof slug === 'string' ? getCityBySlug(slug) : undefined),
-    [slug],
+    () => (citySlug ? getCityBySlug(citySlug) : undefined),
+    [citySlug],
   );
-  const itinerary = useMemo(
-    () => (typeof id === 'string' ? getItineraryById(id) : undefined),
-    [id],
-  );
-  const guidanceSteps = useMemo(
-    () => (itinerary ? guidanceStepsFromPoiIds(itinerary.stepPoiIds) : []),
-    [itinerary],
-  );
+  const cityName = city?.name ?? citySlug;
+
+  const { status, itinerary, reload } = useEditorialItineraryDetail(idOrSlug || undefined);
+  const [paywallVisible, setPaywallVisible] = useState(false);
 
   const { isUnlocked } = usePremium();
   const { isItineraryFavorite, toggleItineraryFavorite } = useFavorites();
-  const unlocked = itinerary
-    ? isUnlocked(itinerary.id, itinerary.isPremium)
-    : false;
+
+  const navKey = itinerary ? editorialItineraryNavKey(itinerary) : idOrSlug;
+  const unlocked = itinerary ? isUnlocked(navKey, itinerary.isPremium) : false;
   const isFavorite = itinerary ? isItineraryFavorite(itinerary.id) : false;
 
-  const [paywallVisible, setPaywallVisible] = useState(false);
+  const guidanceSteps = useMemo(() => {
+    if (!itinerary) return [];
+    if (itinerary.steps.length > 0) {
+      return guidanceStepsFromApiSteps(itinerary.steps);
+    }
+    return guidanceStepsFromPoiIds(itinerary.stepPoiIds);
+  }, [itinerary]);
 
   const scrollTopInset = PLACE_HERO_HEIGHT - PLACE_CONTENT_OVERLAP;
   const bodyMinHeight = windowHeight - scrollTopInset + PLACE_CONTENT_OVERLAP;
 
   useEffect(() => {
-    if (itinerary && city) {
-      trackEditorialItineraryViewed(itinerary.id, city.slug, !unlocked);
+    if (itinerary && citySlug) {
+      trackEditorialItineraryViewed(navKey, citySlug, !unlocked);
     }
-  }, [itinerary, city, unlocked]);
+  }, [itinerary, citySlug, unlocked, navKey]);
 
   function handleBack() {
     router.back();
   }
 
   async function handleShare() {
-    if (!itinerary || !city) return;
+    if (!itinerary) return;
     await Share.share({
       message: t('hub:itineraryShareMessage', {
         title: itinerary.title,
-        city: city.name,
+        city: cityName,
       }),
     });
   }
@@ -107,12 +142,14 @@ export default function EditorialItineraryScreen() {
       setPaywallVisible(true);
       return;
     }
-    router.push(`/city/${slug}/itinerary/${id}/guide`);
+    router.push(`/city/${citySlug}/itinerary/${navKey}/guide`);
   }
 
   function handleStepPress(stepIndex: number) {
     if (!itinerary) return;
-    const poiId = itinerary.stepPoiIds[stepIndex];
+    const step = itinerary.steps[stepIndex];
+    const poiId = step?.poiId ?? itinerary.stepPoiIds[stepIndex];
+    if (!poiId) return;
     const stepLocked =
       itinerary.isPremium && !unlocked && stepIndex >= FREE_STEPS_PREVIEW;
 
@@ -125,14 +162,46 @@ export default function EditorialItineraryScreen() {
 
   function handleMapCta() {
     if (!itinerary) return;
-    trackEditorialItineraryMapTapped(itinerary.id);
+    trackEditorialItineraryMapTapped(navKey);
     router.push({
       pathname: '/(tabs)',
-      params: { focusItinerary: buildFocusItineraryParam(itinerary.id) },
+      params: { focusItinerary: buildFocusItineraryParam(navKey) },
     });
   }
 
-  if (!itinerary || !city) {
+  if (status === 'loading') {
+    return (
+      <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (status === 'error') {
+    return (
+      <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
+        <Text style={styles.notFoundTitle}>{t('common:errorGeneric')}</Text>
+        <Pressable
+          style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryPressed]}
+          onPress={reload}
+          accessibilityRole="button"
+          accessibilityLabel={t('common:retry')}
+        >
+          <Text style={styles.primaryText}>{t('common:retry')}</Text>
+        </Pressable>
+        <Pressable
+          style={({ pressed }) => [pressed && styles.primaryPressed]}
+          onPress={handleBack}
+          accessibilityRole="button"
+          accessibilityLabel={t('common:back')}
+        >
+          <Text style={styles.notFoundBody}>{t('common:back')}</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  if (status === 'not_found' || !itinerary) {
     return (
       <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
         <Text style={styles.notFoundTitle}>{t('hub:itineraryNotFoundTitle')}</Text>
@@ -152,14 +221,32 @@ export default function EditorialItineraryScreen() {
   const duration = formatItineraryDuration(itinerary.durationMinutes);
   const distance = formatItineraryDistance(itinerary.distanceMeters);
   const categoryLabel = getCategoryLabel(itinerary.categorySlug);
+  const coverUri = editorialCoverImageUrl(itinerary.coverImageUrl);
+  const stepCount = editorialStepCount(itinerary);
+  const stepRows =
+    itinerary.steps.length > 0
+      ? itinerary.steps
+      : itinerary.stepPoiIds.map((poiId, order) => ({
+          order,
+          poiId,
+          title: poiId,
+          lat: null as number | null,
+          lng: null as number | null,
+        }));
 
   return (
     <View style={styles.screen}>
-      <PlaceHeroBackground imageUrl={itinerary.coverImageUrl} />
+      <PlaceHeroBackground imageUrl={coverUri} />
       <PlaceHeroControls
         isFavorite={isFavorite}
         onBack={handleBack}
-        onToggleFavorite={() => itinerary && toggleItineraryFavorite(itinerary.id)}
+        onToggleFavorite={() =>
+          toggleItineraryFavorite(itinerary.id, {
+            title: itinerary.title,
+            slug: itinerary.slug,
+            coverImageUrl: itinerary.coverImageUrl,
+          })
+        }
         onShare={() => void handleShare()}
       />
 
@@ -200,10 +287,7 @@ export default function EditorialItineraryScreen() {
               icon="speedometer-outline"
               label={getItineraryDifficultyLabel(itinerary.difficulty)}
             />
-            <SummaryItem
-              icon="list-outline"
-              label={formatStepsCount(itinerary.stepPoiIds.length)}
-            />
+            <SummaryItem icon="list-outline" label={formatStepsCount(stepCount)} />
           </View>
 
           <ItineraryRouteMapPreview
@@ -212,13 +296,16 @@ export default function EditorialItineraryScreen() {
           />
 
           <Text style={styles.sectionTitle}>{t('hub:itineraryStepsSection')}</Text>
-          {itinerary.stepPoiIds.map((poiId, index) => {
-            const place = getPlaceById(poiId);
+          {stepRows.map((step, index) => {
             const stepLocked =
               itinerary.isPremium && !unlocked && index >= FREE_STEPS_PREVIEW;
+            const place =
+              itinerary.steps.length > 0
+                ? stepToPlaceLike(step)
+                : (getPlaceById(step.poiId) ?? stepToPlaceLike(step));
             return (
               <ItineraryStepRow
-                key={`${poiId}-${index}`}
+                key={`${step.poiId}-${index}`}
                 order={index + 1}
                 place={place}
                 isLocked={stepLocked}
@@ -226,7 +313,6 @@ export default function EditorialItineraryScreen() {
               />
             );
           })}
-
         </View>
       </ScrollView>
 

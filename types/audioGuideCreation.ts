@@ -15,6 +15,18 @@ export interface CreditsBalance {
   subscriptionGenerationsRemaining: number;
 }
 
+export interface CreditPack {
+  productId: string;
+  credits: number;
+  priceLabel: string;
+  currency?: string;
+  priceCents?: number;
+}
+
+export interface CreditPacksResponse {
+  items: CreditPack[];
+}
+
 export interface GenerateAudioGuidePayload {
   wikipediaUrl: string;
   durationTier: DurationTier;

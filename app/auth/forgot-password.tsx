@@ -17,6 +17,9 @@ import {
   spacing,
   textStyle,
 } from '../../constants/theme';
+import { requestForgotPassword } from '../../lib/api/auth';
+import { isApiConfigured } from '../../lib/config';
+import { ApiError } from '../../types/api';
 
 function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
@@ -24,35 +27,58 @@ function isValidEmail(value: string): boolean {
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
-  const { t } = useTranslation('auth');
+  const { t } = useTranslation(['auth', 'common']);
   const [email, setEmail] = useState('');
   const [fieldError, setFieldError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+
+  function resolveError(error: unknown): string {
+    if (error instanceof ApiError) {
+      if (error.statusCode === 0) return t('auth:errorApiNotConfigured');
+      if (ApiError.isRateLimited(error)) return t('auth:error429');
+      if (error.details?.email?.[0]) return error.details.email[0];
+      return error.message || t('common:errorGeneric');
+    }
+    return t('auth:errorNetwork');
+  }
 
   function handleClose() {
     router.back();
   }
 
   async function handleSubmit() {
+    setFormError(null);
     if (!isValidEmail(email)) {
-      setFieldError(t('invalidEmail'));
+      setFieldError(t('auth:invalidEmail'));
       return;
     }
     setFieldError(null);
+
+    if (!isApiConfigured()) {
+      setFormError(t('auth:errorApiNotConfigured'));
+      return;
+    }
+
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setIsSubmitting(false);
-    setSent(true);
+    try {
+      await requestForgotPassword({ email: email.trim() });
+      setSent(true);
+    } catch (error) {
+      setFormError(resolveError(error));
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   if (sent) {
     return (
-      <AuthScreenLayout title={t('resetTitle')} onClose={handleClose}>
-        <Text style={styles.body}>{t('resetSent')}</Text>
+      <AuthScreenLayout title={t('auth:resetTitle')} onClose={handleClose}>
+        <Text style={styles.body}>{t('auth:resetSent')}</Text>
         <Link href="/auth/login" asChild>
           <Pressable style={styles.primaryBtn} accessibilityRole="button">
-            <Text style={styles.primaryText}>{t('backToLogin')}</Text>
+            <Text style={styles.primaryText}>{t('auth:backToLogin')}</Text>
           </Pressable>
         </Link>
       </AuthScreenLayout>
@@ -61,12 +87,12 @@ export default function ForgotPasswordScreen() {
 
   return (
     <AuthScreenLayout
-      title={t('resetTitle')}
-      subtitle={t('resetSubtitle')}
+      title={t('auth:resetTitle')}
+      subtitle={t('auth:resetSubtitle')}
       onClose={handleClose}
     >
       <AuthFormField
-        label={t('emailLabel')}
+        label={t('auth:emailLabel')}
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -75,6 +101,8 @@ export default function ForgotPasswordScreen() {
         textContentType="emailAddress"
         error={fieldError}
       />
+
+      {formError ? <Text style={styles.formError}>{formError}</Text> : null}
 
       <Pressable
         style={({ pressed }) => [
@@ -85,12 +113,12 @@ export default function ForgotPasswordScreen() {
         onPress={() => void handleSubmit()}
         disabled={isSubmitting}
         accessibilityRole="button"
-        accessibilityLabel={t('resetCta')}
+        accessibilityLabel={t('auth:resetCta')}
       >
         {isSubmitting ? (
           <ActivityIndicator color={colors.onPrimary} />
         ) : (
-          <Text style={styles.primaryText}>{t('resetCta')}</Text>
+          <Text style={styles.primaryText}>{t('auth:resetCta')}</Text>
         )}
       </Pressable>
     </AuthScreenLayout>
@@ -101,6 +129,10 @@ const styles = StyleSheet.create({
   body: {
     ...textStyle('bodyMd'),
     color: colors.muted,
+  },
+  formError: {
+    ...textStyle('bodySm'),
+    color: colors.error,
   },
   primaryBtn: {
     minHeight: componentSizes.buttonPrimaryHeight,

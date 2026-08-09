@@ -47,7 +47,7 @@ const sampleHub: CityHub = {
   },
   stats: { publishedPoiCount: 5, editorialItineraryCount: 0 },
   itineraryCategories: [],
-  featuredPremiumItinerary: { id: 'ignored-until-t21' },
+  featuredPremiumItinerary: null,
   mustSeePois: [samplePoi],
   recommendedPois: [],
   touristPasses: [{ id: 'ignored-stub' }],
@@ -80,14 +80,31 @@ describe('cityHubPoiSnippetToMockPlace', () => {
 });
 
 describe('cityHubToHubData', () => {
-  it('mappe hub API et ignore stubs affiliation / premium', () => {
-    const data = cityHubToHubData(sampleHub);
+  it('mappe hub API avec catégories et premium featured', () => {
+    const data = cityHubToHubData({
+      ...sampleHub,
+      itineraryCategories: [
+        { slug: 'highlights', itineraryCount: 2 },
+        { slug: 'evening', itineraryCount: 1 },
+      ],
+      featuredPremiumItinerary: {
+        id: 'uuid-premium',
+        slug: 'itin-paris-premium',
+        title: 'Paris by Night',
+        coverImageUrl: null,
+        durationMinutes: 210,
+        distanceMeters: 5500,
+        difficulty: 'MEDIUM',
+        isPremium: true,
+        priceLabel: '4,99 €',
+        categorySlug: 'evening',
+      },
+    });
     expect(data).toMatchObject({
       citySlug: 'paris',
       name: 'Paris',
       coverImageUrl: 'https://cdn.example.com/paris.jpg',
       subtitle: '9 guides audio · 5 parcours',
-      featuredPremiumItineraryId: null,
       touristPasses: [],
       affiliateExperiences: [],
       mapRegion: {
@@ -97,6 +114,12 @@ describe('cityHubToHubData', () => {
         longitudeDelta: 0.115,
       },
     });
+    expect(data.itineraryCategoryCounts).toEqual({
+      highlights: 2,
+      evening: 1,
+    });
+    expect(data.featuredPremiumItinerary?.slug).toBe('itin-paris-premium');
+    expect(data.featuredPremiumItinerary?.id).toBe('uuid-premium');
     expect(data.mustSeePlaces).toHaveLength(1);
     expect(data.mustSeePlaces[0]?.id).toBe('poi-1');
   });
@@ -106,9 +129,11 @@ describe('cityHubToHubData', () => {
       ...sampleHub,
       coverImage: null,
       subtitle: null,
+      featuredPremiumItinerary: null,
     });
     expect(data.coverImageUrl).toBe(PLACE_IMAGE_PLACEHOLDER);
     expect(data.subtitle).toBe('');
+    expect(data.featuredPremiumItinerary).toBeNull();
   });
 });
 
@@ -144,7 +169,8 @@ describe('mockCityToHubData', () => {
     expect(data.mustSeePlaces).toHaveLength(1);
     expect(data.mustSeePlaces[0]?.id).toBe('1');
     expect(data.recommendedPlaces).toHaveLength(0);
-    expect(data.featuredPremiumItineraryId).toBe('itin-paris-premium');
+    expect(data.featuredPremiumItinerary?.slug).toBe('itin-paris-premium');
+    expect(data.itineraryCategoryCounts.evening).toBeGreaterThan(0);
     expect(data.touristPasses).toHaveLength(1);
   });
 });
@@ -186,7 +212,7 @@ describe('districtHubToHubData', () => {
       districtSlug: 'le-marais',
       name: 'Le Marais',
       parentCityName: 'Paris',
-      featuredPremiumItineraryId: null,
+      featuredPremiumItinerary: null,
       touristPasses: [],
       affiliateExperiences: [],
     });

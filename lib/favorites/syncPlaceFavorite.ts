@@ -1,16 +1,20 @@
 import { addFavorite, removeFavorite } from '../api/favorites';
-import type { FavoriteItem } from '../../types/api';
+import type { FavoritePoiItem } from '../../types/api';
+import { shouldApplyToggleResult } from './syncFavorites';
 
 export type PlaceFavoriteSyncResult =
-  | { success: true; item: FavoriteItem | null }
+  | { success: true; item: FavoritePoiItem | null }
   | { success: false };
 
 export interface PlaceFavoriteSyncApi {
-  addFavorite: (poiId: string) => Promise<FavoriteItem>;
+  addFavorite: (poiId: string) => Promise<FavoritePoiItem>;
   removeFavorite: (poiId: string) => Promise<void>;
 }
 
-const defaultApi: PlaceFavoriteSyncApi = { addFavorite, removeFavorite };
+const defaultApi: PlaceFavoriteSyncApi = {
+  addFavorite,
+  removeFavorite: (poiId) => removeFavorite('poi', poiId),
+};
 
 export async function syncPlaceFavoriteWithServer(
   poiId: string,
@@ -29,10 +33,4 @@ export async function syncPlaceFavoriteWithServer(
   }
 }
 
-/** Ignore le résultat si une bascule plus récente a été lancée pour ce POI. */
-export function shouldApplyToggleResult(
-  currentGeneration: number | undefined,
-  expectedGeneration: number,
-): boolean {
-  return currentGeneration === expectedGeneration;
-}
+export { shouldApplyToggleResult };

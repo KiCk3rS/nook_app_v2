@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import type { EditorialItinerary } from '../../constants/mockItineraries';
+import type { EditorialItinerary } from '../../types/api';
 import { usePremium } from '../../contexts/PremiumContext';
 import {
   trackPremiumOfferSelected,
@@ -13,6 +13,10 @@ import {
   trackPremiumPurchaseSuccess,
   trackPremiumRestoreTapped,
 } from '../../lib/analytics';
+import {
+  editorialCoverImageUrl,
+  editorialItineraryNavKey,
+} from '../../lib/mappers/editorialItineraries';
 import {
   colors,
   componentSizes,
@@ -46,30 +50,32 @@ export function PaywallSheet({
 
   useEffect(() => {
     if (visible && itinerary) {
-      trackPremiumPaywallViewed(itinerary.id, sourceScreen);
+      trackPremiumPaywallViewed(editorialItineraryNavKey(itinerary), sourceScreen);
     }
   }, [visible, itinerary, sourceScreen]);
 
   if (!itinerary) return null;
 
+  const navKey = editorialItineraryNavKey(itinerary);
+  const coverUri = editorialCoverImageUrl(itinerary.coverImageUrl);
   const unitPrice = itinerary.priceLabel ?? '4,99 €';
   const subscriptionPrice = '9,99 €';
 
   async function handlePurchase() {
     if (!itinerary || isPurchasing) return;
-    trackPremiumOfferSelected(selectedOffer, itinerary.id);
-    trackPremiumPurchaseStarted(selectedOffer, itinerary.id);
+    trackPremiumOfferSelected(selectedOffer, navKey);
+    trackPremiumPurchaseStarted(selectedOffer, navKey);
     setIsPurchasing(true);
 
     await new Promise((r) => setTimeout(r, 600));
 
     if (selectedOffer === 'unit') {
-      unlockItinerary(itinerary.id);
+      unlockItinerary(navKey);
     } else {
       unlockSubscription();
     }
 
-    trackPremiumPurchaseSuccess(selectedOffer, itinerary.id);
+    trackPremiumPurchaseSuccess(selectedOffer, navKey);
     setIsPurchasing(false);
     onUnlocked();
     onClose();
@@ -83,7 +89,7 @@ export function PaywallSheet({
   }
 
   function handleDismiss() {
-    trackPremiumPaywallDismissed(itinerary?.id);
+    trackPremiumPaywallDismissed(navKey);
     onClose();
   }
 
@@ -114,7 +120,7 @@ export function PaywallSheet({
 
         <View style={styles.content}>
           <Image
-            source={{ uri: itinerary.coverImageUrl }}
+            source={{ uri: coverUri }}
             style={styles.hero}
             resizeMode="cover"
             accessibilityIgnoresInvertColors

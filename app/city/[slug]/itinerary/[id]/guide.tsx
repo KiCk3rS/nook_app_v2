@@ -1,12 +1,17 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GuidanceExperience } from '../../../../../components/guidance/GuidanceExperience';
 import { getCityBySlug } from '../../../../../constants/mockCities';
-import { getItineraryById } from '../../../../../constants/mockItineraries';
 import {
   colors,
   componentSizes,
@@ -15,7 +20,15 @@ import {
   textStyle,
 } from '../../../../../constants/theme';
 import { usePremium } from '../../../../../contexts/PremiumContext';
-import { guidanceStepsFromPoiIds } from '../../../../../lib/itineraryMap';
+import { useEditorialItineraryDetail } from '../../../../../hooks/useEditorialItineraryDetail';
+import {
+  editorialCoverImageUrl,
+  editorialItineraryNavKey,
+} from '../../../../../lib/mappers/editorialItineraries';
+import {
+  guidanceStepsFromApiSteps,
+  guidanceStepsFromPoiIds,
+} from '../../../../../lib/itineraryMap';
 
 export default function EditorialGuidanceScreen() {
   const { t } = useTranslation(['guidance', 'common']);
@@ -27,24 +40,28 @@ export default function EditorialGuidanceScreen() {
     step?: string;
   }>();
 
+  const citySlug = typeof slug === 'string' ? slug : '';
+  const idOrSlug = typeof id === 'string' ? id : '';
+
   const city = useMemo(
-    () => (typeof slug === 'string' ? getCityBySlug(slug) : undefined),
-    [slug],
+    () => (citySlug ? getCityBySlug(citySlug) : undefined),
+    [citySlug],
   );
-  const itinerary = useMemo(
-    () => (typeof id === 'string' ? getItineraryById(id) : undefined),
-    [id],
-  );
+  const cityName = city?.name ?? citySlug;
 
+  const { status, itinerary, reload } = useEditorialItineraryDetail(idOrSlug || undefined);
   const { isUnlocked } = usePremium();
-  const unlocked = itinerary
-    ? isUnlocked(itinerary.id, itinerary.isPremium)
-    : false;
 
-  const guidanceSteps = useMemo(
-    () => (itinerary ? guidanceStepsFromPoiIds(itinerary.stepPoiIds) : []),
-    [itinerary],
-  );
+  const navKey = itinerary ? editorialItineraryNavKey(itinerary) : idOrSlug;
+  const unlocked = itinerary ? isUnlocked(navKey, itinerary.isPremium) : false;
+
+  const guidanceSteps = useMemo(() => {
+    if (!itinerary) return [];
+    if (itinerary.steps.length > 0) {
+      return guidanceStepsFromApiSteps(itinerary.steps);
+    }
+    return guidanceStepsFromPoiIds(itinerary.stepPoiIds);
+  }, [itinerary]);
 
   const initialStepParam = useMemo(() => {
     if (typeof step !== 'string') return undefined;
@@ -53,13 +70,37 @@ export default function EditorialGuidanceScreen() {
   }, [step]);
 
   useEffect(() => {
-    if (!itinerary || !city) return;
+    if (status !== 'ready' || !itinerary) return;
     if (itinerary.isPremium && !unlocked) {
-      router.replace(`/city/${city.slug}/itinerary/${itinerary.id}`);
+      router.replace(`/city/${citySlug}/itinerary/${navKey}`);
     }
-  }, [city, itinerary, router, unlocked]);
+  }, [status, citySlug, itinerary, navKey, router, unlocked]);
 
-  if (!itinerary || !city) {
+  if (status === 'loading') {
+    return (
+      <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (status === 'error') {
+    return (
+      <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
+        <Text style={styles.notFoundTitle}>{t('common:errorGeneric')}</Text>
+        <Pressable
+          style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryPressed]}
+          onPress={reload}
+          accessibilityRole="button"
+          accessibilityLabel={t('common:retry')}
+        >
+          <Text style={styles.primaryText}>{t('common:retry')}</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  if (status === 'not_found' || !itinerary) {
     return (
       <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
         <Text style={styles.notFoundTitle}>{t('guidance:notFoundTitle')}</Text>
@@ -83,12 +124,12 @@ export default function EditorialGuidanceScreen() {
   return (
     <GuidanceExperience
       sourceType="editorial"
-      itineraryId={itinerary.id}
+      itineraryId={navKey}
       title={itinerary.title}
-      coverImageUrl={itinerary.coverImageUrl}
+      coverImageUrl={editorialCoverImageUrl(itinerary.coverImageUrl)}
       guidanceSteps={guidanceSteps}
-      citySlug={city.slug}
-      cityName={city.name}
+      citySlug={citySlug}
+      cityName={cityName}
       initialStepParam={initialStepParam}
     />
   );

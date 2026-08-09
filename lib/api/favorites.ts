@@ -1,9 +1,25 @@
-import type { FavoriteItem, PaginatedResponse } from '../../types/api';
+import type {
+  FavoriteEditorialItineraryItem,
+  FavoriteItem,
+  FavoritePoiItem,
+  FavoriteTargetType,
+  PaginatedResponse,
+} from '../../types/api';
 import { apiRequest, buildQuery } from './client';
 
 export interface ListFavoritesQuery {
   limit?: number;
   offset?: number;
+}
+
+export function isFavoritePoiItem(item: FavoriteItem): item is FavoritePoiItem {
+  return item.targetType === 'poi';
+}
+
+export function isFavoriteEditorialItineraryItem(
+  item: FavoriteItem,
+): item is FavoriteEditorialItineraryItem {
+  return item.targetType === 'editorial_itinerary';
 }
 
 export function fetchFavorites(
@@ -19,16 +35,30 @@ export function fetchFavorites(
   });
 }
 
-export function addFavorite(poiId: string): Promise<FavoriteItem> {
-  return apiRequest<FavoriteItem>('/me/favorites', {
+export function addFavorite(poiId: string): Promise<FavoritePoiItem> {
+  return apiRequest<FavoritePoiItem>('/me/favorites', {
     method: 'POST',
     auth: true,
-    body: { poiId },
+    body: { targetType: 'poi', targetId: poiId },
   });
 }
 
-export function removeFavorite(poiId: string): Promise<void> {
-  return apiRequest<void>(`/me/favorites/${poiId}`, {
+export function addEditorialItineraryFavorite(
+  editorialItineraryId: string,
+): Promise<FavoriteEditorialItineraryItem> {
+  return apiRequest<FavoriteEditorialItineraryItem>('/me/favorites', {
+    method: 'POST',
+    auth: true,
+    body: { targetType: 'editorial_itinerary', targetId: editorialItineraryId },
+  });
+}
+
+/** DELETE `/me/favorites/:targetType/:targetId`. */
+export function removeFavorite(
+  targetType: FavoriteTargetType,
+  targetId: string,
+): Promise<void> {
+  return apiRequest<void>(`/me/favorites/${targetType}/${targetId}`, {
     method: 'DELETE',
     auth: true,
   });
@@ -50,4 +80,22 @@ export async function fetchAllFavorites(): Promise<FavoriteItem[]> {
   }
 
   return items;
+}
+
+export function partitionFavoriteItems(items: readonly FavoriteItem[]): {
+  places: FavoritePoiItem[];
+  editorials: FavoriteEditorialItineraryItem[];
+} {
+  const places: FavoritePoiItem[] = [];
+  const editorials: FavoriteEditorialItineraryItem[] = [];
+
+  for (const item of items) {
+    if (isFavoriteEditorialItineraryItem(item)) {
+      editorials.push(item);
+    } else if (isFavoritePoiItem(item)) {
+      places.push(item);
+    }
+  }
+
+  return { places, editorials };
 }

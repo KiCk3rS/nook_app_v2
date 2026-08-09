@@ -6,6 +6,8 @@ export interface User {
   lastName: string | null;
   birthDate: string | null;
   role: string;
+  /** Présent sur `GET /me` — date d’inscription ISO 8601. */
+  createdAt?: string;
 }
 
 /** Réponse paginée standard (listes POI, discovery, favoris, etc.). */
@@ -167,9 +169,31 @@ export interface CityHubPoiSnippet {
   districtHub?: DistrictHubRef | null;
 }
 
+/** Compteur catégorie hub (`itineraryCategories`). */
+export interface EditorialItineraryCategoryCount {
+  slug: string;
+  itineraryCount: number;
+}
+
+export type ItineraryDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
+
+/** Résumé premium featured sur hub ville / quartier. */
+export interface EditorialItineraryHubSummary {
+  id: string;
+  slug: string;
+  title: string;
+  coverImageUrl: string | null;
+  durationMinutes: number;
+  distanceMeters: number;
+  difficulty: ItineraryDifficulty;
+  isPremium: boolean;
+  priceLabel: string | null;
+  categorySlug: string;
+}
+
 /**
  * Réponse `GET /api/v1/cities/:slugOrId/hub` (F-018-b).
- * Catégories / premium / affiliation : clés présentes, payloads différés.
+ * Pass / expériences affiliées : payloads encore différés (stubs vides côté app).
  */
 export interface CityHub {
   id: string;
@@ -179,8 +203,8 @@ export interface CityHub {
   coverImage: DiscoveryCoverImage | null;
   map: CityHubMap;
   stats: CityHubStats;
-  itineraryCategories: Record<string, unknown>[];
-  featuredPremiumItinerary: Record<string, unknown> | null;
+  itineraryCategories: EditorialItineraryCategoryCount[];
+  featuredPremiumItinerary: EditorialItineraryHubSummary | null;
   mustSeePois: CityHubPoiSnippet[];
   recommendedPois: CityHubPoiSnippet[];
   touristPasses: Record<string, unknown>[];
@@ -257,18 +281,47 @@ export interface ListenHistoryPoiSnippet {
   status: string;
 }
 
-export interface FavoritePoiSnippet {
+/** Cible POI dans l’envelope favori (`target`). */
+export interface FavoritePoiTarget {
+  id: string;
   title: string;
   status: string;
 }
 
-/** Entrée favori (`GET/POST /api/v1/me/favorites`). */
-export interface FavoriteItem {
+/** Cible éditoriale dans l’envelope favori (`target`). */
+export interface FavoriteEditorialItineraryTarget {
   id: string;
-  poiId: string;
-  createdAt: string;
-  poi: FavoritePoiSnippet;
+  slug: string;
+  title: string;
+  coverImageUrl: string | null;
 }
+
+export type FavoriteTargetType = 'poi' | 'editorial_itinerary';
+
+/**
+ * Favori POI — envelope `{ targetType, id, createdAt, target }`.
+ * `id` === UUID du POI (pas l’id de la row favori).
+ */
+export interface FavoritePoiItem {
+  targetType: 'poi';
+  id: string;
+  createdAt: string;
+  target: FavoritePoiTarget;
+}
+
+/**
+ * Favori itinéraire éditorial — même envelope.
+ * `id` === UUID de l’itinéraire éditorial.
+ */
+export interface FavoriteEditorialItineraryItem {
+  targetType: 'editorial_itinerary';
+  id: string;
+  createdAt: string;
+  target: FavoriteEditorialItineraryTarget;
+}
+
+/** Entrée favori discriminée (`GET/POST /api/v1/me/favorites`). */
+export type FavoriteItem = FavoritePoiItem | FavoriteEditorialItineraryItem;
 
 /** Entrée historique (`GET/POST /api/v1/me/listen-history`). */
 export interface ListenHistoryEntry {
@@ -301,7 +354,39 @@ export interface AuthResponse {
   user: User;
 }
 
-export type ItineraryDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
+/** Étape itinéraire éditorial (`GET /editorial-itineraries/:idOrSlug`). */
+export interface EditorialItineraryStep {
+  order: number;
+  poiId: string;
+  title: string;
+  lat: number | null;
+  lng: number | null;
+}
+
+/** Item liste `GET /editorial-itineraries` (T21a / F-018-c). */
+export interface EditorialItinerary {
+  id: string;
+  slug: string;
+  citySlug: string;
+  districtSlug: string | null;
+  categorySlug: string;
+  title: string;
+  description: string;
+  coverImageUrl: string | null;
+  durationMinutes: number;
+  distanceMeters: number;
+  difficulty: ItineraryDifficulty;
+  stepCount: number;
+  stepPoiIds: string[];
+  isPremium: boolean;
+  priceLabel: string | null;
+  editorialOrder: number;
+}
+
+/** Détail `GET /editorial-itineraries/:idOrSlug`. */
+export interface EditorialItineraryDetail extends EditorialItinerary {
+  steps: EditorialItineraryStep[];
+}
 
 /** F-010 — une étape de parcours utilisateur (réponse API détail). */
 export interface UserItineraryStep {
@@ -322,6 +407,8 @@ export interface UserItinerary {
   difficulty?: ItineraryDifficulty | null;
   updatedAt?: string;
   createdAt?: string;
+  /** Cover API (premier POI) si exposée ; sinon placeholder UI. */
+  coverImageUrl?: string | null;
 }
 
 export interface ApiErrorBody {

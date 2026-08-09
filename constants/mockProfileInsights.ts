@@ -2,7 +2,6 @@ import { getMockListenHistory } from './mockListenHistory';
 
 export const MOCK_PROFILE_INSIGHTS = {
   listenCount: 24,
-  citiesCount: 2,
   memberSinceLabel: 'Explorateur depuis mars 2025',
 };
 

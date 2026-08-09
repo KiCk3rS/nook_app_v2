@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { getPlaceById } from '../../constants/mockPlaces';
+import { resolveCoverImageUrl } from '../../lib/mappers/itineraries';
 import { formatDurationMinutes, formatStepCount } from '../../lib/userDisplay';
 import type { UserItinerary } from '../../types/api';
 import { ItineraryRowWithAction } from '../itinerary/ItineraryRow';
@@ -9,12 +9,6 @@ interface UserItineraryCardProps {
   itinerary: UserItinerary;
   onPress: () => void;
   onDelete: () => void;
-}
-
-function resolveCoverImageUrl(itinerary: UserItinerary): string | undefined {
-  const firstPoiId = itinerary.poiIds?.[0];
-  if (!firstPoiId) return undefined;
-  return getPlaceById(firstPoiId)?.imageUrl;
 }
 
 export function UserItineraryCard({

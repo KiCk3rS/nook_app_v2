@@ -2,17 +2,17 @@ import { favoriteItemToPlaceView, resolveFavoritePlaceViews } from '../favorites
 import { placeStateFromItems } from '../../favorites/placeStore';
 
 describe('favoriteItemToPlaceView', () => {
-  it('utilise le snippet API quand le POI mock est absent', () => {
+  it('utilise le snippet API sans enrichissement mock', () => {
     const view = favoriteItemToPlaceView({
-      id: 'fav-1',
-      poiId: '00000000-0000-4000-8000-000000000001',
+      targetType: 'poi',
+      id: '1',
       createdAt: '2026-07-05T10:00:00.000Z',
-      poi: { title: 'Musée du Louvre', status: 'PUBLISHED' },
+      target: { id: '1', title: 'Musée du Louvre API', status: 'PUBLISHED' },
     });
 
     expect(view).toEqual({
-      id: '00000000-0000-4000-8000-000000000001',
-      name: 'Musée du Louvre',
+      id: '1',
+      name: 'Musée du Louvre API',
       subtitle: '',
       imageUrl: null,
     });
@@ -20,10 +20,10 @@ describe('favoriteItemToPlaceView', () => {
 
   it('évite un nom vide si le snippet API est incomplet', () => {
     const view = favoriteItemToPlaceView({
-      id: 'fav-1',
-      poiId: '00000000-0000-4000-8000-000000000099',
+      targetType: 'poi',
+      id: '00000000-0000-4000-8000-000000000099',
       createdAt: '2026-07-05T10:00:00.000Z',
-      poi: { title: '', status: 'PUBLISHED' },
+      target: { id: '00000000-0000-4000-8000-000000000099', title: '', status: 'PUBLISHED' },
     });
 
     expect(view.name).toBe('00000000-0000-4000-8000-000000000099');
@@ -31,19 +31,24 @@ describe('favoriteItemToPlaceView', () => {
 });
 
 describe('resolveFavoritePlaceViews', () => {
-  it('résout depuis l’état unifié', () => {
+  it('résout depuis l’état unifié (snippet API)', () => {
     const views = resolveFavoritePlaceViews(
       placeStateFromItems([
         {
-          id: 'f1',
-          poiId: '00000000-0000-4000-8000-000000000002',
+          targetType: 'poi',
+          id: '00000000-0000-4000-8000-000000000002',
           createdAt: '2026-07-05T10:00:00.000Z',
-          poi: { title: 'Orsay', status: 'PUBLISHED' },
+          target: {
+            id: '00000000-0000-4000-8000-000000000002',
+            title: 'Orsay',
+            status: 'PUBLISHED',
+          },
         },
       ]),
     );
 
     expect(views).toHaveLength(1);
     expect(views[0]?.name).toBe('Orsay');
+    expect(views[0]?.imageUrl).toBeNull();
   });
 });

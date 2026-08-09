@@ -55,5 +55,6 @@
   "menuHistorySubtitle_one": "{{count}} guide écouté",
   "menuHistorySubtitle_other": "{{count}} guides écoutés",
   "a11yInitials": "Initiales {{initials}}",
-  "mockMemberSince": "Explorateur depuis mars 2025"
+  "mockMemberSince": "Explorateur depuis mars 2025",
+  "memberSince": "Explorateur depuis {{when}}"
 }

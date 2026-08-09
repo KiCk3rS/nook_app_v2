@@ -9,10 +9,16 @@ import {
   type ReactNode,
 } from 'react';
 
-import type { EditorialItinerary } from '../constants/mockItineraries';
-import { getItineraryById } from '../constants/mockItineraries';
+import type { EditorialItinerary } from '../types/api';
 import { useAuth } from './AuthContext';
 import { bootstrapFavoritePlaces, shouldUseServerFavorites } from '../lib/favorites/bootstrapFavorites';
+import {
+  createOptimisticItineraryItem,
+  emptyItineraryState,
+  isItineraryInState,
+  setItineraryFavoriteInState,
+  type FavoriteItinerariesState,
+} from '../lib/favorites/itineraryStore';
 import {
   createOptimisticPlaceItem,
   emptyPlaceState,
@@ -20,14 +26,20 @@ import {
   setPlaceFavoriteInState,
   type FavoritePlacesState,
 } from '../lib/favorites/placeStore';
-import {
-  shouldApplyToggleResult,
-  syncPlaceFavoriteWithServer,
-} from '../lib/favorites/syncPlaceFavorite';
+import { shouldApplyToggleResult } from '../lib/favorites/syncFavorites';
+import { syncItineraryFavoriteWithServer } from '../lib/favorites/syncItineraryFavorite';
+import { syncPlaceFavoriteWithServer } from '../lib/favorites/syncPlaceFavorite';
 import { saveStoredFavorites } from '../lib/favoritesStorage';
-import { resolveFavoritePlaceViews } from '../lib/mappers/favorites';
-import type { FavoriteItem } from '../types/api';
-import type { FavoritePlaceView, PlaceFavoriteHint } from '../types/favorites';
+import {
+  resolveFavoriteItineraries,
+  resolveFavoritePlaceViews,
+} from '../lib/mappers/favorites';
+import type { FavoriteEditorialItineraryItem, FavoritePoiItem } from '../types/api';
+import type {
+  FavoritePlaceView,
+  ItineraryFavoriteHint,
+  PlaceFavoriteHint,
+} from '../types/favorites';
 
 interface FavoritesContextValue {
   isReady: boolean;
@@ -38,20 +50,20 @@ interface FavoritesContextValue {
   isPlaceFavorite: (placeId: string) => boolean;
   isItineraryFavorite: (itineraryId: string) => boolean;
   togglePlaceFavorite: (placeId: string, hint?: PlaceFavoriteHint) => void;
-  toggleItineraryFavorite: (itineraryId: string) => void;
+  toggleItineraryFavorite: (
+    itineraryId: string,
+    hint?: ItineraryFavoriteHint,
+  ) => void;
 }
 
 const FavoritesContext = createContext<FavoritesContextValue | null>(null);
-
-function toUniqueIds(ids: string[]): string[] {
-  return [...new Set(ids)];
-}
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated, isMockSession, isLoading: isAuthLoading, user } = useAuth();
   const [isReady, setIsReady] = useState(false);
   const [placeState, setPlaceState] = useState<FavoritePlacesState>(emptyPlaceState);
-  const [favoriteItineraryIds, setFavoriteItineraryIds] = useState<Set<string>>(new Set());
+  const [itineraryState, setItineraryState] =
+    useState<FavoriteItinerariesState>(emptyItineraryState);
   const skipNextPersist = useRef(true);
   const useServerRef = useRef(false);
   const bootstrapGenerationRef = useRef(0);
@@ -72,7 +84,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 
       useServerRef.current = result.useServer;
       setPlaceState(result.places);
-      setFavoriteItineraryIds(new Set(result.itineraryIds));
+      setItineraryState(result.itineraries);
       skipNextPersist.current = true;
       setIsReady(true);
     }
@@ -92,9 +104,9 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     }
     void saveStoredFavorites({
       placeIds: placeState.order,
-      itineraryIds: [...favoriteItineraryIds],
+      itineraryIds: itineraryState.order,
     });
-  }, [favoriteItineraryIds, isReady, placeState.order]);
+  }, [itineraryState.order, isReady, placeState.order]);
 
   const togglePlaceFavorite = useCallback((placeId: string, hint?: PlaceFavoriteHint) => {
     const generation = (toggleGenerationRef.current.get(placeId) ?? 0) + 1;
@@ -102,7 +114,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 
     let wasFavorite = false;
     let adding = false;
-    let previousItem: FavoriteItem | undefined;
+    let previousItem: FavoritePoiItem | undefined;
 
     setPlaceState((prev) => {
       wasFavorite = isPlaceInState(prev, placeId);
@@ -138,19 +150,59 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const toggleItineraryFavorite = useCallback((itineraryId: string) => {
-    setFavoriteItineraryIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(itineraryId)) {
-        next.delete(itineraryId);
-      } else {
-        next.add(itineraryId);
-      }
-      return next;
-    });
-  }, []);
+  const toggleItineraryFavorite = useCallback(
+    (itineraryId: string, hint?: ItineraryFavoriteHint) => {
+      const generationKey = `itin:${itineraryId}`;
+      const generation = (toggleGenerationRef.current.get(generationKey) ?? 0) + 1;
+      toggleGenerationRef.current.set(generationKey, generation);
+
+      let wasFavorite = false;
+      let adding = false;
+      let previousItem: FavoriteEditorialItineraryItem | undefined;
+
+      setItineraryState((prev) => {
+        wasFavorite = isItineraryInState(prev, itineraryId);
+        adding = !wasFavorite;
+        previousItem = prev.items.get(itineraryId);
+        return setItineraryFavoriteInState(
+          prev,
+          itineraryId,
+          adding,
+          adding ? createOptimisticItineraryItem(itineraryId, hint) : undefined,
+        );
+      });
+
+      if (!useServerRef.current) return;
+
+      void syncItineraryFavoriteWithServer(itineraryId, adding).then((result) => {
+        if (
+          !shouldApplyToggleResult(toggleGenerationRef.current.get(generationKey), generation)
+        ) {
+          return;
+        }
+
+        if (!result.success) {
+          setItineraryState((current) =>
+            setItineraryFavoriteInState(current, itineraryId, wasFavorite, previousItem),
+          );
+          return;
+        }
+
+        if (result.item) {
+          setItineraryState((current) =>
+            setItineraryFavoriteInState(current, itineraryId, true, result.item ?? undefined),
+          );
+        }
+      });
+    },
+    [],
+  );
 
   const favoritePlaceIds = useMemo(() => new Set(placeState.order), [placeState.order]);
+  const favoriteItineraryIds = useMemo(
+    () => new Set(itineraryState.order),
+    [itineraryState.order],
+  );
 
   const isPlaceFavorite = useCallback(
     (placeId: string) => placeState.order.includes(placeId),
@@ -158,8 +210,8 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   );
 
   const isItineraryFavorite = useCallback(
-    (itineraryId: string) => favoriteItineraryIds.has(itineraryId),
-    [favoriteItineraryIds],
+    (itineraryId: string) => itineraryState.order.includes(itineraryId),
+    [itineraryState.order],
   );
 
   const favoritePlaces = useMemo(
@@ -168,11 +220,8 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   );
 
   const favoriteItineraries = useMemo(
-    () =>
-      toUniqueIds([...favoriteItineraryIds])
-        .map((id) => getItineraryById(id))
-        .filter((itinerary): itinerary is EditorialItinerary => itinerary != null),
-    [favoriteItineraryIds],
+    () => resolveFavoriteItineraries(itineraryState),
+    [itineraryState],
   );
 
   const value = useMemo(

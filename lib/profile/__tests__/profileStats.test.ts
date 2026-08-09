@@ -1,4 +1,8 @@
 import {
+  formatMemberSinceLabel,
+  formatMemberSinceWhen,
+} from '../../i18n/formatters';
+import {
   buildProfileStats,
   mapRecentListensFromHistory,
   resolveFavoritesCount,
@@ -60,6 +64,22 @@ describe('profileStats', () => {
     });
   });
 
+  describe('formatMemberSinceLabel', () => {
+    it('formate memberSince depuis une date ISO via i18n', () => {
+      const when = formatMemberSinceWhen('2025-03-15T12:00:00.000Z', 'fr');
+      expect(when).toMatch(/2025/);
+      expect(when?.toLowerCase()).toMatch(/mars/);
+
+      const label = formatMemberSinceLabel('2025-03-15T12:00:00.000Z', 'fr');
+      expect(label).toBe(`Explorateur depuis ${when}`);
+    });
+
+    it('retourne undefined si createdAt absent ou invalide', () => {
+      expect(formatMemberSinceLabel(null, 'fr')).toBeUndefined();
+      expect(formatMemberSinceLabel('not-a-date', 'fr')).toBeUndefined();
+    });
+  });
+
   describe('buildProfileStats', () => {
     it('agrège favoris et écoutes depuis l’API', () => {
       const stats = buildProfileStats({
@@ -69,17 +89,29 @@ describe('profileStats', () => {
         itineraryFavoritesCount: 1,
         listenHistory: { total: 8, items: [sampleEntry] },
         mockListenCount: 24,
-        mockCitiesCount: 2,
-        memberSinceLabel: 'mock',
+        memberSinceLabel: 'Explorateur depuis mars 2025',
       });
 
       expect(stats).toEqual({
         routesCount: 2,
         favoritesCount: 5,
         listenCount: 8,
-        citiesCount: 0,
-        memberSinceLabel: undefined,
+        memberSinceLabel: 'Explorateur depuis mars 2025',
       });
+    });
+
+    it('passe le label mock tel quel', () => {
+      const stats = buildProfileStats({
+        useMockData: true,
+        routesCount: 3,
+        placeFavoritesCount: 1,
+        itineraryFavoritesCount: 1,
+        listenHistory: null,
+        mockListenCount: 24,
+        memberSinceLabel: 'Explorateur depuis mars 2025',
+      });
+
+      expect(stats.memberSinceLabel).toBe('Explorateur depuis mars 2025');
     });
   });
 

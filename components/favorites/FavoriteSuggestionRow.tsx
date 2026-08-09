@@ -3,8 +3,8 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { getCategoryLabel, type MockPlace } from '../../constants/mockPlaces';
-import type { EditorialItinerary } from '../../constants/mockItineraries';
-import { formatItineraryDuration } from '../../constants/mockItineraries';
+import type { EditorialItinerary } from '../../types/api';
+import { formatItineraryDuration } from '../../lib/i18n/formatters';
 import {
   colors,
   componentSizes,

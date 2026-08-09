@@ -2,12 +2,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import type { EditorialItinerary } from '../../constants/mockItineraries';
+import type { EditorialItinerary } from '../../types/api';
 import {
   formatItineraryDuration,
   getItineraryDifficultyLabel,
 } from '../../constants/mockItineraries';
 import { formatItineraryStepMeta } from '../../lib/i18n/formatters';
+import {
+  editorialCoverImageUrl,
+  editorialItineraryNavKey,
+  editorialStepCount,
+} from '../../lib/mappers/editorialItineraries';
 import {
   colors,
   componentSizes,
@@ -34,9 +39,14 @@ export function FavoriteItineraryRow({
 }: FavoriteItineraryRowProps) {
   const { t } = useTranslation(['favorites', 'hub', 'common']);
   const { isUnlocked } = usePremium();
-  const unlocked = isUnlocked(itinerary.id, itinerary.isPremium);
+  const navKey = editorialItineraryNavKey(itinerary);
+  const unlocked = isUnlocked(navKey, itinerary.isPremium);
   const duration = formatItineraryDuration(itinerary.durationMinutes);
-  const stepsMeta = formatItineraryStepMeta(duration, itinerary.stepPoiIds.length);
+  const stepsMeta = formatItineraryStepMeta(
+    duration,
+    editorialStepCount(itinerary),
+  );
+  const coverUri = editorialCoverImageUrl(itinerary.coverImageUrl);
 
   return (
     <View style={[styles.row, isPendingRemoval && styles.rowPending]}>
@@ -49,7 +59,7 @@ export function FavoriteItineraryRow({
         accessibilityState={{ disabled: isPendingRemoval }}
       >
         <Image
-          source={{ uri: itinerary.coverImageUrl }}
+          source={{ uri: coverUri }}
           style={styles.thumbnail}
           resizeMode="cover"
           accessibilityIgnoresInvertColors

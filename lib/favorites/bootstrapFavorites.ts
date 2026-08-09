@@ -1,6 +1,12 @@
-import { fetchAllFavorites } from '../api/favorites';
+import { fetchAllFavorites, partitionFavoriteItems } from '../api/favorites';
 import { loadStoredFavorites, saveStoredFavorites } from '../favoritesStorage';
 import { shouldUseMockData } from '../config';
+import {
+  emptyItineraryState,
+  itineraryStateFromItems,
+  itineraryStateFromLocalIds,
+  type FavoriteItinerariesState,
+} from './itineraryStore';
 import {
   emptyPlaceState,
   placeStateFromItems,
@@ -10,7 +16,7 @@ import {
 
 export interface FavoriteBootstrapResult {
   places: FavoritePlacesState;
-  itineraryIds: string[];
+  itineraries: FavoriteItinerariesState;
   useServer: boolean;
 }
 
@@ -29,29 +35,30 @@ export async function bootstrapFavoritePlaces(
   if (!useServer) {
     return {
       places: placeStateFromLocalIds(stored.placeIds),
-      itineraryIds: stored.itineraryIds,
+      itineraries: itineraryStateFromLocalIds(stored.itineraryIds),
       useServer: false,
     };
   }
 
   try {
     const serverItems = await fetchAllFavorites();
+    const { places, editorials } = partitionFavoriteItems(serverItems);
     await saveStoredFavorites({
       placeIds: [],
-      itineraryIds: stored.itineraryIds,
+      itineraryIds: [],
     });
     return {
-      places: placeStateFromItems(serverItems),
-      itineraryIds: stored.itineraryIds,
+      places: placeStateFromItems(places),
+      itineraries: itineraryStateFromItems(editorials),
       useServer: true,
     };
   } catch {
     return {
       places: placeStateFromLocalIds(stored.placeIds),
-      itineraryIds: stored.itineraryIds,
+      itineraries: itineraryStateFromLocalIds(stored.itineraryIds),
       useServer: true,
     };
   }
 }
 
-export { emptyPlaceState };
+export { emptyItineraryState, emptyPlaceState };

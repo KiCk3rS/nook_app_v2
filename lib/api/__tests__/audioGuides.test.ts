@@ -1,9 +1,11 @@
 import { shouldUseMockData } from '../../config';
 import {
   fetchAudioGuideJob,
+  fetchCreditPacks,
   fetchCreditsBalance,
   generateAudioGuide,
   generateAudioGuideAndAwaitJob,
+  purchaseCreditsPack,
 } from '../audioGuides';
 
 jest.mock('../../config', () => ({
@@ -110,6 +112,35 @@ describe('fetchCreditsBalance', () => {
   });
 });
 
+describe('fetchCreditPacks', () => {
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+
+  it('appelle GET /me/credits/packs en session réelle', async () => {
+    global.fetch = jest.fn().mockResolvedValue(
+      jsonResponse({
+        items: [
+          {
+            productId: 'credits_5',
+            credits: 5,
+            priceLabel: '2,99 €',
+            currency: 'EUR',
+            priceCents: 299,
+          },
+        ],
+      }),
+    ) as typeof fetch;
+
+    const res = await fetchCreditPacks(false);
+    expect(res.items).toHaveLength(1);
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:3000/api/v1/me/credits/packs',
+      expect.objectContaining({ method: 'GET' }),
+    );
+  });
+});
+
 describe('generateAudioGuide', () => {
   afterEach(() => {
     global.fetch = originalFetch;
@@ -201,5 +232,30 @@ describe('generateAudioGuideAndAwaitJob', () => {
 
     expect(result.outcome).toBe('launched');
     expect(result.job).toBeNull();
+  });
+});
+
+describe('purchaseCreditsPack', () => {
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+
+  it('POST /me/credits/purchase avec productId uniquement', async () => {
+    global.fetch = jest.fn().mockResolvedValue(
+      jsonResponse({
+        creditsBalance: 12,
+        subscriptionGenerationsRemaining: 1,
+      }),
+    ) as typeof fetch;
+
+    const balance = await purchaseCreditsPack('credits_15', false);
+
+    expect(balance.creditsBalance).toBe(12);
+    const [, init] = (global.fetch as jest.Mock).mock.calls[0] as [string, RequestInit];
+    expect(JSON.parse(String(init.body))).toEqual({ productId: 'credits_15' });
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:3000/api/v1/me/credits/purchase',
+      expect.objectContaining({ method: 'POST' }),
+    );
   });
 });

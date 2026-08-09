@@ -50,6 +50,7 @@ Document **dérivé** du [brief produit](./brief.md). Il sert de **source unique
 | A4.3 | **Hub ville** (vitrine territoriale) | Porte d’entrée éditoriale d’une ville : catégories d’itinéraires, premium, incontournables, affiliation. | §3.4, §3.5 | P1 |
 | A4.4 | **Hub pays** (vitrine territoriale) | Même gabarit qu’A4.3 à l’échelle nation : villes à explorer, itinéraires transverses. | §3.4, §3.5 | P2 |
 | A4.5 | **Hub quartier** (vitrine territoriale locale) | Extension A4.3 pour quartiers à contenu éditorial dense (itinéraires dédiés, POI curatés, expériences) ; défaut = fiche lieu **A3.1**. | §3.4, §3.5 | P1 |
+| A4.6 | **Hub site** (POI conteneur) | Vitrine pour grands lieux (musée, site) avec enfants, parcours de visite et affiliation ; défaut = fiche lieu **A3.1** ; flag `presentation: hub` sur le POI. | §3.3–§3.5 | P2 |
 
 ### A5. Parcours
 
@@ -114,7 +115,7 @@ Ces écrans répondent à la problématique **éditoriale et opérationnelle** d
 
 1. **Découverte spatiale** : A1.1 → A1.4 → A3.1 → A3.2 ; **création guide** : A3.1 → **A3.3** → (A8.4 / A8.3 si besoin) → A3.1 (`pending` → `ready`).  
 2. **Découverte éditoriale** : A4.1 → A3.1 → A3.2.  
-3. **Découverte territoriale** : A2.1 / A4.1 → **A4.3** → A5.7 / **A5.6** → A3.1 / A1.1 ; **A4.4** → A4.3 (pays → ville, P2) ; **A4.3** → **A4.5** (ville → quartier hub, si contenu éditorial).  
+3. **Découverte territoriale** : A2.1 / A4.1 → **A4.3** → A5.7 / **A5.6** → A3.1 / A1.1 ; **A4.4** → A4.3 (pays → ville, P2) ; **A4.3** → **A4.5** (ville → quartier hub, si contenu éditorial) ; marqueur / recherche → **A4.6** (POI conteneur hub, sinon **A3.1**).  
 4. **Recherche ciblée** : A2.1 ± A2.2 → A2.3 ou A2.4 → A3.1 ou **A4.3** (ville).  
 5. **Parcours** : A5.1 / A5.4 / A5.5 en boucle avec A1.1 et A3 ; itinéraires éditoriaux via **A5.6** / **A5.7**.  
 6. **Monétisation premium** : A4.3 / A5.6 / A5.7 → **A8.3** → contenu débloqué sur A5.6.  
@@ -133,7 +134,8 @@ Ces écrans répondent à la problématique **éditoriale et opérationnelle** d
 - **A2.1** : recherche textuelle en feuille depuis la barre carte (**A1.1**) — découverte (promu, populaires) + résultats — spec [`ecran-A2.1-recherche-textuelle.md`](./ecran-A2.1-recherche-textuelle.md). Les cartes « destination » représentant une **ville** mènent vers **A4.3** ; les **POI** unitaires restent **A3.1**.  
 - **A4.3** : hub ville — vitrine territoriale (itinéraires, premium, affiliation) — spec [`ecran-A4.3-hub-ville.md`](./ecran-A4.3-hub-ville.md). Couche entre recherche/fil et fiche lieu.  
 - **A4.4** : hub pays (P2) — réutilise le pattern **A4.3** — spec [`ecran-A4.4-hub-pays.md`](./ecran-A4.4-hub-pays.md).
-- **A4.5** : hub quartier — critères contenu (itinéraires dédiés + POI curatés) ; défaut quartier = **A3.1** — spec [`ecran-A4.5-hub-quartier.md`](./ecran-A4.5-hub-quartier.md). MVP : Le Marais (`/city/paris/district/le-marais`).  
+- **A4.5** : hub quartier — critères contenu (itinéraires dédiés + POI curatés) ; défaut quartier = **A3.1** — spec [`ecran-A4.5-hub-quartier.md`](./ecran-A4.5-hub-quartier.md). MVP : Le Marais (`/city/paris/district/le-marais`).
+- **A4.6** : hub site (POI conteneur) — mêmes seuils qu’A4.5 ; flag `presentation: hub` sur le POI ; `GET /pois/:id/hub` — spec [`ecran-A4.6-hub-site.md`](./ecran-A4.6-hub-site.md). MVP : Musée du Louvre. Intégration [T27](./integration/T27-hub-poi-site.md).  
 - **A5.5** : mode guidage pas-à-pas — spec [`ecran-A5.5-mode-guidage.md`](./ecran-A5.5-mode-guidage.md). Partagé parcours utilisateur et itinéraires éditoriaux ; entrée depuis **A5.6** ou **A5.1**.
 - **A5.1** : liste parcours enregistrés — spec [`ecran-A5.1-liste-parcours.md`](./ecran-A5.1-liste-parcours.md). Entrée depuis **A6.4** ; auth obligatoire.
 - **A5.6** : détail itinéraire éditorial — spec [`ecran-A5.6-detail-itineraire-editorial.md`](./ecran-A5.6-detail-itineraire-editorial.md). Distinct des parcours utilisateur **A5.5**.  

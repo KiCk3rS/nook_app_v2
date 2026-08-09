@@ -100,3 +100,41 @@ export function formatItineraryStepMeta(
     lng: lang,
   });
 }
+
+/** Mois + année localisés depuis une date ISO (profil memberSince). */
+export function formatMemberSinceWhen(
+  createdAt: string,
+  locale?: string,
+): string | undefined {
+  const lang = locale ?? i18n.language ?? 'fr';
+  const date = new Date(createdAt);
+  if (Number.isNaN(date.getTime())) return undefined;
+  return new Intl.DateTimeFormat(lang, {
+    month: 'long',
+    year: 'numeric',
+  }).format(date);
+}
+
+/** Libellé « Explorateur depuis … » via i18n ; `undefined` si date absente/invalide. */
+export function formatMemberSinceLabel(
+  createdAt: string | null | undefined,
+  locale?: string,
+): string | undefined {
+  if (!createdAt?.trim()) return undefined;
+  const lang = locale ?? i18n.language ?? 'fr';
+  const when = formatMemberSinceWhen(createdAt, lang);
+  if (!when) return undefined;
+  return i18n.t('profile:memberSince', { when, lng: lang });
+}
+
+/** Durée d’itinéraire éditorial (minutes → libellé i18n). */
+export function formatItineraryDuration(minutes: number, locale?: string): string {
+  return formatDurationMinutes(minutes, locale);
+}
+
+/** Distance d’itinéraire éditorial. */
+export function formatItineraryDistance(meters: number): string {
+  if (meters < 1000) return `${meters} m`;
+  const km = meters / 1000;
+  return km >= 10 ? `${Math.round(km)} km` : `${km.toFixed(1)} km`;
+}

@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,7 +12,7 @@ import {
 } from './FavoriteSuggestionRow';
 import { FAVORITES_EMPTY_SUGGESTIONS } from '../../constants/favoritesEmptySuggestions';
 import { getCityBySlug } from '../../constants/mockCities';
-import { getItineraryById } from '../../constants/mockItineraries';
+import type { EditorialItinerary } from '../../types/api';
 import { getPlaceById } from '../../constants/mockPlaces';
 import {
   colors,
@@ -22,7 +22,14 @@ import {
   surfaceCardBorder,
   textStyle,
 } from '../../constants/theme';
+import { useAuth } from '../../contexts/AuthContext';
 import { useFavorites } from '../../contexts/FavoritesContext';
+import { resolveEditorialItinerary } from '../../lib/api/editorialItineraries';
+import { isApiConfigured, shouldUseMockData } from '../../lib/config';
+import {
+  editorialCoverImageUrl,
+  editorialItineraryNavKey,
+} from '../../lib/mappers/editorialItineraries';
 import { getPlaceHref } from '../../lib/placeNavigation';
 
 const TIPS = [
@@ -34,7 +41,11 @@ const TIPS = [
 export function FavoritesEmptyState() {
   const router = useRouter();
   const { t } = useTranslation('favorites');
+  const { isMockSession } = useAuth();
   const { togglePlaceFavorite, toggleItineraryFavorite } = useFavorites();
+  const [suggestedItineraries, setSuggestedItineraries] = useState<EditorialItinerary[]>(
+    [],
+  );
 
   const city = useMemo(
     () => getCityBySlug(FAVORITES_EMPTY_SUGGESTIONS.citySlug),
@@ -49,13 +60,27 @@ export function FavoritesEmptyState() {
     [],
   );
 
-  const suggestedItineraries = useMemo(
-    () =>
-      FAVORITES_EMPTY_SUGGESTIONS.itineraryIds
-        .map((id) => getItineraryById(id))
-        .filter((itinerary) => itinerary != null),
-    [],
-  );
+  useEffect(() => {
+    let cancelled = false;
+    const useMock = shouldUseMockData(isMockSession) || !isApiConfigured();
+
+    async function loadSuggestions() {
+      const resolved = await Promise.all(
+        FAVORITES_EMPTY_SUGGESTIONS.itineraryIds.map((id) =>
+          resolveEditorialItinerary(id, { useMock }),
+        ),
+      );
+      if (cancelled) return;
+      setSuggestedItineraries(
+        resolved.filter((item): item is EditorialItinerary => item != null),
+      );
+    }
+
+    void loadSuggestions();
+    return () => {
+      cancelled = true;
+    };
+  }, [isMockSession]);
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -122,19 +147,28 @@ export function FavoritesEmptyState() {
               {t('emptySuggestionsTitle')}
             </Text>
             <View style={styles.suggestionsList}>
-              {suggestedItineraries.map((itinerary) => (
-                <FavoriteSuggestionRow
-                  key={itinerary.id}
-                  kind="itinerary"
-                  title={itinerary.title}
-                  subtitle={buildItinerarySuggestionSubtitle(itinerary)}
-                  imageUrl={itinerary.coverImageUrl}
-                  onPress={() =>
-                    router.push(`/city/${itinerary.citySlug}/itinerary/${itinerary.id}`)
-                  }
-                  onAdd={() => toggleItineraryFavorite(itinerary.id)}
-                />
-              ))}
+              {suggestedItineraries.map((itinerary) => {
+                const navKey = editorialItineraryNavKey(itinerary);
+                return (
+                  <FavoriteSuggestionRow
+                    key={itinerary.id}
+                    kind="itinerary"
+                    title={itinerary.title}
+                    subtitle={buildItinerarySuggestionSubtitle(itinerary)}
+                    imageUrl={editorialCoverImageUrl(itinerary.coverImageUrl)}
+                    onPress={() =>
+                      router.push(`/city/${itinerary.citySlug}/itinerary/${navKey}`)
+                    }
+                    onAdd={() =>
+                      toggleItineraryFavorite(itinerary.id, {
+                        title: itinerary.title,
+                        slug: itinerary.slug,
+                        coverImageUrl: itinerary.coverImageUrl,
+                      })
+                    }
+                  />
+                );
+              })}
               {suggestedPlaces.map((place) => (
                 <FavoriteSuggestionRow
                   key={place.id}

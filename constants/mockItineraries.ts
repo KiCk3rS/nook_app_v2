@@ -1,27 +1,16 @@
-/** Itinéraires éditoriaux NOOK — A5.6 / A5.7. */
+/** Itinéraires éditoriaux NOOK — A5.6 / A5.7 (fallback mock offline). */
 
 import { getDifficultyLabel } from '../lib/i18n/categoryLabels';
-import { formatDurationMinutes } from '../lib/i18n/formatters';
+import {
+  formatItineraryDistance as formatDistance,
+  formatItineraryDuration as formatDuration,
+} from '../lib/i18n/formatters';
+import type {
+  EditorialItinerary,
+  ItineraryDifficulty,
+} from '../types/api';
 
-export type ItineraryDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
-
-export interface EditorialItinerary {
-  id: string;
-  citySlug: string;
-  /** Présent si l’itinéraire est rattaché à un hub quartier (A4.5). */
-  districtSlug?: string;
-  categorySlug: string;
-  title: string;
-  description: string;
-  coverImageUrl: string;
-  durationMinutes: number;
-  distanceMeters: number;
-  difficulty: ItineraryDifficulty;
-  stepPoiIds: string[];
-  isPremium: boolean;
-  priceLabel?: string;
-  editorialOrder: number;
-}
+export type { EditorialItinerary, ItineraryDifficulty } from '../types/api';
 
 /** @deprecated Use getDifficultyLabel() from lib/i18n/categoryLabels */
 export const difficultyLabels: Record<ItineraryDifficulty, string> = {
@@ -37,7 +26,9 @@ export function getItineraryDifficultyLabel(difficulty: ItineraryDifficulty): st
 export const mockItineraries: EditorialItinerary[] = [
   {
     id: 'itin-paris-highlights',
+    slug: 'itin-paris-highlights',
     citySlug: 'paris',
+    districtSlug: null,
     categorySlug: 'highlights',
     title: 'Les incontournables de Paris',
     description:
@@ -47,13 +38,17 @@ export const mockItineraries: EditorialItinerary[] = [
     durationMinutes: 180,
     distanceMeters: 5200,
     difficulty: 'EASY',
+    stepCount: 3,
     stepPoiIds: ['1', '2', '6'],
     isPremium: false,
+    priceLabel: null,
     editorialOrder: 1,
   },
   {
     id: 'itin-paris-secrets',
+    slug: 'itin-paris-secrets',
     citySlug: 'paris',
+    districtSlug: null,
     categorySlug: 'secrets',
     title: 'Paris secret et insolite',
     description: 'Passages couverts, courtyards cachées et adresses connues des initiés.',
@@ -62,13 +57,17 @@ export const mockItineraries: EditorialItinerary[] = [
     durationMinutes: 120,
     distanceMeters: 3800,
     difficulty: 'MEDIUM',
+    stepCount: 3,
     stepPoiIds: ['3', '5', '7'],
     isPremium: false,
+    priceLabel: null,
     editorialOrder: 1,
   },
   {
     id: 'itin-paris-family',
+    slug: 'itin-paris-family',
     citySlug: 'paris',
+    districtSlug: null,
     categorySlug: 'family',
     title: 'Paris en famille',
     description: 'Un parcours adapté aux enfants avec pauses et lieux interactifs.',
@@ -77,13 +76,17 @@ export const mockItineraries: EditorialItinerary[] = [
     durationMinutes: 240,
     distanceMeters: 4500,
     difficulty: 'EASY',
+    stepCount: 3,
     stepPoiIds: ['4', '6', '8'],
     isPremium: false,
+    priceLabel: null,
     editorialOrder: 1,
   },
   {
     id: 'itin-paris-one-day',
+    slug: 'itin-paris-one-day',
     citySlug: 'paris',
+    districtSlug: null,
     categorySlug: 'one-day',
     title: 'Paris en une journée',
     description: 'Le maximum de la capitale en 8 heures, rythme soutenu.',
@@ -92,13 +95,17 @@ export const mockItineraries: EditorialItinerary[] = [
     durationMinutes: 480,
     distanceMeters: 12000,
     difficulty: 'MEDIUM',
+    stepCount: 4,
     stepPoiIds: ['1', '2', '4', '6'],
     isPremium: false,
+    priceLabel: null,
     editorialOrder: 1,
   },
   {
     id: 'itin-paris-walking',
+    slug: 'itin-paris-walking',
     citySlug: 'paris',
+    districtSlug: null,
     categorySlug: 'walking',
     title: 'Balade flâneur',
     description: 'Quartiers historiques et berges de Seine à pied, sans pression.',
@@ -107,13 +114,17 @@ export const mockItineraries: EditorialItinerary[] = [
     durationMinutes: 150,
     distanceMeters: 6000,
     difficulty: 'EASY',
+    stepCount: 3,
     stepPoiIds: ['1', '3', '5'],
     isPremium: false,
+    priceLabel: null,
     editorialOrder: 1,
   },
   {
     id: 'itin-paris-premium',
+    slug: 'itin-paris-premium',
     citySlug: 'paris',
+    districtSlug: null,
     categorySlug: 'evening',
     title: 'Paris by Night — Premium',
     description:
@@ -123,6 +134,7 @@ export const mockItineraries: EditorialItinerary[] = [
     durationMinutes: 210,
     distanceMeters: 5500,
     difficulty: 'MEDIUM',
+    stepCount: 5,
     stepPoiIds: ['1', '2', '4', '6', '5'],
     isPremium: true,
     priceLabel: '4,99 €',
@@ -130,6 +142,7 @@ export const mockItineraries: EditorialItinerary[] = [
   },
   {
     id: 'itin-marais-highlights',
+    slug: 'itin-marais-highlights',
     citySlug: 'paris',
     districtSlug: 'le-marais',
     categorySlug: 'highlights',
@@ -141,12 +154,15 @@ export const mockItineraries: EditorialItinerary[] = [
     durationMinutes: 90,
     distanceMeters: 2400,
     difficulty: 'EASY',
+    stepCount: 3,
     stepPoiIds: ['10', '11', '12'],
     isPremium: false,
+    priceLabel: null,
     editorialOrder: 1,
   },
   {
     id: 'itin-marais-secrets',
+    slug: 'itin-marais-secrets',
     citySlug: 'paris',
     districtSlug: 'le-marais',
     categorySlug: 'secrets',
@@ -157,12 +173,15 @@ export const mockItineraries: EditorialItinerary[] = [
     durationMinutes: 75,
     distanceMeters: 2100,
     difficulty: 'MEDIUM',
+    stepCount: 3,
     stepPoiIds: ['13', '14', '12'],
     isPremium: false,
+    priceLabel: null,
     editorialOrder: 1,
   },
   {
     id: 'itin-marais-walking',
+    slug: 'itin-marais-walking',
     citySlug: 'paris',
     districtSlug: 'le-marais',
     categorySlug: 'walking',
@@ -173,12 +192,15 @@ export const mockItineraries: EditorialItinerary[] = [
     durationMinutes: 120,
     distanceMeters: 3200,
     difficulty: 'EASY',
+    stepCount: 4,
     stepPoiIds: ['10', '12', '11', '13'],
     isPremium: false,
+    priceLabel: null,
     editorialOrder: 1,
   },
   {
     id: 'itin-marais-premium',
+    slug: 'itin-marais-premium',
     citySlug: 'paris',
     districtSlug: 'le-marais',
     categorySlug: 'evening',
@@ -190,6 +212,7 @@ export const mockItineraries: EditorialItinerary[] = [
     durationMinutes: 105,
     distanceMeters: 2800,
     difficulty: 'EASY',
+    stepCount: 5,
     stepPoiIds: ['10', '11', '12', '13', '14'],
     isPremium: true,
     priceLabel: '3,99 €',
@@ -197,8 +220,8 @@ export const mockItineraries: EditorialItinerary[] = [
   },
 ];
 
-export function getItineraryById(id: string): EditorialItinerary | undefined {
-  return mockItineraries.find((i) => i.id === id);
+export function getItineraryById(idOrSlug: string): EditorialItinerary | undefined {
+  return mockItineraries.find((i) => i.id === idOrSlug || i.slug === idOrSlug);
 }
 
 export function getItinerariesByCity(citySlug: string): EditorialItinerary[] {
@@ -214,7 +237,7 @@ export function getItinerariesByCategory(
     .filter((i) => {
       if (i.citySlug !== citySlug || i.categorySlug !== categorySlug) return false;
       if (districtSlug) return i.districtSlug === districtSlug;
-      return i.districtSlug === undefined;
+      return i.districtSlug == null;
     })
     .sort((a, b) => {
       if (a.editorialOrder !== b.editorialOrder) {
@@ -233,11 +256,9 @@ export function countItinerariesByCategory(
 }
 
 export function formatItineraryDuration(minutes: number): string {
-  return formatDurationMinutes(minutes);
+  return formatDuration(minutes);
 }
 
 export function formatItineraryDistance(meters: number): string {
-  if (meters < 1000) return `${meters} m`;
-  const km = meters / 1000;
-  return km >= 10 ? `${Math.round(km)} km` : `${km.toFixed(1)} km`;
+  return formatDistance(meters);
 }

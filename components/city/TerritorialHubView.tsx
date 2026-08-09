@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -30,10 +30,6 @@ import {
 import { PaywallSheet } from '../paywall/PaywallSheet';
 import { itineraryCategories } from '../../constants/itineraryCategories';
 import {
-  countItinerariesByCategory,
-  getItineraryById,
-} from '../../constants/mockItineraries';
-import {
   colors,
   componentSizes,
   radius,
@@ -42,6 +38,7 @@ import {
 } from '../../constants/theme';
 import { usePremium } from '../../contexts/PremiumContext';
 import type { TerritorialHubData } from '../../lib/mappers/cityHub';
+import { editorialItineraryNavKey } from '../../lib/mappers/editorialItineraries';
 import { getPlaceHref, getPlaceHrefById } from '../../lib/placeNavigation';
 
 export type { TerritorialHubData };
@@ -88,13 +85,9 @@ export function TerritorialHubView({
     url: string;
     partner: string;
   } | null>(null);
-  const [paywallItineraryId, setPaywallItineraryId] = useState<string | null>(null);
+  const [paywallVisible, setPaywallVisible] = useState(false);
 
-  const featuredItinerary = useMemo(() => {
-    if (!config?.featuredPremiumItineraryId) return null;
-    // T21 : itinéraires éditoriaux / premium restent mock jusqu’à l’API F-018-c.
-    return getItineraryById(config.featuredPremiumItineraryId) ?? null;
-  }, [config]);
+  const featuredItinerary = config?.featuredPremiumItinerary ?? null;
 
   const mustSeePlaces = config?.mustSeePlaces ?? [];
   const recommendedPlaces = config?.recommendedPlaces ?? [];
@@ -162,22 +155,23 @@ export function TerritorialHubView({
     router.push(`/city/${config.citySlug}/itineraries/${categorySlug}`);
   }
 
-  function openItinerary(itineraryId: string, isPremium: boolean) {
+  function openItinerary(navKey: string, isPremium: boolean) {
     if (!config) return;
-    if (isPremium && !isUnlocked(itineraryId, true)) {
-      setPaywallItineraryId(itineraryId);
+    if (isPremium && !isUnlocked(navKey, true)) {
+      setPaywallVisible(true);
       return;
     }
-    router.push(`/city/${config.citySlug}/itinerary/${itineraryId}`);
+    router.push(`/city/${config.citySlug}/itinerary/${navKey}`);
   }
 
   function handlePremiumPress() {
     if (!config || !featuredItinerary) return;
+    const navKey = editorialItineraryNavKey(featuredItinerary);
     config.onPremiumTapped?.(
-      featuredItinerary.id,
-      !isUnlocked(featuredItinerary.id, featuredItinerary.isPremium),
+      navKey,
+      !isUnlocked(navKey, featuredItinerary.isPremium),
     );
-    openItinerary(featuredItinerary.id, featuredItinerary.isPremium);
+    openItinerary(navKey, featuredItinerary.isPremium);
   }
 
   function handlePoiPress(poiId: string, section: 'must_see' | 'recommended') {
@@ -256,18 +250,9 @@ export function TerritorialHubView({
     );
   }
 
-  const paywallItinerary = paywallItineraryId
-    ? (getItineraryById(paywallItineraryId) ?? null)
-    : null;
-
-  // T21 : tuiles catégories encore basées sur `mockItineraries` (API hub vide).
+  const categoryCounts = config.itineraryCategoryCounts ?? {};
   const visibleCategories = itineraryCategories.filter(
-    (cat) =>
-      countItinerariesByCategory(
-        config.citySlug,
-        cat.slug,
-        config.districtSlug,
-      ) > 0,
+    (cat) => (categoryCounts[cat.slug] ?? 0) > 0,
   );
 
   const recommendedTitle = config.districtSlug
@@ -275,14 +260,15 @@ export function TerritorialHubView({
     : t('hub:popularFallback', { city: config.name });
 
   const touristPasses = config.touristPasses;
+  const featuredNavKey = featuredItinerary
+    ? editorialItineraryNavKey(featuredItinerary)
+    : null;
 
   return (
     <View style={styles.screen}>
       <PlaceHeroBackground imageUrl={config.coverImageUrl} />
       <PlaceHeroControls
-        isFavorite={false}
         onBack={handleBack}
-        onToggleFavorite={() => {}}
         onShare={() => void handleShare()}
       />
 
@@ -337,11 +323,7 @@ export function TerritorialHubView({
                   <CategoryTile
                     key={cat.slug}
                     category={cat}
-                    itineraryCount={countItinerariesByCategory(
-                      config.citySlug,
-                      cat.slug,
-                      config.districtSlug,
-                    )}
+                    itineraryCount={categoryCounts[cat.slug] ?? 0}
                     onPress={() => handleCategoryPress(cat.slug)}
                   />
                 ))}
@@ -349,12 +331,12 @@ export function TerritorialHubView({
             </View>
           ) : null}
 
-          {featuredItinerary ? (
+          {featuredItinerary && featuredNavKey ? (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>{t('hub:premiumSection')}</Text>
               <PremiumItineraryCard
                 itinerary={featuredItinerary}
-                isLocked={!isUnlocked(featuredItinerary.id, featuredItinerary.isPremium)}
+                isLocked={!isUnlocked(featuredNavKey, featuredItinerary.isPremium)}
                 onPress={handlePremiumPress}
               />
             </View>
@@ -463,15 +445,15 @@ export function TerritorialHubView({
       />
 
       <PaywallSheet
-        visible={paywallItineraryId !== null}
-        itinerary={paywallItinerary}
+        visible={paywallVisible}
+        itinerary={featuredItinerary}
         sourceScreen={paywallSource}
-        onClose={() => setPaywallItineraryId(null)}
+        onClose={() => setPaywallVisible(false)}
         onUnlocked={() => {
-          if (paywallItineraryId && config) {
-            router.push(`/city/${config.citySlug}/itinerary/${paywallItineraryId}`);
+          if (featuredNavKey && config) {
+            router.push(`/city/${config.citySlug}/itinerary/${featuredNavKey}`);
           }
-          setPaywallItineraryId(null);
+          setPaywallVisible(false);
         }}
       />
     </View>

@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { FavoriteItineraryRow } from '../../components/favorites/FavoriteItineraryRow';
 import { FavoritePlaceRow } from '../../components/favorites/FavoritePlaceRow';
 import { FavoritesEmptyState } from '../../components/favorites/FavoritesEmptyState';
+import { editorialItineraryNavKey } from '../../lib/mappers/editorialItineraries';
 import { UndoSnackbar } from '../../components/ui/UndoSnackbar';
 import { colors, spacing, textStyle } from '../../constants/theme';
 import { useFavorites } from '../../contexts/FavoritesContext';
@@ -137,13 +138,15 @@ export default function FavorisScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('favorites:itinerariesSection')}</Text>
             <View style={styles.list}>
-              {favoriteItineraries.map((itinerary) => (
+              {favoriteItineraries.map((itinerary) => {
+                const navKey = editorialItineraryNavKey(itinerary);
+                return (
                 <FavoriteItineraryRow
                   key={itinerary.id}
                   itinerary={itinerary}
                   isPendingRemoval={isItineraryPending(itinerary.id)}
                   onPress={() =>
-                    router.push(`/city/${itinerary.citySlug}/itinerary/${itinerary.id}`)
+                    router.push(`/city/${itinerary.citySlug}/itinerary/${navKey}`)
                   }
                   onRemove={() =>
                     requestRemoval(
@@ -152,7 +155,8 @@ export default function FavorisScreen() {
                     )
                   }
                 />
-              ))}
+                );
+              })}
             </View>
           </View>
         ) : null}

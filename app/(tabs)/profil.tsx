@@ -30,7 +30,11 @@ import {
   mapRecentListensFromHistory,
   type ProfileRecentListen,
 } from '../../lib/profile/profileStats';
+import { formatMemberSinceLabel } from '../../lib/i18n/formatters';
 import { ApiError } from '../../types/api';
+import type { UserItinerary } from '../../types/api';
+
+const RECENT_ROUTES_LIMIT = 3;
 
 export default function ProfilScreen() {
   const { t, i18n } = useTranslation(['profile', 'creditsPack']);
@@ -55,6 +59,7 @@ export default function ProfilScreen() {
   const [purchasedCredits, setPurchasedCredits] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [routesCount, setRoutesCount] = useState(MOCK_SAVED_ROUTES_COUNT);
+  const [recentRoutes, setRecentRoutes] = useState<UserItinerary[]>([]);
   const [listenHistoryTotal, setListenHistoryTotal] = useState<number | null>(null);
   const [recentListens, setRecentListens] = useState<ProfileRecentListen[]>([]);
 
@@ -70,22 +75,20 @@ export default function ProfilScreen() {
         listenHistory:
           listenHistoryTotal == null ? null : { total: listenHistoryTotal, items: [] },
         mockListenCount: MOCK_PROFILE_INSIGHTS.listenCount,
-        mockCitiesCount: MOCK_PROFILE_INSIGHTS.citiesCount,
-        memberSinceLabel: t('profile:mockMemberSince'),
+        memberSinceLabel: useMockData
+          ? t('profile:mockMemberSince')
+          : formatMemberSinceLabel(user?.createdAt, i18n.language),
       }),
     [
       favoriteItineraryIds.size,
       favoritePlaceIds.size,
+      i18n.language,
       listenHistoryTotal,
       routesCount,
       t,
       useMockData,
+      user?.createdAt,
     ],
-  );
-
-  const recentRoutes = useMemo(
-    () => (useMockData ? MOCK_USER_ITINERARIES.slice(0, 3) : []),
-    [useMockData],
   );
 
   const loadListenInsights = useCallback(async () => {
@@ -112,30 +115,34 @@ export default function ProfilScreen() {
     }
   }, [i18n.language, isAuthenticated, useMockData]);
 
-  const loadRoutesCount = useCallback(async () => {
+  const loadRoutesInsights = useCallback(async () => {
     if (!isAuthenticated) return;
-    if (isMockSession) {
+    if (useMockData) {
       setRoutesCount(MOCK_SAVED_ROUTES_COUNT);
+      setRecentRoutes(MOCK_USER_ITINERARIES.slice(0, RECENT_ROUTES_LIMIT));
       return;
     }
     if (!isApiConfigured()) {
       setRoutesCount(0);
+      setRecentRoutes([]);
       return;
     }
     try {
-      const response = await fetchItineraries({ limit: 100 });
+      const response = await fetchItineraries({ limit: RECENT_ROUTES_LIMIT });
       setRoutesCount(response.total);
+      setRecentRoutes(response.items);
     } catch {
       setRoutesCount(0);
+      setRecentRoutes([]);
     }
-  }, [isAuthenticated, isMockSession]);
+  }, [isAuthenticated, useMockData]);
 
   const refresh = useCallback(async () => {
     if (!isAuthenticated) return;
     setLoadError(null);
     try {
       await refreshProfile();
-      await Promise.all([loadRoutesCount(), loadListenInsights()]);
+      await Promise.all([loadRoutesInsights(), loadListenInsights()]);
     } catch (error) {
       if (isMockSession) return;
       if (ApiError.isUnauthorized(error)) {
@@ -148,7 +155,7 @@ export default function ProfilScreen() {
     isAuthenticated,
     isMockSession,
     loadListenInsights,
-    loadRoutesCount,
+    loadRoutesInsights,
     refreshProfile,
     t,
   ]);

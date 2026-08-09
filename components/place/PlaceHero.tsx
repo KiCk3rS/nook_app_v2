@@ -36,10 +36,11 @@ export function PlaceHeroBackground({ imageUrl }: PlaceHeroBackgroundProps) {
 }
 
 interface PlaceHeroControlsProps {
-  isFavorite: boolean;
   onBack: () => void;
-  onToggleFavorite: () => void;
   onShare: () => void;
+  /** Si omis, le bouton favori n’est pas affiché (ex. hub territorial). */
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 }
 
 /** Boutons retour / favori / partage — fixes au scroll. */
@@ -51,6 +52,7 @@ export function PlaceHeroControls({
 }: PlaceHeroControlsProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('common');
+  const showFavorite = onToggleFavorite != null && isFavorite != null;
 
   return (
     <View
@@ -68,19 +70,21 @@ export function PlaceHeroControls({
           <Ionicons name="chevron-back" size={22} color={colors.ink} />
         </Pressable>
         <View style={styles.actions}>
-          <Pressable
-            style={styles.iconButton}
-            onPress={onToggleFavorite}
-            accessibilityRole="button"
-            accessibilityLabel={isFavorite ? t('removeFavorite') : t('addFavorite')}
-            hitSlop={8}
-          >
-            <Ionicons
-              name={isFavorite ? 'heart' : 'heart-outline'}
-              size={20}
-              color={isFavorite ? colors.primary : colors.ink}
-            />
-          </Pressable>
+          {showFavorite ? (
+            <Pressable
+              style={styles.iconButton}
+              onPress={onToggleFavorite}
+              accessibilityRole="button"
+              accessibilityLabel={isFavorite ? t('removeFavorite') : t('addFavorite')}
+              hitSlop={8}
+            >
+              <Ionicons
+                name={isFavorite ? 'heart' : 'heart-outline'}
+                size={20}
+                color={isFavorite ? colors.primary : colors.ink}
+              />
+            </Pressable>
+          ) : null}
           <Pressable
             style={styles.iconButton}
             onPress={onShare}

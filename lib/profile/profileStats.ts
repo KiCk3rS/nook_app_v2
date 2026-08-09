@@ -19,7 +19,7 @@ export interface ProfileStatsInput {
   itineraryFavoritesCount: number;
   listenHistory: Pick<PaginatedResponse<ListenHistoryEntry>, 'total' | 'items'> | null;
   mockListenCount: number;
-  mockCitiesCount: number;
+  /** Label déjà résolu (mock ou `formatMemberSinceLabel`). */
   memberSinceLabel?: string;
 }
 
@@ -27,7 +27,6 @@ export interface ProfileStatsResult {
   routesCount: number;
   favoritesCount: number;
   listenCount: number;
-  citiesCount: number;
   memberSinceLabel?: string;
 }
 
@@ -66,8 +65,7 @@ export function buildProfileStats(input: ProfileStatsInput): ProfileStatsResult 
       input.mockListenCount,
       input.useMockData,
     ),
-    citiesCount: input.useMockData ? input.mockCitiesCount : 0,
-    memberSinceLabel: input.useMockData ? input.memberSinceLabel : undefined,
+    memberSinceLabel: input.memberSinceLabel,
   };
 }
 

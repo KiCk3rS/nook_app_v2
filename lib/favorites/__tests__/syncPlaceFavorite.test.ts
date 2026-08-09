@@ -6,10 +6,10 @@ import {
 describe('syncPlaceFavoriteWithServer', () => {
   it('ajoute via POST et retourne l’item', async () => {
     const item = {
-      id: 'f1',
-      poiId: 'poi-a',
+      targetType: 'poi' as const,
+      id: 'poi-a',
       createdAt: '2026-07-05T10:00:00.000Z',
-      poi: { title: 'Lieu', status: 'PUBLISHED' },
+      target: { id: 'poi-a', title: 'Lieu', status: 'PUBLISHED' },
     };
     const api = {
       addFavorite: jest.fn().mockResolvedValue(item),

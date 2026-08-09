@@ -20,26 +20,33 @@ import { SearchHeader } from '../../components/home/SearchHeader';
 import { ServiceDegradedBanner } from '../../components/home/ServiceDegradedBanner';
 import { SearchSheet } from '../../components/search/SearchSheet';
 import type { PermissionType } from '../../constants/permissions';
-import { getPlaceById, parisRegion } from '../../constants/mockPlaces';
 import { getCityBySlug } from '../../constants/mockCities';
 import { getDistrictBySlug } from '../../constants/mockDistricts';
-import { getItineraryById } from '../../constants/mockItineraries';
+import { PLACE_IMAGE_PLACEHOLDER } from '../../constants/placeImages';
+import type { MockPlace } from '../../constants/mockPlaces';
+import { parisRegion } from '../../constants/mockPlaces';
 import { useAudioPlayback } from '../../contexts/AudioPlaybackContext';
 import { useServiceHealth } from '../../contexts/ServiceHealthContext';
 import { colors, miniPlayerHeight, spacing, textStyle, zIndex, radius } from '../../constants/theme';
 import { useLocationPermission } from '../../hooks/useLocationPermission';
 import { usePoisInBbox } from '../../hooks/usePoisInBbox';
+import { fetchEditorialItinerary } from '../../lib/api/editorialItineraries';
 import { isApiConfigured } from '../../lib/config';
 import { parseFocusMapRegion } from '../../lib/focusMapRegion';
 import type { MapRegion } from '../../lib/itineraryMap';
 import { markerToPreview, mockPlaceToPreview } from '../../lib/mappers/poi';
+import { editorialItineraryNavKey } from '../../lib/mappers/editorialItineraries';
 import type { PermissionSheetSource } from '../../lib/analytics';
 import { trackItineraryMapViewed } from '../../lib/analytics';
 import {
   clampStepIndex,
+  guidanceStepsFromApiSteps,
+  guidanceStepsFromPoiIds,
   parseFocusItineraryParam,
   resolveItineraryPlaces,
 } from '../../lib/itineraryMap';
+import type { EditorialItinerary } from '../../types/api';
+import { getItineraryById } from '../../constants/mockItineraries';
 
 
 
@@ -101,27 +108,72 @@ export default function CarteScreen() {
   } = useLocationPermission();
 
   const [mapRegion, setMapRegion] = useState<MapRegion>(parisRegion);
+  const [itineraryMapSession, setItineraryMapSession] = useState<{
+    itinerary: EditorialItinerary;
+    places: MockPlace[];
+    stepIndex?: number;
+  } | null>(null);
 
-  const itineraryMapSession = useMemo(() => {
-    if (typeof focusItinerary !== 'string' || !focusItinerary.trim()) {
-      return null;
+  useEffect(() => {
+    let cancelled = false;
+
+    async function resolveFocusItinerary() {
+      if (typeof focusItinerary !== 'string' || !focusItinerary.trim()) {
+        setItineraryMapSession(null);
+        return;
+      }
+
+      const parsed = parseFocusItineraryParam(focusItinerary);
+      if (!parsed) {
+        setItineraryMapSession(null);
+        return;
+      }
+
+      try {
+        let itinerary: EditorialItinerary | null = null;
+        let places: MockPlace[] = [];
+
+        if (!isApiConfigured()) {
+          itinerary = getItineraryById(parsed.itineraryId) ?? null;
+          places = itinerary ? resolveItineraryPlaces(itinerary.stepPoiIds) : [];
+        } else {
+          const detail = await fetchEditorialItinerary(parsed.itineraryId);
+          itinerary = detail;
+          const steps =
+            detail.steps.length > 0
+              ? guidanceStepsFromApiSteps(detail.steps)
+              : guidanceStepsFromPoiIds(detail.stepPoiIds);
+          places = steps.map((step) => ({
+            id: step.id,
+            name: step.name,
+            latitude: step.latitude ?? 0,
+            longitude: step.longitude ?? 0,
+            categoryId: 'culture',
+            address: step.address ?? '',
+            imageUrl: step.imageUrl ?? PLACE_IMAGE_PLACEHOLDER,
+            description: '',
+            audioGuides: [],
+          }));
+        }
+
+        if (cancelled || !itinerary || places.length === 0) {
+          if (!cancelled) setItineraryMapSession(null);
+          return;
+        }
+
+        setItineraryMapSession({
+          itinerary,
+          places,
+          stepIndex: clampStepIndex(parsed.stepIndex, places.length),
+        });
+      } catch {
+        if (!cancelled) setItineraryMapSession(null);
+      }
     }
 
-    const parsed = parseFocusItineraryParam(focusItinerary);
-    if (!parsed) return null;
-
-    const itinerary = getItineraryById(parsed.itineraryId);
-    if (!itinerary) return null;
-
-    const places = resolveItineraryPlaces(itinerary.stepPoiIds);
-    if (places.length === 0) return null;
-
-    const stepIndex = clampStepIndex(parsed.stepIndex, places.length);
-
-    return {
-      itinerary,
-      places,
-      stepIndex,
+    void resolveFocusItinerary();
+    return () => {
+      cancelled = true;
     };
   }, [focusItinerary]);
 
@@ -169,7 +221,7 @@ export default function CarteScreen() {
     if (!itineraryMapSession) return;
 
     trackItineraryMapViewed(
-      itineraryMapSession.itinerary.id,
+      editorialItineraryNavKey(itineraryMapSession.itinerary),
       itineraryMapSession.stepIndex != null ? 'guidance' : 'itinerary_detail',
       itineraryMapSession.stepIndex,
     );
@@ -216,9 +268,7 @@ export default function CarteScreen() {
     const marker = mapPlaces.find((p) => p.id === selectedPlaceId);
     if (marker) return markerToPreview(marker);
 
-    const mock = getPlaceById(selectedPlaceId);
-    if (mock) return mockPlaceToPreview(mock);
-
+    // Hors bbox / hors session : pas de fallback mock silencieux (T20 / INV-13).
     return null;
   }, [itineraryMapSession, mapPlaces, selectedPlaceId]);
 
@@ -248,17 +298,18 @@ export default function CarteScreen() {
 
   function handleOpenItineraryDetail() {
     if (!itineraryMapSession) return;
-    const { id, citySlug } = itineraryMapSession.itinerary;
+    const navKey = editorialItineraryNavKey(itineraryMapSession.itinerary);
+    const { citySlug } = itineraryMapSession.itinerary;
     const { stepIndex } = itineraryMapSession;
     setSelectedPlaceId(null);
     router.setParams({ focusItinerary: undefined });
 
     if (stepIndex != null) {
-      router.push(`/city/${citySlug}/itinerary/${id}/guide?step=${stepIndex}`);
+      router.push(`/city/${citySlug}/itinerary/${navKey}/guide?step=${stepIndex}`);
       return;
     }
 
-    router.push(`/city/${citySlug}/itinerary/${id}`);
+    router.push(`/city/${citySlug}/itinerary/${navKey}`);
   }
 
   const statusBarScrimHeight = insets.top + spacing.base;

@@ -16,7 +16,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { MOCK_PROFILE_INSIGHTS } from '../../constants/mockProfileInsights';
 import { formatStepsCount } from '../../lib/i18n/formatters';
 import {
   colors,
@@ -46,7 +45,6 @@ export interface ProfileDashboardStats {
   routesCount: number;
   favoritesCount: number;
   listenCount: number;
-  citiesCount: number;
   memberSinceLabel?: string;
 }
 
@@ -173,8 +171,7 @@ export function ProfileAuthenticatedView({
   const heroControlsActive = scrollY < HERO_CONTROLS_SCROLL_THRESHOLD;
 
   const displayName = getUserDisplayName(user);
-  const memberLabel =
-    stats.memberSinceLabel ?? MOCK_PROFILE_INSIGHTS.memberSinceLabel;
+  const memberLabel = stats.memberSinceLabel;
 
   const creditsSubtitle =
     creditsBalance === null
@@ -256,7 +253,9 @@ export function ProfileAuthenticatedView({
             </View>
             <Text style={styles.heroName}>{displayName}</Text>
             <Text style={styles.heroEmail}>{maskEmail(user.email)}</Text>
-            <Text style={styles.heroMember}>{memberLabel}</Text>
+            {memberLabel ? (
+              <Text style={styles.heroMember}>{memberLabel}</Text>
+            ) : null}
             <View style={styles.editPill}>
               <Ionicons name="create-outline" size={14} color={colors.onDark} />
               <Text style={styles.editPillText}>{t('profile:editProfile')}</Text>
@@ -507,9 +506,11 @@ export function ProfileAuthenticatedView({
             <Text style={[styles.heroEmail, styles.heroControlGhost]} pointerEvents="none">
               {maskEmail(user.email)}
             </Text>
-            <Text style={[styles.heroMember, styles.heroControlGhost]} pointerEvents="none">
-              {memberLabel}
-            </Text>
+            {memberLabel ? (
+              <Text style={[styles.heroMember, styles.heroControlGhost]} pointerEvents="none">
+                {memberLabel}
+              </Text>
+            ) : null}
             <Pressable
               style={({ pressed }) => [
                 styles.editPill,

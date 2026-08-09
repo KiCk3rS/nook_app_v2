@@ -2,9 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import type { EditorialItinerary } from '../../constants/mockItineraries';
-import { formatItineraryDuration } from '../../constants/mockItineraries';
-import { formatItineraryStepMeta } from '../../lib/i18n/formatters';
+import type { EditorialItinerary } from '../../types/api';
+import { formatItineraryDuration, formatItineraryStepMeta } from '../../lib/i18n/formatters';
+import {
+  editorialCoverImageUrl,
+  editorialStepCount,
+} from '../../lib/mappers/editorialItineraries';
 import {
   colors,
   elevation,
@@ -29,7 +32,11 @@ export function PremiumItineraryCard({
 }: PremiumItineraryCardProps) {
   const { t } = useTranslation('hub');
   const duration = formatItineraryDuration(itinerary.durationMinutes);
-  const stepsMeta = formatItineraryStepMeta(duration, itinerary.stepPoiIds.length);
+  const stepsMeta = formatItineraryStepMeta(
+    duration,
+    editorialStepCount(itinerary),
+  );
+  const coverUri = editorialCoverImageUrl(itinerary.coverImageUrl);
 
   return (
     <Pressable
@@ -43,7 +50,7 @@ export function PremiumItineraryCard({
     >
       <View style={styles.imageWrap}>
         <Image
-          source={{ uri: itinerary.coverImageUrl }}
+          source={{ uri: coverUri }}
           style={[styles.image, isLocked && styles.imageLocked]}
           resizeMode="cover"
           accessibilityIgnoresInvertColors

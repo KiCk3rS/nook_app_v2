@@ -1,11 +1,12 @@
 import { useTranslation } from 'react-i18next';
 
-import type { EditorialItinerary } from '../../constants/mockItineraries';
+import type { EditorialItinerary } from '../../types/api';
 import {
   formatItineraryDuration,
   getItineraryDifficultyLabel,
 } from '../../constants/mockItineraries';
 import { formatItineraryStepMeta } from '../../lib/i18n/formatters';
+import { editorialStepCount } from '../../lib/mappers/editorialItineraries';
 import { ItineraryRow } from './ItineraryRow';
 
 interface ItineraryListRowProps {
@@ -19,7 +20,7 @@ export function ItineraryListRow({ itinerary, isLocked, onPress }: ItineraryList
   const duration = formatItineraryDuration(itinerary.durationMinutes);
   const stepsMeta = formatItineraryStepMeta(
     duration,
-    itinerary.stepPoiIds.length,
+    editorialStepCount(itinerary),
   );
 
   return (

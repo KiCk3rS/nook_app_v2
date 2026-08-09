@@ -10,33 +10,34 @@ describe('placeStateFromItems', () => {
   it('conserve l’ordre serveur sans doublons', () => {
     const state = placeStateFromItems([
       {
-        id: 'f1',
-        poiId: 'poi-a',
+        targetType: 'poi',
+        id: 'poi-a',
         createdAt: '2026-07-05T10:00:00.000Z',
-        poi: { title: 'A', status: 'PUBLISHED' },
+        target: { id: 'poi-a', title: 'A', status: 'PUBLISHED' },
       },
       {
-        id: 'f2',
-        poiId: 'poi-b',
+        targetType: 'poi',
+        id: 'poi-b',
         createdAt: '2026-07-05T09:00:00.000Z',
-        poi: { title: 'B', status: 'PUBLISHED' },
+        target: { id: 'poi-b', title: 'B', status: 'PUBLISHED' },
       },
     ]);
 
     expect(state.order).toEqual(['poi-a', 'poi-b']);
-    expect(state.items.get('poi-a')?.poi.title).toBe('A');
+    expect(state.items.get('poi-a')?.target.title).toBe('A');
   });
 });
 
 describe('createOptimisticPlaceItem', () => {
   it('utilise le hint title quand fourni', () => {
     const item = createOptimisticPlaceItem('poi-api', { title: 'Tour Eiffel' });
-    expect(item.poi.title).toBe('Tour Eiffel');
+    expect(item.id).toBe('poi-api');
+    expect(item.target.title).toBe('Tour Eiffel');
   });
 
   it('retombe sur le mock local si pas de hint', () => {
     const item = createOptimisticPlaceItem('1');
-    expect(item.poi.title).toBeTruthy();
+    expect(item.target.title).toBeTruthy();
   });
 });
 

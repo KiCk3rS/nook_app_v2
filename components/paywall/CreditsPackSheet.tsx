@@ -30,7 +30,6 @@ import {
   trackCreditsPackSheetOpen,
   type CreditsPackSource,
 } from '../../lib/analytics';
-import { CREDIT_PACK_OPTIONS } from '../../lib/mockAudioGuideCreation';
 
 interface CreditsPackSheetProps {
   visible: boolean;
@@ -54,12 +53,20 @@ export function CreditsPackSheet({
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated } = useAuth();
-  const { balance, purchasePack, refreshBalance } = useCredits();
+  const {
+    balance,
+    packs,
+    isLoadingPacks,
+    packsError,
+    purchasePack,
+    refreshBalance,
+    loadPacks,
+  } = useCredits();
   const { hasSubscription, restorePurchases } = usePremium();
   const [selectedIndex, setSelectedIndex] = useState(1);
   const [isPurchasing, setIsPurchasing] = useState(false);
 
-  const selectedPack = CREDIT_PACK_OPTIONS[selectedIndex] ?? CREDIT_PACK_OPTIONS[1];
+  const selectedPack = packs[selectedIndex] ?? packs[0];
 
   const handleClose = useCallback(() => {
     if (isPurchasing) return;
@@ -70,19 +77,22 @@ export function CreditsPackSheet({
     if (!visible) return;
     trackCreditsPackSheetOpen(sourceScreen, requiredCredits);
     void refreshBalance();
+    void loadPacks();
+  }, [visible, requiredCredits, refreshBalance, loadPacks, sourceScreen]);
+
+  useEffect(() => {
+    if (!visible || packs.length === 0) return;
     if (requiredCredits) {
-      const recommendedIndex = CREDIT_PACK_OPTIONS.findIndex(
-        (pack) => pack.credits >= requiredCredits,
-      );
-      if (recommendedIndex >= 0) {
-        setSelectedIndex(recommendedIndex);
-      }
+      const recommendedIndex = packs.findIndex((pack) => pack.credits >= requiredCredits);
+      setSelectedIndex(recommendedIndex >= 0 ? recommendedIndex : 0);
+    } else {
+      setSelectedIndex(Math.min(1, packs.length - 1));
     }
-  }, [visible, requiredCredits, refreshBalance, sourceScreen]);
+  }, [visible, packs, requiredCredits]);
 
   function handleSelectPack(index: number) {
     setSelectedIndex(index);
-    const pack = CREDIT_PACK_OPTIONS[index];
+    const pack = packs[index];
     if (pack) {
       trackCreditsPackSelected(pack.productId, pack.credits);
     }
@@ -96,7 +106,7 @@ export function CreditsPackSheet({
   }
 
   async function handlePurchase() {
-    if (isPurchasing) return;
+    if (isPurchasing || !selectedPack) return;
 
     if (!isAuthenticated) {
       handleSignIn();
@@ -104,9 +114,8 @@ export function CreditsPackSheet({
     }
 
     setIsPurchasing(true);
-    await new Promise((resolve) => setTimeout(resolve, 600));
     try {
-      await purchasePack(selectedPack.credits);
+      await purchasePack(selectedPack.productId);
       trackCreditsPackPurchaseSuccess(selectedPack.productId, selectedPack.credits);
       onPurchaseSuccess(selectedPack.credits);
       onClose();
@@ -160,49 +169,59 @@ export function CreditsPackSheet({
 
           <Text style={styles.reminder}>{t('creditsPack:tierReminder')}</Text>
 
-          <View style={styles.packList}>
-            {CREDIT_PACK_OPTIONS.map((pack, index) => {
-              const isSelected = index === selectedIndex;
-              return (
-                <Pressable
-                  key={pack.productId}
-                  onPress={() => handleSelectPack(index)}
-                  style={({ pressed }) => [
-                    styles.packCard,
-                    isSelected && styles.packCardSelected,
-                    pressed && styles.packCardPressed,
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: isSelected }}
-                  accessibilityLabel={t('creditsPack:packAccessibility', {
-                    credits: pack.credits,
-                    price: pack.priceLabel,
-                  })}
-                >
-                  <Text style={styles.packCredits}>
-                    {t('creditsPack:packCredits', { count: pack.credits })}
-                  </Text>
-                  <Text style={styles.packPrice}>{pack.priceLabel}</Text>
-                </Pressable>
-              );
-            })}
-          </View>
+          {packsError ? <Text style={styles.loadError}>{t('common:errorGeneric')}</Text> : null}
+
+          {isLoadingPacks ? (
+            <ActivityIndicator color={colors.primary} />
+          ) : (
+            <View style={styles.packList}>
+              {packs.map((pack, index) => {
+                const isSelected = index === selectedIndex;
+                return (
+                  <Pressable
+                    key={pack.productId}
+                    onPress={() => handleSelectPack(index)}
+                    style={({ pressed }) => [
+                      styles.packCard,
+                      isSelected && styles.packCardSelected,
+                      pressed && styles.packCardPressed,
+                    ]}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: isSelected }}
+                    accessibilityLabel={t('creditsPack:packAccessibility', {
+                      credits: pack.credits,
+                      price: pack.priceLabel,
+                    })}
+                  >
+                    <Text style={styles.packCredits}>
+                      {t('creditsPack:packCredits', { count: pack.credits })}
+                    </Text>
+                    <Text style={styles.packPrice}>{pack.priceLabel}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
 
           <Pressable
             onPress={() => void handlePurchase()}
-            disabled={isPurchasing}
+            disabled={isPurchasing || isLoadingPacks || !selectedPack}
             style={({ pressed }) => [
               styles.primaryBtn,
               pressed && !isPurchasing && styles.primaryBtnPressed,
             ]}
             accessibilityRole="button"
-            accessibilityLabel={t('creditsPack:ctaContinue', { price: selectedPack.priceLabel })}
+            accessibilityLabel={t('creditsPack:ctaContinue', {
+              price: selectedPack?.priceLabel ?? '',
+            })}
           >
             {isPurchasing ? (
               <ActivityIndicator color={colors.onPrimary} />
             ) : (
               <Text style={styles.primaryBtnText}>
-                {t('creditsPack:ctaContinue', { price: selectedPack.priceLabel })}
+                {t('creditsPack:ctaContinue', {
+                  price: selectedPack?.priceLabel ?? '',
+                })}
               </Text>
             )}
           </Pressable>
@@ -288,6 +307,10 @@ const styles = StyleSheet.create({
   reminder: {
     ...textStyle('bodySm'),
     color: colors.muted,
+  },
+  loadError: {
+    ...textStyle('bodySm'),
+    color: colors.error,
   },
   packList: {
     gap: spacing.sm,

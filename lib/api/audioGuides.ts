@@ -2,6 +2,7 @@ import { shouldUseMockData } from '../config';
 import type { AudioGuide } from '../../constants/mockPlaces';
 import type {
   AudioGuideJob,
+  CreditPacksResponse,
   CreditsBalance,
   GenerateAudioGuidePayload,
   GenerateAudioGuideResponse,
@@ -12,6 +13,7 @@ import {
   type GenerateAudioGuideAwaitResult,
 } from '../mappers/audioGuideCreation';
 import { apiRequest } from './client';
+import { DEMO_CREDIT_PACKS } from '../../constants/creditPacks';
 import {
   mockFetchAudioGuideJob,
   mockFetchCreditsBalance,
@@ -42,6 +44,15 @@ export function fetchCreditsBalance(options?: {
     return mockFetchCreditsBalance(options);
   }
   return apiRequest<CreditsBalance>('/me/credits', { auth: true });
+}
+
+export function fetchCreditPacks(demoSession = false): Promise<CreditPacksResponse> {
+  if (usesMockLayer(demoSession)) {
+    return Promise.resolve({
+      items: DEMO_CREDIT_PACKS.map((pack) => ({ ...pack })),
+    });
+  }
+  return apiRequest<CreditPacksResponse>('/me/credits/packs', { auth: true });
 }
 
 export async function generateAudioGuide(
@@ -129,15 +140,15 @@ export function fetchPrivateGuidesForPlace(
 }
 
 export function purchaseCreditsPack(
-  credits: number,
+  productId: string,
   demoSession = false,
 ): Promise<CreditsBalance> {
   if (usesMockLayer(demoSession)) {
-    return mockPurchaseCreditsPack(credits);
+    return mockPurchaseCreditsPack(productId);
   }
   return apiRequest<CreditsBalance>('/me/credits/purchase', {
     method: 'POST',
     auth: true,
-    body: { credits },
+    body: { productId },
   });
 }

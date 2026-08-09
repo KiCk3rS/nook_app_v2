@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { DEMO_CREDIT_PACKS, getDemoCreditPack } from '../constants/creditPacks';
 import type { AudioGuide } from '../constants/mockPlaces';
 import { getTierCreditCost } from '../constants/audioGuideTiers';
 import type {
@@ -27,11 +28,8 @@ export const DEFAULT_MOCK_CREDITS: CreditsBalance = {
   subscriptionGenerationsRemaining: 2,
 };
 
-export const CREDIT_PACK_OPTIONS = [
-  { productId: 'credits_5', credits: 5, priceLabel: '2,99 €' },
-  { productId: 'credits_15', credits: 15, priceLabel: '6,99 €' },
-  { productId: 'credits_30', credits: 30, priceLabel: '11,99 €' },
-] as const;
+/** @deprecated Préférer `DEMO_CREDIT_PACKS` (`constants/creditPacks`). */
+export const CREDIT_PACK_OPTIONS = DEMO_CREDIT_PACKS;
 
 interface StoredJob {
   id: string;
@@ -157,9 +155,15 @@ export async function mockFetchCreditsBalance(
   return { ...store.credits };
 }
 
-export async function mockPurchaseCreditsPack(credits: number): Promise<CreditsBalance> {
+export async function mockPurchaseCreditsPack(
+  productId: string,
+): Promise<CreditsBalance> {
+  const pack = getDemoCreditPack(productId);
+  if (!pack) {
+    throw new Error(`Unknown credit pack: ${productId}`);
+  }
   const store = await loadStore();
-  store.credits.creditsBalance += credits;
+  store.credits.creditsBalance += pack.credits;
   await saveStore(store);
   return { ...store.credits };
 }

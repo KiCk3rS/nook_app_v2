@@ -1,6 +1,7 @@
 import {
   buildItinerariesLoadMoreQuery,
   mapItineraryDetailResponse,
+  resolveCoverImageUrl,
   stepsToCoordinates,
 } from '../itineraries';
 
@@ -24,6 +25,20 @@ describe('mapItineraryDetailResponse', () => {
     expect(detail.stepCount).toBe(3);
     expect(detail.poiIds).toEqual(['poi-a', 'poi-b', 'poi-c']);
     expect(detail.steps.map((s) => s.order)).toEqual([0, 1, 2]);
+  });
+});
+
+describe('resolveCoverImageUrl', () => {
+  it('retourne coverImageUrl trimée si présente', () => {
+    expect(
+      resolveCoverImageUrl({ coverImageUrl: '  https://cdn.example.com/c.jpg  ' }),
+    ).toBe('https://cdn.example.com/c.jpg');
+  });
+
+  it('retourne undefined sans cover (placeholder UI, pas mock)', () => {
+    expect(resolveCoverImageUrl({})).toBeUndefined();
+    expect(resolveCoverImageUrl({ coverImageUrl: null })).toBeUndefined();
+    expect(resolveCoverImageUrl({ coverImageUrl: '   ' })).toBeUndefined();
   });
 });
 

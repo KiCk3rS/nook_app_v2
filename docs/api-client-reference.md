@@ -127,12 +127,16 @@ Implémentation : `src/health/health.controller.ts`.
 | POST | `/api/v1/auth/login` | none | Connexion | 200 + tokens ; 401 identifiants invalides ; 422 ; 429 |
 | POST | `/api/v1/auth/refresh` | none | Nouvelle paire de tokens | 200 ; 401 refresh invalide/expiré ; 429 |
 | POST | `/api/v1/auth/logout` | none | Révocation du refresh | 200 `{ "ok": true }` ; 422 ; 429 |
+| POST | `/api/v1/auth/forgot-password` | none | Demande reset MDP (réponse neutre) | 200 `{ "ok": true }` ; 422 ; 429 |
+| POST | `/api/v1/auth/reset-password` | none | Appliquer nouveau MDP via jeton | 200 `{ "ok": true }` ; 401 jeton invalide/expiré ; 422 ; 429 |
 
 **Corps utiles (exemples)**
 
 - Register : `{ "email": "…", "password": "… (≥8)", "displayName?": "…", "firstName?": "…", "lastName?": "…", "birthDate?": "ISO" }` — DTO : `src/auth/dto/register.dto.ts`
 - Login : `{ "email": "…", "password": "…" }` — `src/auth/dto/login.dto.ts`
 - Refresh / Logout : `{ "refreshToken": "…" }` — `src/auth/dto/refresh.dto.ts`, `src/auth/dto/logout.dto.ts`
+- Forgot password : `{ "email": "…" }` — `src/auth/dto/forgot-password.dto.ts` — en non-production le jeton plain est **logué** côté API (pas d’e-mail SMTP en V1).
+- Reset password : `{ "token": "…", "password": "… (≥8)" }` — `src/auth/dto/reset-password.dto.ts`
 
 Implémentation : `src/auth/auth.controller.ts`.
 
@@ -239,6 +243,29 @@ Seules les villes `status = PUBLISHED`. Tri : `sortOrder DESC, name ASC, id ASC`
 
 ---
 
+### Itinéraires éditoriaux (T21a / F-018-c)
+
+> Parcours curated hub ville / quartier — **distincts** des parcours utilisateur F-010 (`/itineraries`).
+
+| Méthode | Chemin | Auth | Description | Codes notables |
+|--------|--------|------|-------------|----------------|
+| GET | `/api/v1/editorial-itineraries` | none | Liste paginée (ville requise) | 200 ; 404 ; 422 |
+| GET | `/api/v1/editorial-itineraries/:idOrSlug` | none | Détail + étapes géolocalisées | 200 ; 404 ; 422 |
+
+**`GET /editorial-itineraries`** — query : `citySlug` (requis), `categorySlug?`, `districtSlug?`, `limit` (défaut 20, max 100), `offset`.  
+- Sans `districtSlug` : uniquement itinéraires **sans** district (scope ville).  
+- Avec `districtSlug` : filtrés sur ce quartier publié.  
+Seuls les enregistrements `status = PUBLISHED`. Tri déterministe : `editorialOrder ASC, id ASC`.  
+Réponse : `PaginatedResponse<EditorialItineraryListItemDto>` — `id`, `slug`, `citySlug`, `districtSlug|null`, `categorySlug`, `title`, `description`, `coverImageUrl`, `durationMinutes`, `distanceMeters`, `difficulty`, `stepCount`, `stepPoiIds`, `isPremium`, `priceLabel`, `editorialOrder`.
+
+**`GET /editorial-itineraries/:idOrSlug`** — UUID ou slug ; `PUBLISHED` uniquement.  
+Réponse détail + `steps[]` : `{ order, poiId, title, lat, lng }`.
+
+Hubs ville / quartier exposent aussi `itineraryCategories: [{ slug, itineraryCount }]` et `featuredPremiumItinerary` (résumé).  
+Seed : slugs `itin-paris-*`, `itin-marais-*`.
+
+---
+
 ### Itinéraires (parcours utilisateur)
 
 **Périmètre app actuel :** consultation (`GET`) et suppression (`DELETE`) uniquement. Création et édition (`POST` / `PATCH`) hors périmètre.
@@ -267,10 +294,16 @@ DTO : `src/itineraries/dto/create-itinerary.dto.ts`, `patch-itinerary.dto.ts`
 
 | Méthode | Chemin | Auth | Description | Codes notables |
 |--------|--------|------|-------------|----------------|
-| GET | `/api/v1/me/favorites` | Bearer | Liste favoris (F-011) | 200 ; 401 ; 422 |
-| POST | `/api/v1/me/favorites` | Bearer | Ajouter `{ "poiId" }` | **201** création, **200** si déjà favori ; 401 ; 422 |
-| POST | `/api/v1/me/favorites/:poiId` | Bearer | Idem par chemin | 201 / 200 |
-| DELETE | `/api/v1/me/favorites/:poiId` | Bearer | Retirer | **204** (idempotent si absent) ; 401 |
+| GET | `/api/v1/me/favorites` | Bearer | Liste favoris discriminés (F-011 / T21b) | 200 ; 401 ; 422 |
+| POST | `/api/v1/me/favorites` | Bearer | Ajouter `{ "targetType", "targetId" }` | **201** création, **200** si déjà favori ; 401 ; 422 |
+| DELETE | `/api/v1/me/favorites/:targetType/:targetId` | Bearer | Retirer (`poi` \| `editorial_itinerary` + UUID) | **204** (idempotent si absent) ; 401 ; 422 |
+
+Items GET/POST : envelope `{ targetType, id, createdAt, target }` où `id` = `targetId`.
+
+- **POI** : `{ "targetType": "poi", "id": "<poiId>", "createdAt", "target": { "id", "title", "status" } }`
+- **Éditorial** : `{ "targetType": "editorial_itinerary", "id": "<editorialId>", "createdAt", "target": { "id", "slug", "title", "coverImageUrl" } }`
+
+POST body : `{ "targetType": "poi" \| "editorial_itinerary", "targetId": "<uuid>" }` ; 422 si validation / cible non publiée.
 
 DTO : `src/favorites/dto/add-favorite.dto.ts`, `list-favorites.query.dto.ts`, réponses `src/favorites/dto/*.response.dto.ts`  
 Implémentation : `src/favorites/favorites.controller.ts`.
@@ -307,7 +340,8 @@ Implémentation : `src/guide-chat/guide-chat.controller.ts`.
 | Méthode | Chemin | Auth | Description | Codes notables |
 |--------|--------|------|-------------|----------------|
 | GET | `/api/v1/me/credits` | Bearer | Solde crédits + quota générations abonnement (mois courant) | 200 ; 401 |
-| POST | `/api/v1/me/credits/purchase` | Bearer | Achat pack crédits (**stub** sans validation store) | 200 ; 401 ; 422 ; 429 |
+| GET | `/api/v1/me/credits/packs` | Bearer | Catalogue packs IAP (prix / crédits) | 200 ; 401 |
+| POST | `/api/v1/me/credits/purchase` | Bearer | Achat pack crédits (**stub** ; corps `{ "productId" }` requis) | 200 ; 401 ; 400 pack inconnu ; 422 ; 429 |
 | POST | `/api/v1/me/pois/:poiId/audio-guides/generate` | Bearer | Lance un job ; guide **privé auteur** | **202** + `jobId`, `guideId`, `paymentType` ; 401 ; 422 ; **402** (`AUDIO_GUIDE_INSUFFICIENT_CREDITS`) ; 429 |
 | GET | `/api/v1/me/audio-guides/jobs/:jobId` | Bearer | Statut job (auteur uniquement) | 200 ; 404 ; 401 |
 | GET | `/api/v1/me/pois/:poiId/audio-guides` | Bearer | Guides privés de l’utilisateur sur ce POI | 200 ; 401 ; 404 |
@@ -322,6 +356,14 @@ Implémentation API : `src/me-credits/`, `src/audio-generation/user-audio-guides
   "subscriptionGenerationsRemaining": 2
 }
 ```
+
+**Corps POST `/me/credits/purchase`** (stub V1 — sans reçu store)
+
+```json
+{ "productId": "credits_15" }
+```
+
+`productId` requis ; doit correspondre à un pack de `GET /me/credits/packs` (sinon **400**).
 
 **Corps POST `/me/pois/:poiId/audio-guides/generate`**
 
