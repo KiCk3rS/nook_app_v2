@@ -8,6 +8,8 @@ interface PoiMarkerVisualProps {
   categoryId: string;
   name: string;
   selected?: boolean;
+  isDraft?: boolean;
+  draftLabel?: string;
 }
 
 export const MARKER_SIZE = 48;
@@ -31,12 +33,20 @@ export function PoiMarkerVisual({
   categoryId,
   name,
   selected = false,
+  isDraft = false,
+  draftLabel,
 }: PoiMarkerVisualProps) {
   const size = selected ? MARKER_SIZE_SELECTED : MARKER_SIZE;
   const ringSize = size + BORDER_WIDTH * 2;
-  const ringBorderColor = selected ? colors.markerActiveBorder : colors.markerIdleBorder;
+  const ringBorderColor = isDraft
+    ? colors.warning
+    : selected
+      ? colors.markerActiveBorder
+      : colors.markerIdleBorder;
   const iconColor = selected ? colors.markerActiveIcon : colors.markerIdleIcon;
   const iconName = categoryIconNames[categoryId] ?? 'location-outline';
+  const displayName =
+    isDraft && draftLabel ? `${name} · ${draftLabel}` : name;
 
   return (
     <View style={styles.container} collapsable={false}>
@@ -54,6 +64,7 @@ export function PoiMarkerVisual({
               borderRadius: ringSize / 2,
               backgroundColor: colors.surfaceSoft,
               borderColor: ringBorderColor,
+              borderStyle: isDraft ? 'dashed' : 'solid',
             },
           ]}
         >
@@ -77,8 +88,8 @@ export function PoiMarkerVisual({
           ]}
         />
       </View>
-      <Text style={[styles.label, selected && styles.labelSelected]} numberOfLines={2}>
-        {name}
+      <Text style={[styles.label, selected && styles.labelSelected, isDraft && styles.labelDraft]} numberOfLines={2}>
+        {displayName}
       </Text>
     </View>
   );
@@ -124,5 +135,8 @@ const styles = StyleSheet.create({
   },
   labelSelected: {
     color: colors.ink,
+  },
+  labelDraft: {
+    color: colors.warning,
   },
 });

@@ -8,6 +8,8 @@ export interface CataloguePlaceMarker {
   /** Libellé catégorie API (prioritaire sur i18n mock). */
   categoryLabel?: string;
   parentId?: string | null;
+  /** Statut publication API (`DRAFT` visible admin uniquement). */
+  publicationStatus?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 }
 
 /** POI pour carte preview / recherche. */

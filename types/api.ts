@@ -27,9 +27,13 @@ export interface PoiSummary {
   title: string;
   lat: number;
   lng: number;
+  /** Présent si l’API renvoie le statut (PUBLISHED ; DRAFT visible admin). */
+  status?: PublicationStatus;
   categories: PoiCategory[];
   parentPoiId?: string | null;
 }
+
+export type PublicationStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 
 export interface PoiDetailImage {
   id: string;
@@ -45,16 +49,28 @@ export interface PoiDetailPopularity {
 }
 
 /** Fiche POI (`GET /api/v1/pois/:id`). */
+export interface PoiDetailCoverImage {
+  id: string;
+  url: string;
+  expiresAt: string;
+  altText: string | null;
+}
+
 export interface PoiDetail {
   id: string;
   title: string;
   description: string | null;
+  /** Présent si l’API renvoie le statut (PUBLISHED ; DRAFT visible admin). */
+  status?: PublicationStatus;
   parentPoiId: string | null;
   childrenCount: number;
   lat: number | null;
   lng: number | null;
+  address?: string | null;
+  wikipediaUrl?: string | null;
   categories: PoiCategory[];
   images: PoiDetailImage[];
+  coverImage?: PoiDetailCoverImage | null;
   audios?: AudioTrack[];
   popularity: PoiDetailPopularity | null;
 }

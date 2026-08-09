@@ -68,7 +68,9 @@ export function fetchPois(
     offset: query.offset,
   });
 
-  return apiRequest<PaginatedResponse<PoiSummary>>(`/pois?${qs}`);
+  return apiRequest<PaginatedResponse<PoiSummary>>(`/pois?${qs}`, {
+    auth: true,
+  });
 }
 
 export function fetchPoiById(
@@ -78,7 +80,10 @@ export function fetchPoiById(
   const includeAudios = options.includeAudios ?? true;
   const qs = buildQuery({ includeAudios });
   const suffix = qs ? `?${qs}` : '';
-  return apiRequest<PoiDetail>(`/pois/${encodeURIComponent(id)}${suffix}`);
+  return apiRequest<PoiDetail>(
+    `/pois/${encodeURIComponent(id)}${suffix}`,
+    { auth: true },
+  );
 }
 
 export function fetchPoiChildren(

@@ -43,6 +43,7 @@ export function poiSummaryToMarker(poi: PoiSummary): CataloguePlaceMarker {
     categoryId: cat?.slug ?? 'monument',
     categoryLabel: cat?.label,
     parentId: poi.parentPoiId ?? null,
+    publicationStatus: poi.status,
   };
 }
 
@@ -76,6 +77,7 @@ export function mockPlaceToMarker(place: MockPlace): CataloguePlaceMarker {
     longitude: place.longitude,
     categoryId: place.categoryId,
     parentId: place.parentId ?? null,
+    publicationStatus: place.publicationStatus,
   };
 }
 
@@ -103,8 +105,9 @@ export function audioTrackToAudioGuide(track: AudioTrack): AudioGuide {
 }
 
 function resolveDetailImageUrl(detail: PoiDetail): string {
-  if (detail.images.length > 0) {
-    return PLACE_IMAGE_PLACEHOLDER;
+  const cover = detail.coverImage?.url?.trim();
+  if (cover) {
+    return cover;
   }
   return PLACE_IMAGE_PLACEHOLDER;
 }
@@ -117,11 +120,13 @@ export function poiDetailToMockPlace(detail: PoiDetail): MockPlace {
     latitude: detail.lat ?? 0,
     longitude: detail.lng ?? 0,
     categoryId: cat?.slug ?? 'monument',
-    address: '',
+    address: detail.address?.trim() ?? '',
     imageUrl: resolveDetailImageUrl(detail),
     description: detail.description?.trim() ?? '',
     audioGuides: (detail.audios ?? []).map(audioTrackToAudioGuide),
     parentId: detail.parentPoiId ?? undefined,
+    publicationStatus: detail.status,
+    wikipediaUrl: detail.wikipediaUrl?.trim() || undefined,
   };
 }
 
@@ -138,5 +143,6 @@ export function poiSummaryToMockPlaceSummary(poi: PoiSummary): MockPlace {
     description: '',
     audioGuides: [],
     parentId: poi.parentPoiId ?? undefined,
+    publicationStatus: poi.status,
   };
 }

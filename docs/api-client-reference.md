@@ -167,7 +167,7 @@ Implémentation : `src/categories/categories.controller.ts`.
 | Méthode | Chemin | Auth | Description | Codes notables |
 |--------|--------|------|-------------|----------------|
 | GET | `/api/v1/pois` | none | Liste / carte / recherche (F-004 / F-005) | 200 ; 400 bbox invalide ; 422 si ni `q` ni filtre géo complet |
-| GET | `/api/v1/pois/:id` | none | Détail POI publié (F-006) | 200 ; 404 |
+| GET | `/api/v1/pois/:id` | none | Détail POI publié (F-006) : `address`, `wikipediaUrl`, `coverImage` (URL pré-signée) | 200 ; 404 |
 | GET | `/api/v1/pois/:id/children` | none | Sous-POI paginés (F-006) | 200 ; 404 parent absent/non publié ; 422 |
 | POST | `/api/v1/pois/:id/play-event` | Bearer? | Signal écoute / popularité (F-013) — **204 sans corps** | 204 ; 401 si Bearer invalide ; 404 ; 422 ; 429 |
 
@@ -417,7 +417,7 @@ Toutes les routes ci-dessous exigent **`Authorization: Bearer`** avec un compte 
 |--------|--------|-------------|----------------|
 | GET | `/api/v1/admin/pois/:id` | Détail POI (images avec URLs pré-signées si configuré) ; inclut `wikipediaUrl` | 200 ; 404 |
 | POST | `/api/v1/admin/pois` | Création (statut par défaut brouillon ; `wikipediaUrl` optionnel) | 201 ; 422 |
-| POST | `/api/v1/admin/pois/from-wikipedia` | Création depuis URL Wikipedia (extrait + coords MediaWiki ; override `lat`/`lng` optionnel) | 201 ; 401 ; 403 ; 422 ; 503 |
+| POST | `/api/v1/admin/pois/from-wikipedia` | Création depuis URL Wikipedia (extrait + coords + reverse-geocode adresse + import image page) | 201 ; 401 ; 403 ; 422 ; 503 |
 | PATCH | `/api/v1/admin/pois/:id` | Mise à jour (dont `wikipediaUrl`) | 200 ; 404 ; 422 |
 | DELETE | `/api/v1/admin/pois/:id` | Suppression | 204 ; 404 ; 409 si références |
 
@@ -440,6 +440,8 @@ Implémentation : `src/pois/admin-pois.controller.ts`.
 - `status` optionnel (défaut `DRAFT`).
 - `lat`/`lng` optionnels **ensemble** : si fournis, prioritaire sur les coordonnées MediaWiki.
 - Sans coords MediaWiki et sans override → `lat`/`lng` à `null` dans la réponse (POI sans géométrie) — ce n’est pas une erreur 422.
+- Avec coords : reverse-geocode Nominatim → champ `address` (best-effort, peut rester `null`).
+- Image Wikipedia (`pageimage`) : téléchargée et stockée en `poi_images` si S3 est configuré (sinon création OK sans image).
 - Page introuvable / extract vide → **422** ; MediaWiki indisponible → **503**.
 
 ### Images POI admin (F-014)

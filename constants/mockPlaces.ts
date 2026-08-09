@@ -36,6 +36,8 @@ export interface MockPlace {
   audioGuides: AudioGuide[];
   /** POI parent (ex. musée pour une œuvre) — absent = POI racine affiché sur la carte. */
   parentId?: string;
+  /** Statut publication API (`DRAFT` visible admin uniquement). */
+  publicationStatus?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 }
 
 export function getCategoryLabel(categoryId: string): string {

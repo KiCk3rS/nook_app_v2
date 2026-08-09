@@ -47,7 +47,11 @@ export function PoiPreviewCard({ place, onClose }: PoiPreviewCardProps) {
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       onPress={handleOpenDetail}
       accessibilityRole="button"
-      accessibilityLabel={t('place:viewPlaceA11y', { name: place.name })}
+      accessibilityLabel={
+        place.publicationStatus === 'DRAFT'
+          ? t('place:draftMarkerA11y', { name: place.name })
+          : t('place:viewPlaceA11y', { name: place.name })
+      }
     >
       <View style={styles.imageWrap}>
         {place.imageUrl ? (
@@ -104,6 +108,11 @@ export function PoiPreviewCard({ place, onClose }: PoiPreviewCardProps) {
           <Text style={styles.title} numberOfLines={2}>
             {place.name}
           </Text>
+          {place.publicationStatus === 'DRAFT' ? (
+            <View style={styles.draftBadge} accessibilityElementsHidden>
+              <Text style={styles.draftBadgeText}>{t('place:draftBadge')}</Text>
+            </View>
+          ) : null}
           {readyGuideCount > 0 ? (
             <View
               style={styles.audioCountBadge}
@@ -214,6 +223,19 @@ const styles = StyleSheet.create({
     flex: 1,
     ...textStyle('displaySm'),
     color: colors.ink,
+  },
+  draftBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: colors.warning,
+    backgroundColor: colors.canvas,
+    flexShrink: 0,
+  },
+  draftBadgeText: {
+    ...textStyle('microLabel'),
+    color: colors.warning,
   },
   audioCountBadge: {
     flexDirection: 'row',

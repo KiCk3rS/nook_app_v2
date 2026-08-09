@@ -25,6 +25,7 @@ export interface AdminPoi {
   lat: number | null;
   lng: number | null;
   wikipediaUrl: string | null;
+  address: string | null;
   categories: AdminPoiCategory[];
   images: AdminPoiImage[];
   createdAt: string;

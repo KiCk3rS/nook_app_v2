@@ -10,5 +10,8 @@
   "showLess": "Show less",
   "readMoreA11y": "Read more description",
   "showLessA11y": "Collapse description",
-  "shareMessage": "Discover {{name}} on NOOK — {{address}}"
+  "shareMessage": "Discover {{name}} on NOOK — {{address}}",
+  "draftBadge": "Draft",
+  "draftBanner": "This place is a draft — visible to administrators only.",
+  "draftMarkerA11y": "{{name}} (draft)"
 }

@@ -372,15 +372,32 @@ export default function PlaceDetailScreen() {
           <Text style={styles.title} accessibilityRole="header">
             {place.name}
           </Text>
-          <View style={styles.addressRow}>
-            <Ionicons
-              name="location-outline"
-              size={16}
-              color={colors.muted}
-              accessibilityElementsHidden
-            />
-            <Text style={styles.address}>{place.address}</Text>
-          </View>
+          {place.publicationStatus === 'DRAFT' ? (
+            <View
+              style={styles.draftBanner}
+              accessibilityRole="text"
+              accessibilityLabel={t('place:draftBanner')}
+            >
+              <Ionicons
+                name="document-outline"
+                size={16}
+                color={colors.warning}
+                accessibilityElementsHidden
+              />
+              <Text style={styles.draftBannerText}>{t('place:draftBanner')}</Text>
+            </View>
+          ) : null}
+          {place.address.trim().length > 0 ? (
+            <View style={styles.addressRow}>
+              <Ionicons
+                name="location-outline"
+                size={16}
+                color={colors.muted}
+                accessibilityElementsHidden
+              />
+              <Text style={styles.address}>{place.address}</Text>
+            </View>
+          ) : null}
 
           {parentPlace ? <ParentPlaceLink parent={parentPlace} /> : null}
 
@@ -503,6 +520,24 @@ const styles = StyleSheet.create({
   title: {
     ...textStyle('displayXl'),
     color: colors.ink,
+  },
+  draftBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceSoft,
+    borderWidth: 1,
+    borderColor: colors.warning,
+  },
+  draftBannerText: {
+    flex: 1,
+    ...textStyle('bodySm'),
+    color: colors.warning,
   },
   addressRow: {
     flexDirection: 'row',
