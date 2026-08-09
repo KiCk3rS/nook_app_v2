@@ -467,12 +467,13 @@ Implémentation : `src/categories/admin-categories.controller.ts`.
 
 | Méthode | Chemin | Description | Codes notables |
 |--------|--------|-------------|----------------|
-| GET | `/api/v1/admin/wikipedia/search` | Proxy MediaWiki `opensearch` (`q`, `lang` défaut `fr`, `limit` défaut 10 max 20) | 200 ; 401 ; 403 ; 422 ; 503 ; 429 |
+| GET | `/api/v1/admin/wikipedia/search` | Recherche Wikipedia fulltext + enrichissement (description / miniature / coords) + préfiltre Nook (coords obligatoires, denylist Wikidata `P31`, média requis). Query : `q`, `lang` défaut `fr`, `limit` défaut 10 max 20 | 200 ; 401 ; 403 ; 422 ; 503 ; 429 |
 
-Query : `q` requis (min 2 caractères) ; `lang` optionnel (code ISO 2–3 lettres) ; `limit` optionnel.  
-Réponse : `{ items: [{ title, wikipediaUrl, description, thumbnailUrl }] }` — `description` / `thumbnailUrl` peuvent être `null` ; ordre MediaWiki conservé.  
-DTO : `src/wikipedia/dto/admin-wikipedia-search.query.dto.ts`, `admin-wikipedia-search.response.dto.ts`  
-Client MediaWiki : `src/mediawiki/mediawiki.client.ts` (module `MediaWikiModule`)  
+Query : `q` requis (min 2 caractères) ; `lang` optionnel (code ISO 2–3 lettres) ; `limit` optionnel.
+Réponse : `{ items: [{ title, wikipediaUrl, description, thumbnailUrl }] }` — ordre MediaWiki conservé après filtrage. Exclus : pages sans coordonnées, sans description **et** sans image, ou `P31` denylist (ex. humain `Q5`).
+DTO : `src/wikipedia/dto/admin-wikipedia-search.query.dto.ts`, `admin-wikipedia-search.response.dto.ts`
+Orchestration : `src/wikipedia/admin-wikipedia-search.service.ts` ; politique : `src/wikipedia/wikipedia-poi-relevance.ts`
+Clients : `MediaWikiModule` (`searchPages` / `enrichPages`), `WikidataModule` (`fetchInstanceOf`)
 Implémentation : `src/wikipedia/admin-wikipedia.controller.ts`.
 
 **Exemple réponse**
@@ -483,8 +484,8 @@ Implémentation : `src/wikipedia/admin-wikipedia.controller.ts`.
     {
       "title": "Tour Eiffel",
       "wikipediaUrl": "https://fr.wikipedia.org/wiki/Tour_Eiffel",
-      "description": "Monument parisien…",
-      "thumbnailUrl": null
+      "description": "tour de fer puddlé de 330 mètres à Paris, France",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/…/240px-….jpg"
     }
   ]
 }

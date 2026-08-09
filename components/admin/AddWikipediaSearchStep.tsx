@@ -3,6 +3,7 @@ import type { RefObject } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -22,6 +23,7 @@ import type { WikipediaSearchItem } from '../../lib/api/adminWikipedia';
 import type { AdminWikipediaErrorKey } from '../../lib/mappers/adminWikipediaError';
 
 const MIN_QUERY_LENGTH = 2;
+const THUMB_SIZE = 48;
 
 interface AddWikipediaSearchStepProps {
   query: string;
@@ -133,6 +135,17 @@ export function AddWikipediaSearchStep({
             accessibilityRole="button"
             accessibilityLabel={`${item.title}${item.description ? `. ${item.description}` : ''}`}
           >
+            {item.thumbnailUrl ? (
+              <Image
+                source={{ uri: item.thumbnailUrl }}
+                style={styles.resultThumb}
+                accessibilityIgnoresInvertColors
+              />
+            ) : (
+              <View style={[styles.resultThumb, styles.resultThumbPlaceholder]}>
+                <Ionicons name="image-outline" size={20} color={colors.mutedSoft} />
+              </View>
+            )}
             <View style={styles.resultText}>
               <Text style={styles.resultTitle} numberOfLines={2}>
                 {item.title}
@@ -187,6 +200,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.hairlineSoft,
     minHeight: 44,
+  },
+  resultThumb: {
+    width: THUMB_SIZE,
+    height: THUMB_SIZE,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceSoft,
+  },
+  resultThumbPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.hairline,
   },
   resultText: {
     flex: 1,
