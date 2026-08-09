@@ -6,6 +6,9 @@
   "emptyResults": "No articles found. Try a different query.",
   "errorNetwork": "Couldn’t reach Wikipedia. Try again.",
   "errorForbidden": "Access denied. This account is not an administrator.",
+  "errorUnauthorized": "Session expired. Sign in again.",
+  "errorValidation": "Invalid request. Try a different query.",
+  "errorRateLimited": "Too many requests. Try again shortly.",
   "errorGeneric": "Something went wrong. Try again.",
   "retry": "Retry",
   "selectedLabel": "Selection",
@@ -14,9 +17,8 @@
   "confirmPositionNote": "Coordinates will be taken from Wikipedia when available.",
   "noCoordsAlertTitle": "Missing location",
   "noCoordsAlertBody": "This place has no known position; you can set it later.",
-  "noCoordsAlertOk": "Continue",
+  "noCoordsAlertOk": "Got it",
   "ctaCreate": "Create place",
   "creating": "Creating…",
-  "apiUnavailable": "The API isn’t available in this mode. Sign in with an admin account against a configured API.",
   "backToSearch": "Back to search"
 }

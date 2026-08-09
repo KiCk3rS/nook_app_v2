@@ -1,4 +1,7 @@
-import { isAdmin } from '../roles';
+import {
+  canUseAdminWikipediaCreation,
+  isAdmin,
+} from '../roles';
 import type { User } from '../../../types/api';
 
 function userWithRole(role: string): User {
@@ -30,5 +33,56 @@ describe('isAdmin', () => {
   it('est sensible à la casse exacte ADMIN', () => {
     expect(isAdmin(userWithRole('admin'))).toBe(false);
     expect(isAdmin(userWithRole('Admin'))).toBe(false);
+  });
+});
+
+describe('canUseAdminWikipediaCreation', () => {
+  const admin = userWithRole('ADMIN');
+  const user = userWithRole('USER');
+
+  it('autorise un ADMIN authentifié sur API réelle', () => {
+    expect(
+      canUseAdminWikipediaCreation({
+        user: admin,
+        isAuthenticated: true,
+        isMockSession: false,
+        apiConfigured: true,
+      }),
+    ).toBe(true);
+  });
+
+  it('refuse USER, non auth, mock, API absente', () => {
+    expect(
+      canUseAdminWikipediaCreation({
+        user,
+        isAuthenticated: true,
+        isMockSession: false,
+        apiConfigured: true,
+      }),
+    ).toBe(false);
+    expect(
+      canUseAdminWikipediaCreation({
+        user: admin,
+        isAuthenticated: false,
+        isMockSession: false,
+        apiConfigured: true,
+      }),
+    ).toBe(false);
+    expect(
+      canUseAdminWikipediaCreation({
+        user: admin,
+        isAuthenticated: true,
+        isMockSession: true,
+        apiConfigured: true,
+      }),
+    ).toBe(false);
+    expect(
+      canUseAdminWikipediaCreation({
+        user: admin,
+        isAuthenticated: true,
+        isMockSession: false,
+        apiConfigured: false,
+      }),
+    ).toBe(false);
   });
 });

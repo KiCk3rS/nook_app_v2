@@ -6,6 +6,9 @@
   "emptyResults": "Aucun article trouvé. Reformule ta recherche.",
   "errorNetwork": "Impossible de contacter Wikipedia. Réessaie.",
   "errorForbidden": "Accès refusé. Ce compte n’est pas administrateur.",
+  "errorUnauthorized": "Session expirée. Reconnecte-toi.",
+  "errorValidation": "Requête invalide. Reformule ta recherche ou réessaie.",
+  "errorRateLimited": "Trop de demandes. Réessaie dans un moment.",
   "errorGeneric": "Une erreur est survenue. Réessaie.",
   "retry": "Réessayer",
   "selectedLabel": "Sélection",
@@ -14,9 +17,8 @@
   "confirmPositionNote": "La position sera reprise de Wikipedia si elle est disponible.",
   "noCoordsAlertTitle": "Position manquante",
   "noCoordsAlertBody": "Ce lieu n’a pas de position connue ; tu pourras l’ajuster ensuite.",
-  "noCoordsAlertOk": "Continuer",
+  "noCoordsAlertOk": "Compris",
   "ctaCreate": "Créer le lieu",
   "creating": "Création en cours…",
-  "apiUnavailable": "L’API n’est pas disponible dans ce mode. Connecte-toi avec un compte admin sur une API configurée.",
   "backToSearch": "Retour à la recherche"
 }
