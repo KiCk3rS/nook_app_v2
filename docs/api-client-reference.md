@@ -415,13 +415,32 @@ Toutes les routes ci-dessous exigent **`Authorization: Bearer`** avec un compte 
 
 | Méthode | Chemin | Description | Codes notables |
 |--------|--------|-------------|----------------|
-| GET | `/api/v1/admin/pois/:id` | Détail POI (images avec URLs pré-signées si configuré) | 200 ; 404 |
-| POST | `/api/v1/admin/pois` | Création (statut par défaut brouillon) | 201 ; 422 |
-| PATCH | `/api/v1/admin/pois/:id` | Mise à jour | 200 ; 404 ; 422 |
+| GET | `/api/v1/admin/pois/:id` | Détail POI (images avec URLs pré-signées si configuré) ; inclut `wikipediaUrl` | 200 ; 404 |
+| POST | `/api/v1/admin/pois` | Création (statut par défaut brouillon ; `wikipediaUrl` optionnel) | 201 ; 422 |
+| POST | `/api/v1/admin/pois/from-wikipedia` | Création depuis URL Wikipedia (extrait + coords MediaWiki ; override `lat`/`lng` optionnel) | 201 ; 401 ; 403 ; 422 ; 503 |
+| PATCH | `/api/v1/admin/pois/:id` | Mise à jour (dont `wikipediaUrl`) | 200 ; 404 ; 422 |
 | DELETE | `/api/v1/admin/pois/:id` | Suppression | 204 ; 404 ; 409 si références |
 
-DTO : `src/pois/dto/create-admin-poi.dto.ts`, `update-admin-poi.dto.ts`, `admin-poi-response.dto.ts`  
+DTO : `src/pois/dto/create-admin-poi.dto.ts`, `create-poi-from-wikipedia.dto.ts`, `update-admin-poi.dto.ts`, `admin-poi-response.dto.ts`  
 Implémentation : `src/pois/admin-pois.controller.ts`.
+
+**Création depuis Wikipedia** — corps :
+
+```json
+{
+  "wikipediaUrl": "https://fr.wikipedia.org/wiki/Tour_Eiffel",
+  "status": "DRAFT",
+  "categoryIds": [],
+  "lat": null,
+  "lng": null
+}
+```
+
+- `wikipediaUrl` requis (même validation F-015).
+- `status` optionnel (défaut `DRAFT`).
+- `lat`/`lng` optionnels **ensemble** : si fournis, prioritaire sur les coordonnées MediaWiki.
+- Sans coords MediaWiki et sans override → `lat`/`lng` à `null` dans la réponse (POI sans géométrie) — ce n’est pas une erreur 422.
+- Page introuvable / extract vide → **422** ; MediaWiki indisponible → **503**.
 
 ### Images POI admin (F-014)
 

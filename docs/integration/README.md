@@ -101,7 +101,7 @@ Flux opérationnel mobile pour un compte `role: ADMIN` : recherche Wikipedia (pr
 | T21 | ⏸️ bloqué | | | Backlog P3 — décision produit |
 | T22 | ⬜ à faire | | | Spec écran flux admin Wikipedia → POI → audio |
 | T23 | ⬜ à faire | | | API recherche Wikipedia admin |
-| T24 | ⬜ à faire | | | API création POI depuis Wikipedia |
+| T24 | ✅ fait | | | API création POI depuis Wikipedia |
 | T25 | ⬜ à faire | | | App UI recherche + création POI admin |
 | T26 | ⬜ à faire | | | App génération audio admin + suivi job |
 

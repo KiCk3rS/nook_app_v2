@@ -15,10 +15,10 @@ Permettre à un admin de **créer un POI** à partir d’une URL Wikipedia séle
 
 ## Prérequis
 
-- [ ] T23 : recherche admin opérationnelle (source d’URL)
-- [ ] T11 : décision / colonne `wikipediaUrl` (ou équivalent) sur POI + exposition `GET /pois/:id` — **si T11 incomplete**, livrer dans T24 la **persistance** admin + migration, et laisser l’exposition publique à T11
-- [ ] `POST /api/v1/admin/pois` + `AdminPoisService.create` existants
-- [ ] `MediaWikiClient.fetchArticleFromWikipediaUrl` existant
+- [x] T23 : recherche admin opérationnelle (source d’URL)
+- [x] T11 : décision / colonne `wikipediaUrl` (ou équivalent) sur POI + exposition `GET /pois/:id` — **si T11 incomplete**, livrer dans T24 la **persistance** admin + migration, et laisser l’exposition publique à T11
+- [x] `POST /api/v1/admin/pois` + `AdminPoisService.create` existants
+- [x] `MediaWikiClient.fetchArticleFromWikipediaUrl` existant
 
 ## Endpoint
 
@@ -55,14 +55,14 @@ Permettre à un admin de **créer un POI** à partir d’une URL Wikipedia séle
 
 ## Étapes d’implémentation
 
-- [ ] Migration / schéma : champ `wikipediaUrl` sur `Poi` si absent (coordonner T11 — une seule source de vérité)
-- [ ] Étendre `MediaWikiClient` : coords + éventuellement pageid déjà partiellement couvert
-- [ ] `CreatePoiFromWikipediaDto` + validation
-- [ ] `AdminPoisService.createFromWikipedia(dto)` (réutilise create interne)
-- [ ] Route sur `AdminPoisController` (attention ordre des routes : `from-wikipedia` avant `:id`)
-- [ ] Étendre `CreateAdminPoiDto` / update si besoin pour accepter `wikipediaUrl` aussi en create classique
-- [ ] Swagger + `api-client-reference.md` (+ sync app)
-- [ ] Seed / cas de test Tour Eiffel avec coords
+- [x] Migration / schéma : champ `wikipediaUrl` sur `Poi` si absent (coordonner T11 — une seule source de vérité)
+- [x] Étendre `MediaWikiClient` : coords + éventuellement pageid déjà partiellement couvert
+- [x] `CreatePoiFromWikipediaDto` + validation
+- [x] `AdminPoisService.createFromWikipedia(dto)` (réutilise create interne)
+- [x] Route sur `AdminPoisController` (attention ordre des routes : `from-wikipedia` avant `:id`)
+- [x] Étendre `CreateAdminPoiDto` / update si besoin pour accepter `wikipediaUrl` aussi en create classique
+- [x] Swagger + `api-client-reference.md` (+ sync app)
+- [x] Seed / cas de test Tour Eiffel avec coords
 
 ## Fichiers concernés (indicatif)
 
@@ -75,24 +75,24 @@ Permettre à un admin de **créer un POI** à partir d’une URL Wikipedia séle
 
 ## Critères d’acceptation
 
-- [ ] `POST /admin/pois/from-wikipedia` avec URL valide → 201, titre renseigné, `wikipediaUrl` stocké
-- [ ] Article géolocalisé (ex. Tour Eiffel) → `lat`/`lng` présents sans override
-- [ ] Override `lat`/`lng` prioritaire sur MediaWiki
-- [ ] Article sans coords → 201 sans géométrie (pas 422 pour cette seule raison)
-- [ ] JWT non admin → 403
-- [ ] URL invalide / page manquante → 422
-- [ ] `npm test` vert ; e2e admin si suite existante
-- [ ] Contrat synchronisé ; pas de régression `POST /admin/pois`
+- [x] `POST /admin/pois/from-wikipedia` avec URL valide → 201, titre renseigné, `wikipediaUrl` stocké
+- [x] Article géolocalisé (ex. Tour Eiffel) → `lat`/`lng` présents sans override
+- [x] Override `lat`/`lng` prioritaire sur MediaWiki
+- [x] Article sans coords → 201 sans géométrie (pas 422 pour cette seule raison)
+- [x] JWT non admin → 403
+- [x] URL invalide / page manquante → 422
+- [x] `npm test` vert ; e2e admin si suite existante
+- [x] Contrat synchronisé ; pas de régression `POST /admin/pois`
 
 ## Tests unitaires
 
-- [ ] `mediawiki.client.spec.ts` : extract + coordinates présentes / absentes
-- [ ] `admin-pois.service.spec.ts` :
+- [x] `mediawiki.client.spec.ts` : extract + coordinates présentes / absentes
+- [x] `admin-pois.service.spec.ts` :
   - création depuis wiki avec coords
   - sans coords
   - override lat/lng
   - propagation `wikipediaUrl`
-- [ ] Validation DTO (URL, paire lat/lng)
+- [x] Validation DTO (URL, paire lat/lng)
 
 ## Références
 
