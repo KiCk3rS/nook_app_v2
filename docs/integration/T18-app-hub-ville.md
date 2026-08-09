@@ -15,19 +15,19 @@ Brancher `app/city/[slug]/index.tsx` et `TerritorialHubView` sur `GET /cities/:s
 
 ## Prérequis
 
-- [ ] T17 : endpoint hub ville
-- [ ] T16 : navigation recherche → `/city/:slug` avec slugs API
+- [x] T17 : endpoint hub ville
+- [x] T16 : navigation recherche → `/city/:slug` avec slugs API
 - [ ] T12 recommandé (images POI must-see)
 
 ## Étapes
 
-- [ ] `lib/api/cities.ts` → `fetchCityHub(slugOrId)`
-- [ ] Hook `useCityHub(slug)` — loading / error / 404
-- [ ] Mapper hub DTO → props `TerritorialHubView`
-- [ ] `app/city/[slug]/index.tsx` — fetch API ; fallback `mockCities` si `!isApiConfigured()`
-- [ ] Must-see / recommended : snippets API (plus `getPlaceById` pour coords)
-- [ ] Itinéraires éditoriaux section : **rester mock** jusqu'à T21 (documenter)
-- [ ] Tourist pass / affiliation : afficher si API renvoie données ; sinon masquer section
+- [x] `lib/api/cities.ts` → `fetchCityHub(slugOrId)`
+- [x] Hook `useCityHub(slug)` — loading / error / 404
+- [x] Mapper hub DTO → props `TerritorialHubView`
+- [x] `app/city/[slug]/index.tsx` — fetch API ; fallback `mockCities` si `!isApiConfigured()`
+- [x] Must-see / recommended : snippets API (plus `getPlaceById` pour coords)
+- [x] Itinéraires éditoriaux section : **rester mock** jusqu'à T21 (documenter)
+- [x] Tourist pass / affiliation : afficher si API renvoie données ; sinon masquer section
 
 ## Fichiers concernés
 
@@ -40,14 +40,14 @@ Brancher `app/city/[slug]/index.tsx` et `TerritorialHubView` sur `GET /cities/:s
 
 - [ ] `/city/paris` affiche données API staging (cover, must-see réels)
 - [ ] Point de contrôle audit #2 validé
-- [ ] 404 ville inconnue gérée
-- [ ] Mode démo inchangé
-- [ ] `npm test` vert
+- [x] 404 ville inconnue gérée
+- [x] Mode démo inchangé
+- [x] `npm test` vert
 
 ## Tests unitaires
 
-- [ ] `lib/mappers/__tests__/cityHub.test.ts`
-- [ ] `hooks/useCityHub` via helper pur si extrait
+- [x] `lib/mappers/__tests__/cityHub.test.ts`
+- [x] `hooks/useCityHub` via helper pur si extrait
 
 ## Références
 

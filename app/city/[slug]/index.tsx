@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { TerritorialHubView } from '../../../components/city/TerritorialHubView';
-import { getCityBySlug } from '../../../constants/mockCities';
+import { useCityHub } from '../../../hooks/useCityHub';
 import {
   trackHubCityAffiliateTapped,
   trackHubCityCategoryTapped,
@@ -16,46 +16,38 @@ import {
 export default function CityHubScreen() {
   const { t } = useTranslation('hub');
   const { slug } = useLocalSearchParams<{ slug: string }>();
-  const city = useMemo(
-    () => (typeof slug === 'string' ? getCityBySlug(slug) : undefined),
-    [slug],
+  const { status, hub, reload } = useCityHub(
+    typeof slug === 'string' ? slug : undefined,
   );
 
   const config = useMemo(() => {
-    if (!city) return null;
+    if (!hub) return null;
     return {
-      citySlug: city.slug,
-      name: city.name,
-      coverImageUrl: city.coverImageUrl,
-      subtitle: city.subtitle,
-      mapRegion: city.mapRegion,
-      mustSeePoiIds: city.mustSeePoiIds,
-      recommendedPoiIds: city.recommendedPoiIds,
-      featuredPremiumItineraryId: city.featuredPremiumItineraryId,
-      touristPasses: city.touristPasses,
-      affiliateExperiences: city.affiliateExperiences,
-      onViewed: () => trackHubCityViewed(city.slug, 'direct'),
+      ...hub,
+      onViewed: () => trackHubCityViewed(hub.citySlug, 'direct'),
       onCategoryTapped: (categorySlug: string) =>
-        trackHubCityCategoryTapped(city.slug, categorySlug),
+        trackHubCityCategoryTapped(hub.citySlug, categorySlug),
       onPremiumTapped: (itineraryId: string, isLocked: boolean) =>
-        trackHubCityPremiumTapped(city.slug, itineraryId, isLocked),
+        trackHubCityPremiumTapped(hub.citySlug, itineraryId, isLocked),
       onPoiTapped: (poiId: string, section: 'must_see' | 'recommended') =>
-        trackHubCityPoiTapped(city.slug, poiId, section),
+        trackHubCityPoiTapped(hub.citySlug, poiId, section),
       onAffiliateTapped: (
         partner: string,
         slot: 'tourist_pass' | 'experience',
         itemId: string,
-      ) => trackHubCityAffiliateTapped(city.slug, partner, slot, itemId),
-      onMapCtaTapped: () => trackHubCityMapCtaTapped(city.slug),
+      ) => trackHubCityAffiliateTapped(hub.citySlug, partner, slot, itemId),
+      onMapCtaTapped: () => trackHubCityMapCtaTapped(hub.citySlug),
     };
-  }, [city]);
+  }, [hub]);
 
   return (
     <TerritorialHubView
+      status={status}
       config={config}
       notFoundTitle={t('cityNotFoundTitle')}
       notFoundBody={t('cityNotFoundBody')}
       paywallSource="hub_city"
+      onRetry={reload}
     />
   );
 }

@@ -6,6 +6,7 @@ import type {
   PoiCategory,
   PoiDetail,
   PoiSummary,
+  PublicationStatus,
 } from '../../types/api';
 import type {
   CatalogueCategory,
@@ -15,6 +16,35 @@ import type {
 
 function primaryCategory(categories: PoiCategory[]): PoiCategory | undefined {
   return categories[0];
+}
+
+/** Champs communs summary / snippet hub → carte compacte. */
+export interface PoiCardLike {
+  id: string;
+  title: string;
+  lat: number | null;
+  lng: number | null;
+  categories: PoiCategory[];
+  parentPoiId?: string | null;
+  coverImageUrl?: string | null;
+  status?: PublicationStatus;
+}
+
+export function poiCardLikeToMockPlace(poi: PoiCardLike): MockPlace {
+  const cat = primaryCategory(poi.categories);
+  return {
+    id: poi.id,
+    name: poi.title,
+    latitude: poi.lat ?? 0,
+    longitude: poi.lng ?? 0,
+    categoryId: cat?.slug ?? 'monument',
+    address: '',
+    imageUrl: poi.coverImageUrl?.trim() || PLACE_IMAGE_PLACEHOLDER,
+    description: '',
+    audioGuides: [],
+    parentId: poi.parentPoiId ?? undefined,
+    publicationStatus: poi.status,
+  };
 }
 
 export function getCategoryDisplayLabel(
@@ -131,18 +161,13 @@ export function poiDetailToMockPlace(detail: PoiDetail): MockPlace {
 }
 
 export function poiSummaryToMockPlaceSummary(poi: PoiSummary): MockPlace {
-  const cat = primaryCategory(poi.categories);
-  return {
+  return poiCardLikeToMockPlace({
     id: poi.id,
-    name: poi.title,
-    latitude: poi.lat,
-    longitude: poi.lng,
-    categoryId: cat?.slug ?? 'monument',
-    address: '',
-    imageUrl: PLACE_IMAGE_PLACEHOLDER,
-    description: '',
-    audioGuides: [],
-    parentId: poi.parentPoiId ?? undefined,
-    publicationStatus: poi.status,
-  };
+    title: poi.title,
+    lat: poi.lat,
+    lng: poi.lng,
+    categories: poi.categories,
+    parentPoiId: poi.parentPoiId,
+    status: poi.status,
+  });
 }

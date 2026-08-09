@@ -1,8 +1,10 @@
 import {
   audioTrackToAudioGuide,
   getCategoryDisplayLabel,
+  poiCardLikeToMockPlace,
   poiDetailToMockPlace,
   poiSummaryToMarker,
+  poiSummaryToMockPlaceSummary,
   poiSummaryToPreview,
 } from '../poi';
 import type { PoiDetail, PoiSummary } from '../../../types/api';
@@ -83,5 +85,28 @@ describe('poiDetailToMockPlace', () => {
     expect(place.description).toBe('Monument emblématique');
     expect(place.audioGuides).toHaveLength(1);
     expect(audioTrackToAudioGuide(detail.audios![0]).status).toBe('ready');
+  });
+});
+
+describe('poiSummaryToMockPlaceSummary', () => {
+  it('délègue à poiCardLikeToMockPlace', () => {
+    const summary: PoiSummary = {
+      id: 'poi-1',
+      title: 'Musée',
+      lat: 48.86,
+      lng: 2.33,
+      categories: [{ slug: 'musee', label: 'Musée' }],
+      parentPoiId: null,
+    };
+    expect(poiSummaryToMockPlaceSummary(summary)).toEqual(
+      poiCardLikeToMockPlace({
+        id: 'poi-1',
+        title: 'Musée',
+        lat: 48.86,
+        lng: 2.33,
+        categories: [{ slug: 'musee', label: 'Musée' }],
+        parentPoiId: null,
+      }),
+    );
   });
 });

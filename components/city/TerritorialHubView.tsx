@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ActivityIndicator,
   Linking,
   Pressable,
   ScrollView,
@@ -27,13 +28,11 @@ import {
   PlaceHeroControls,
 } from '../place/PlaceHero';
 import { PaywallSheet } from '../paywall/PaywallSheet';
-import type { AffiliateExperienceItem, TouristPassItem } from '../../constants/mockCities';
 import { itineraryCategories } from '../../constants/itineraryCategories';
 import {
   countItinerariesByCategory,
   getItineraryById,
 } from '../../constants/mockItineraries';
-import { getPlaceById } from '../../constants/mockPlaces';
 import {
   colors,
   componentSizes,
@@ -42,26 +41,14 @@ import {
   textStyle,
 } from '../../constants/theme';
 import { usePremium } from '../../contexts/PremiumContext';
+import type { TerritorialHubData } from '../../lib/mappers/cityHub';
 import { getPlaceHrefById } from '../../lib/placeNavigation';
 
-export interface TerritorialHubConfig {
-  citySlug: string;
-  districtSlug?: string;
-  name: string;
-  coverImageUrl: string;
-  subtitle: string;
-  mapRegion: {
-    latitude: number;
-    longitude: number;
-    latitudeDelta: number;
-    longitudeDelta: number;
-  };
-  mustSeePoiIds: string[];
-  recommendedPoiIds: string[];
-  featuredPremiumItineraryId: string | null;
-  touristPasses?: TouristPassItem[];
-  affiliateExperiences: AffiliateExperienceItem[];
-  parentCityName?: string;
+export type { TerritorialHubData };
+
+export type TerritorialHubStatus = 'loading' | 'error' | 'not_found' | 'ready';
+
+export type TerritorialHubConfig = TerritorialHubData & {
   onViewed?: () => void;
   onCategoryTapped?: (categorySlug: string) => void;
   onPremiumTapped?: (itineraryId: string, isLocked: boolean) => void;
@@ -72,20 +59,24 @@ export interface TerritorialHubConfig {
     itemId: string,
   ) => void;
   onMapCtaTapped?: () => void;
-}
+};
 
 interface TerritorialHubViewProps {
+  status: TerritorialHubStatus;
   config: TerritorialHubConfig | null;
   notFoundTitle: string;
   notFoundBody: string;
   paywallSource: 'hub_city' | 'hub_district';
+  onRetry?: () => void;
 }
 
 export function TerritorialHubView({
+  status,
   config,
   notFoundTitle,
   notFoundBody,
   paywallSource,
+  onRetry,
 }: TerritorialHubViewProps) {
   const { t } = useTranslation(['hub', 'common']);
   const router = useRouter();
@@ -101,31 +92,19 @@ export function TerritorialHubView({
 
   const featuredItinerary = useMemo(() => {
     if (!config?.featuredPremiumItineraryId) return null;
+    // T21 : itinéraires éditoriaux / premium restent mock jusqu’à l’API F-018-c.
     return getItineraryById(config.featuredPremiumItineraryId) ?? null;
   }, [config]);
 
-  const mustSeePlaces = useMemo(
-    () =>
-      config?.mustSeePoiIds
-        .map((id) => getPlaceById(id))
-        .filter((p): p is NonNullable<typeof p> => p !== undefined) ?? [],
-    [config],
-  );
-
-  const recommendedPlaces = useMemo(
-    () =>
-      config?.recommendedPoiIds
-        .map((id) => getPlaceById(id))
-        .filter((p): p is NonNullable<typeof p> => p !== undefined) ?? [],
-    [config],
-  );
+  const mustSeePlaces = config?.mustSeePlaces ?? [];
+  const recommendedPlaces = config?.recommendedPlaces ?? [];
 
   const scrollTopInset = PLACE_HERO_HEIGHT - PLACE_CONTENT_OVERLAP;
   const bodyMinHeight = windowHeight - scrollTopInset + PLACE_CONTENT_OVERLAP;
 
   useEffect(() => {
-    if (config) config.onViewed?.();
-  }, [config]);
+    if (status === 'ready' && config) config.onViewed?.();
+  }, [status, config]);
 
   function handleBack() {
     router.back();
@@ -205,7 +184,41 @@ export function TerritorialHubView({
     router.push(`/city/${config.citySlug}`);
   }
 
-  if (!config) {
+  if (status === 'loading') {
+    return (
+      <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (status === 'error') {
+    return (
+      <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
+        <Text style={styles.notFoundTitle}>{t('common:errorGeneric')}</Text>
+        {onRetry ? (
+          <Pressable
+            style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryPressed]}
+            onPress={onRetry}
+            accessibilityRole="button"
+            accessibilityLabel={t('common:retry')}
+          >
+            <Text style={styles.primaryText}>{t('common:retry')}</Text>
+          </Pressable>
+        ) : null}
+        <Pressable
+          style={({ pressed }) => [pressed && styles.primaryPressed]}
+          onPress={handleBack}
+          accessibilityRole="button"
+          accessibilityLabel={t('common:back')}
+        >
+          <Text style={styles.notFoundBody}>{t('common:back')}</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  if (status === 'not_found' || !config) {
     return (
       <View style={[styles.notFound, { paddingTop: insets.top + spacing.xl }]}>
         <Text style={styles.notFoundTitle}>{notFoundTitle}</Text>
@@ -226,6 +239,7 @@ export function TerritorialHubView({
     ? (getItineraryById(paywallItineraryId) ?? null)
     : null;
 
+  // T21 : tuiles catégories encore basées sur `mockItineraries` (API hub vide).
   const visibleCategories = itineraryCategories.filter(
     (cat) =>
       countItinerariesByCategory(
@@ -239,7 +253,7 @@ export function TerritorialHubView({
     ? t('hub:districtPopularFallback', { district: config.name })
     : t('hub:popularFallback', { city: config.name });
 
-  const touristPasses = config.touristPasses ?? [];
+  const touristPasses = config.touristPasses;
 
   return (
     <View style={styles.screen}>

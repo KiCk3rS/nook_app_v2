@@ -13,6 +13,7 @@ import {
   trackHubDistrictPremiumTapped,
   trackHubDistrictViewed,
 } from '../../../../../lib/analytics';
+import { mockDistrictToHubData } from '../../../../../lib/mappers/cityHub';
 
 export default function DistrictHubScreen() {
   const { t } = useTranslation('hub');
@@ -32,18 +33,9 @@ export default function DistrictHubScreen() {
 
   const config = useMemo(() => {
     if (!city || !district) return null;
+    const data = mockDistrictToHubData(city.name, city.slug, district);
     return {
-      citySlug: city.slug,
-      districtSlug: district.slug,
-      name: district.name,
-      coverImageUrl: district.coverImageUrl,
-      subtitle: district.subtitle,
-      mapRegion: district.mapRegion,
-      mustSeePoiIds: district.mustSeePoiIds,
-      recommendedPoiIds: district.recommendedPoiIds,
-      featuredPremiumItineraryId: district.featuredPremiumItineraryId,
-      affiliateExperiences: district.affiliateExperiences,
-      parentCityName: city.name,
+      ...data,
       onViewed: () => trackHubDistrictViewed(city.slug, district.slug, 'direct'),
       onCategoryTapped: (categorySlug: string) =>
         trackHubDistrictCategoryTapped(city.slug, district.slug, categorySlug),
@@ -55,13 +47,21 @@ export default function DistrictHubScreen() {
         partner: string,
         slot: 'tourist_pass' | 'experience',
         itemId: string,
-      ) => trackHubDistrictAffiliateTapped(city.slug, district.slug, partner, slot, itemId),
+      ) =>
+        trackHubDistrictAffiliateTapped(
+          city.slug,
+          district.slug,
+          partner,
+          slot,
+          itemId,
+        ),
       onMapCtaTapped: () => trackHubDistrictMapCtaTapped(city.slug, district.slug),
     };
   }, [city, district]);
 
   return (
     <TerritorialHubView
+      status={config ? 'ready' : 'not_found'}
       config={config}
       notFoundTitle={t('districtNotFoundTitle')}
       notFoundBody={t('districtNotFoundBody')}

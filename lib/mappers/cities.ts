@@ -4,7 +4,7 @@ import type { CitySummary } from '../../types/api';
 
 /**
  * Vue UI villes pour recherche / carrousels (A2.1, A4.1).
- * Sous-ensemble de `MockCity` — le hub complet reste mock jusqu’à T18.
+ * Hub ville A4.3 : `lib/mappers/cityHub.ts` + `useCityHub` (T18).
  */
 export interface CityView {
   id: string;

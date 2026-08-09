@@ -97,7 +97,7 @@ Flux opérationnel mobile pour un compte `role: ADMIN` : recherche Wikipedia (pr
 | T15 | ✅ terminé | 2026-08-09 | 2026-08-09 | F-018-a `GET /cities` + seed Paris/Lyon |
 | T16 | ⬜ à faire | | | Villes recherche & discovery — App |
 | T17 | ⬜ à faire | | | F-018 hub ville — API |
-| T18 | ⬜ à faire | | | Hub ville A4.3 — App |
+| T18 | ✅ fait | | | Hub ville A4.3 — App |
 | T19 | ⬜ à faire | | | Hubs quartier A4.5 |
 | T20 | ⬜ à faire | | | Profil & résidus hybrides (`getPlaceById`, covers parcours, etc.) |
 | T21 | ⏸️ bloqué | | | Backlog P3 — décision produit |
