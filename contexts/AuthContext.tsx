@@ -40,11 +40,13 @@ import {
 } from '../lib/authRefresh';
 import type { MeProfile, User, UserPreferences } from '../types/api';
 import { ApiError } from '../types/api';
+import { isAdmin as userIsAdmin } from '../lib/auth/roles';
 
 interface AuthContextValue {
   user: User | null;
   preferences: UserPreferences;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   isMockSession: boolean;
   isLoading: boolean;
   isRefreshingProfile: boolean;
@@ -341,12 +343,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const isMockSession = isMockAccessToken(getMemoryAccessToken());
+  const isAdmin = userIsAdmin(user);
 
   const value = useMemo(
     () => ({
       user,
       preferences,
       isAuthenticated: user != null && getMemoryAccessToken() != null,
+      isAdmin,
       isMockSession,
       isLoading,
       isRefreshingProfile,
@@ -361,6 +365,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [
       user,
       preferences,
+      isAdmin,
       isMockSession,
       isLoading,
       isRefreshingProfile,

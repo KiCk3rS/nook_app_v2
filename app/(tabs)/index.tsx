@@ -9,38 +9,31 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 
 
+import { AddPlaceControl } from '../../components/admin/AddPlaceControl';
+import { AddWikipediaPoiSheet } from '../../components/admin/AddWikipediaPoiSheet';
 import { CategorySlider } from '../../components/home/CategorySlider';
-
 import { GeolocControl } from '../../components/home/GeolocControl';
-
 import { HomeMap, type HomeMapHandle } from '../../components/home/HomeMap';
-
 import { ItineraryMapBanner } from '../../components/home/ItineraryMapBanner';
-
 import { PermissionSheet } from '../../components/home/PermissionSheet';
-
 import { PoiPreviewCard } from '../../components/home/PoiPreviewCard';
-
 import { SearchHeader } from '../../components/home/SearchHeader';
 import { ServiceDegradedBanner } from '../../components/home/ServiceDegradedBanner';
-
 import { SearchSheet } from '../../components/search/SearchSheet';
-
 import type { PermissionType } from '../../constants/permissions';
-
 import { getPlaceById, parisRegion } from '../../constants/mockPlaces';
 import { getCityBySlug } from '../../constants/mockCities';
 import { getDistrictBySlug } from '../../constants/mockDistricts';
 import { getItineraryById } from '../../constants/mockItineraries';
 import { useAudioPlayback } from '../../contexts/AudioPlaybackContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { useServiceHealth } from '../../contexts/ServiceHealthContext';
 import { colors, miniPlayerHeight, spacing, textStyle, zIndex, radius } from '../../constants/theme';
-
 import { useLocationPermission } from '../../hooks/useLocationPermission';
 import { usePoisInBbox } from '../../hooks/usePoisInBbox';
+import { isApiConfigured } from '../../lib/config';
 import type { MapRegion } from '../../lib/itineraryMap';
 import { markerToPreview, mockPlaceToPreview } from '../../lib/mappers/poi';
-
 import type { PermissionSheetSource } from '../../lib/analytics';
 import { trackItineraryMapViewed } from '../../lib/analytics';
 import {
@@ -62,6 +55,7 @@ export default function CarteScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const mapRef = useRef<HomeMapHandle>(null);
+  const { isAuthenticated, isAdmin, isMockSession } = useAuth();
   const { focusCity, focusDistrict, focusItinerary } = useLocalSearchParams<{
     focusCity?: string;
     focusDistrict?: string;
@@ -75,6 +69,8 @@ export default function CarteScreen() {
   const [permissionSheetVisible, setPermissionSheetVisible] = useState(false);
 
   const [searchSheetVisible, setSearchSheetVisible] = useState(false);
+
+  const [addPlaceSheetVisible, setAddPlaceSheetVisible] = useState(false);
 
   const [userCoords, setUserCoords] = useState<{
     latitude: number;
@@ -328,6 +324,17 @@ export default function CarteScreen() {
 
   }
 
+  const showAddPlaceControl =
+    isAuthenticated && isAdmin && isApiConfigured() && !isMockSession;
+
+  function handleOpenAddPlace() {
+    setAddPlaceSheetVisible(true);
+  }
+
+  function handleCloseAddPlaceSheet() {
+    setAddPlaceSheetVisible(false);
+  }
+
 
 
   return (
@@ -405,11 +412,15 @@ export default function CarteScreen() {
 
       <View
 
-        style={[styles.geolocControl, { bottom: geolocControlBottom }]}
+        style={[styles.mapControls, { bottom: geolocControlBottom }]}
 
         pointerEvents="box-none"
 
       >
+
+        {showAddPlaceControl ? (
+          <AddPlaceControl onPress={handleOpenAddPlace} />
+        ) : null}
 
         <GeolocControl
 
@@ -481,6 +492,11 @@ export default function CarteScreen() {
 
       />
 
+      <AddWikipediaPoiSheet
+        visible={addPlaceSheetVisible}
+        onClose={handleCloseAddPlaceSheet}
+      />
+
     </View>
 
   );
@@ -538,13 +554,17 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.base,
   },
 
-  geolocControl: {
+  mapControls: {
 
     position: 'absolute',
 
     right: spacing.base,
 
     zIndex: zIndex.mapControls,
+
+    alignItems: 'flex-end',
+
+    gap: spacing.sm,
 
   },
 

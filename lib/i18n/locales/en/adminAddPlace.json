@@ -1,0 +1,22 @@
+{
+  "mapButton": "Add a place",
+  "sheetTitle": "Add a place (Wikipedia)",
+  "searchPlaceholder": "Search Wikipedia…",
+  "searchHint": "Enter at least 2 characters",
+  "emptyResults": "No articles found. Try a different query.",
+  "errorNetwork": "Couldn’t reach Wikipedia. Try again.",
+  "errorForbidden": "Access denied. This account is not an administrator.",
+  "errorGeneric": "Something went wrong. Try again.",
+  "retry": "Retry",
+  "selectedLabel": "Selection",
+  "confirmTitle": "Create this place?",
+  "confirmDraftNote": "The place will be created as a draft (DRAFT).",
+  "confirmPositionNote": "Coordinates will be taken from Wikipedia when available.",
+  "noCoordsAlertTitle": "Missing location",
+  "noCoordsAlertBody": "This place has no known position; you can set it later.",
+  "noCoordsAlertOk": "Continue",
+  "ctaCreate": "Create place",
+  "creating": "Creating…",
+  "apiUnavailable": "The API isn’t available in this mode. Sign in with an admin account against a configured API.",
+  "backToSearch": "Back to search"
+}

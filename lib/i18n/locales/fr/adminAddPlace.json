@@ -1,0 +1,22 @@
+{
+  "mapButton": "Ajouter un lieu",
+  "sheetTitle": "Ajouter un lieu (Wikipedia)",
+  "searchPlaceholder": "Rechercher sur Wikipedia…",
+  "searchHint": "Saisis au moins 2 caractères",
+  "emptyResults": "Aucun article trouvé. Reformule ta recherche.",
+  "errorNetwork": "Impossible de contacter Wikipedia. Réessaie.",
+  "errorForbidden": "Accès refusé. Ce compte n’est pas administrateur.",
+  "errorGeneric": "Une erreur est survenue. Réessaie.",
+  "retry": "Réessayer",
+  "selectedLabel": "Sélection",
+  "confirmTitle": "Créer ce lieu ?",
+  "confirmDraftNote": "Le lieu sera créé en brouillon (DRAFT).",
+  "confirmPositionNote": "La position sera reprise de Wikipedia si elle est disponible.",
+  "noCoordsAlertTitle": "Position manquante",
+  "noCoordsAlertBody": "Ce lieu n’a pas de position connue ; tu pourras l’ajuster ensuite.",
+  "noCoordsAlertOk": "Continuer",
+  "ctaCreate": "Créer le lieu",
+  "creating": "Création en cours…",
+  "apiUnavailable": "L’API n’est pas disponible dans ce mode. Connecte-toi avec un compte admin sur une API configurée.",
+  "backToSearch": "Retour à la recherche"
+}

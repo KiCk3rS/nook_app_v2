@@ -16,34 +16,34 @@ Dans l’app, un compte **ADMIN** peut ouvrir le flux « Ajouter un lieu », rec
 
 ## Prérequis
 
-- [ ] T22 : spec B9 validée
-- [ ] T23 : `GET /api/v1/admin/wikipedia/search`
-- [ ] T24 : `POST /api/v1/admin/pois/from-wikipedia`
-- [ ] Auth app : `user.role` déjà présent sur [`types/api.ts`](../../types/api.ts) / session
+- [x] T22 : spec B9 validée
+- [x] T23 : `GET /api/v1/admin/wikipedia/search`
+- [x] T24 : `POST /api/v1/admin/pois/from-wikipedia`
+- [x] Auth app : `user.role` déjà présent sur [`types/api.ts`](../../types/api.ts) / session
 
 ## Étapes
 
 ### Auth & gate
 
-- [ ] Helper pur `isAdmin(user)` (ex. `lib/auth/roles.ts`) — `role === 'ADMIN'`
-- [ ] Exposer au besoin `isAdmin` via `useAuth()` ou dériver dans les écrans
-- [ ] Aucune entrée UI si non authentifié ou non admin
+- [x] Helper pur `isAdmin(user)` (ex. `lib/auth/roles.ts`) — `role === 'ADMIN'`
+- [x] Exposer au besoin `isAdmin` via `useAuth()` ou dériver dans les écrans
+- [x] Aucune entrée UI si non authentifié ou non admin
 
 ### Clients API
 
-- [ ] `lib/api/adminWikipedia.ts` — `searchWikipedia({ q, lang?, limit? })`
-- [ ] `lib/api/adminPois.ts` — `createPoiFromWikipedia(payload)`
-- [ ] Types réponse alignés contrat T23/T24
-- [ ] Réutiliser `apiRequest` + bearer existants
+- [x] `lib/api/adminWikipedia.ts` — `searchWikipedia({ q, lang?, limit? })`
+- [x] `lib/api/adminPois.ts` — `createPoiFromWikipedia(payload)`
+- [x] Types réponse alignés contrat T23/T24
+- [x] Réutiliser `apiRequest` + bearer existants
 
 ### UI
 
-- [ ] Entrée sur carte **A1.1** (`app/(tabs)/index.tsx` ou composant carte) : bouton « Ajouter un lieu » si admin
-- [ ] Feuille / écran recherche (debounce `q`, langue app)
-- [ ] Liste résultats → sélection → confirmation (titre, description, alerte sans coords)
-- [ ] Appel création → navigation `/place/[id]`
-- [ ] États : loading, vide, erreur, 403
-- [ ] i18n : clés FR (et EN si le projet le fait déjà pour écrans proches)
+- [x] Entrée sur carte **A1.1** (`app/(tabs)/index.tsx` ou composant carte) : bouton « Ajouter un lieu » si admin
+- [x] Feuille / écran recherche (debounce `q`, langue app)
+- [x] Liste résultats → sélection → confirmation (titre, description, alerte sans coords)
+- [x] Appel création → navigation `/place/[id]`
+- [x] États : loading, vide, erreur, 403
+- [x] i18n : clés FR (et EN si le projet le fait déjà pour écrans proches)
 
 ### Hors scope T25
 
@@ -65,16 +65,16 @@ Dans l’app, un compte **ADMIN** peut ouvrir le flux « Ajouter un lieu », rec
 
 ## Critères d’acceptation
 
-- [ ] Compte `USER` : aucun bouton / route admin de création visible
-- [ ] Compte `ADMIN` : recherche → sélection → POI créé → fiche ouverte
-- [ ] Erreurs API affichées avec action réessayer
-- [ ] Mode démo / API absente : pas de crash ; message explicite ou masquage contrôlé
-- [ ] `npm test` vert (clients + helper rôle)
+- [x] Compte `USER` : aucun bouton / route admin de création visible
+- [x] Compte `ADMIN` : recherche → sélection → POI créé → fiche ouverte
+- [x] Erreurs API affichées avec action réessayer
+- [x] Mode démo / API absente : pas de crash ; message explicite ou masquage contrôlé
+- [x] `npm test` vert (clients + helper rôle)
 
 ## Tests unitaires
 
-- [ ] `lib/auth/__tests__/roles.test.ts` : USER / ADMIN / null
-- [ ] Clients API : query string, parsing items, propagation `ApiError` (401/403/422)
+- [x] `lib/auth/__tests__/roles.test.ts` : USER / ADMIN / null
+- [x] Clients API : query string, parsing items, propagation `ApiError` (401/403/422)
 
 ## Références
 

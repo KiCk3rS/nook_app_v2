@@ -102,7 +102,7 @@ Flux opérationnel mobile pour un compte `role: ADMIN` : recherche Wikipedia (pr
 | T22 | ⬜ à faire | | | Spec écran flux admin Wikipedia → POI → audio |
 | T23 | ⬜ à faire | | | API recherche Wikipedia admin |
 | T24 | ✅ fait | | | API création POI depuis Wikipedia |
-| T25 | ⬜ à faire | | | App UI recherche + création POI admin |
+| T25 | ✅ terminé | 2026-08-09 | 2026-08-09 | Helper `isAdmin`, clients search/from-wikipedia, feuille admin carte A1.1, tests 150 |
 | T26 | ⬜ à faire | | | App génération audio admin + suivi job |
 
 Légende statut : ⬜ à faire · 🔄 en cours · ✅ terminé · ⏸️ bloqué

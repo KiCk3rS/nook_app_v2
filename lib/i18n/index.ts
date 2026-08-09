@@ -4,6 +4,7 @@ import { initReactI18next } from 'react-i18next';
 
 import enAuth from './locales/en/auth.json';
 import enAudioPlayer from './locales/en/audioPlayer.json';
+import enAdminAddPlace from './locales/en/adminAddPlace.json';
 import enCategories from './locales/en/categories.json';
 import enCreateGuide from './locales/en/createGuide.json';
 import enCreditsPack from './locales/en/creditsPack.json';
@@ -22,6 +23,7 @@ import enTabs from './locales/en/tabs.json';
 import enUserItineraries from './locales/en/userItineraries.json';
 import frAuth from './locales/fr/auth.json';
 import frAudioPlayer from './locales/fr/audioPlayer.json';
+import frAdminAddPlace from './locales/fr/adminAddPlace.json';
 import frCategories from './locales/fr/categories.json';
 import frCreateGuide from './locales/fr/createGuide.json';
 import frCreditsPack from './locales/fr/creditsPack.json';
@@ -52,6 +54,7 @@ const resources = {
   fr: {
     common: frCommon,
     audioPlayer: frAudioPlayer,
+    adminAddPlace: frAdminAddPlace,
     auth: frAuth,
     settings: frSettings,
     tabs: frTabs,
@@ -73,6 +76,7 @@ const resources = {
   en: {
     common: enCommon,
     audioPlayer: enAudioPlayer,
+    adminAddPlace: enAdminAddPlace,
     auth: enAuth,
     settings: enSettings,
     tabs: enTabs,
@@ -134,6 +138,7 @@ export function initI18n(initialLocale: AppLocale = DEFAULT_LOCALE): typeof i18n
     ns: [
       'common',
       'audioPlayer',
+      'adminAddPlace',
       'auth',
       'settings',
       'tabs',
