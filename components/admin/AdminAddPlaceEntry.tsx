@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useAuth } from '../../contexts/AuthContext';
-import { canUseAdminWikipediaCreation } from '../../lib/auth/roles';
+import { canUseAdminEditorialTools } from '../../lib/auth/roles';
 import { isApiConfigured } from '../../lib/config';
 import { AddPlaceControl } from './AddPlaceControl';
 import { AddWikipediaPoiSheet } from './AddWikipediaPoiSheet';
@@ -14,7 +14,7 @@ export function AdminAddPlaceEntry() {
   const { user, isAuthenticated, isMockSession } = useAuth();
   const [sheetVisible, setSheetVisible] = useState(false);
 
-  const canShow = canUseAdminWikipediaCreation({
+  const canShow = canUseAdminEditorialTools({
     user,
     isAuthenticated,
     isMockSession,

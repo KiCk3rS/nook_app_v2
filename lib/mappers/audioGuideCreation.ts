@@ -92,3 +92,32 @@ export function resolveAudioGuideAwaitOutcome(
   }
   return { job, outcome: 'ready' };
 }
+
+export type AwaitAudioGuideJobOptions = {
+  onPolling?: () => void;
+  poll?: {
+    intervalMs?: number;
+    maxAttempts?: number;
+  };
+};
+
+/**
+ * Poll jusqu’à ready/error. Timeout → outcome `launched` (job toujours en cours).
+ * Partagé voie user (`/me/...`) et admin.
+ */
+export async function awaitAudioGuideJob(
+  jobId: string,
+  fetchJob: (id: string) => Promise<AudioGuideJob>,
+  options?: AwaitAudioGuideJobOptions,
+): Promise<Pick<GenerateAudioGuideAwaitResult, 'job' | 'outcome' | 'errorMessage'>> {
+  options?.onPolling?.();
+  try {
+    const job = await pollAudioGuideJobUntilTerminal(jobId, fetchJob, options?.poll);
+    return resolveAudioGuideAwaitOutcome(job);
+  } catch (error) {
+    if (error instanceof AudioGuideGenerationError && error.code === 'POLL_TIMEOUT') {
+      return { job: null, outcome: 'launched' };
+    }
+    throw error;
+  }
+}

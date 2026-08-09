@@ -20,5 +20,9 @@
   "noCoordsAlertOk": "Got it",
   "ctaCreate": "Create place",
   "creating": "Creating…",
-  "backToSearch": "Back to search"
+  "backToSearch": "Back to search",
+  "successTitle": "Place created",
+  "successBody": "The draft is ready. You can generate the audioguide now or open the place page.",
+  "ctaGenerateAudio": "Generate audioguide",
+  "ctaViewPlace": "View place"
 }

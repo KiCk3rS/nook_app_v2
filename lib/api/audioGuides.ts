@@ -6,11 +6,9 @@ import type {
   GenerateAudioGuidePayload,
   GenerateAudioGuideResponse,
 } from '../../types/audioGuideCreation';
-import { AudioGuideGenerationError } from '../../types/audioGuideCreation';
 import {
+  awaitAudioGuideJob,
   mapGenerateAudioGuideError,
-  pollAudioGuideJobUntilTerminal,
-  resolveAudioGuideAwaitOutcome,
   type GenerateAudioGuideAwaitResult,
 } from '../mappers/audioGuideCreation';
 import { apiRequest } from './client';
@@ -29,6 +27,7 @@ export {
   isTerminalAudioGuideJobStatus,
   mapGenerateAudioGuideError,
   pollAudioGuideJobUntilTerminal,
+  awaitAudioGuideJob,
 } from '../mappers/audioGuideCreation';
 
 function usesMockLayer(demoSession = false): boolean {
@@ -105,21 +104,17 @@ export async function generateAudioGuideAndAwaitJob(
     demoSession,
   );
 
-  options?.onGenerating?.();
-
-  try {
-    const job = await pollAudioGuideJobUntilTerminal(
+  return {
+    response,
+    ...(await awaitAudioGuideJob(
       response.jobId,
       (id) => fetchAudioGuideJob(id, demoSession),
-      options?.poll,
-    );
-    return { response, ...resolveAudioGuideAwaitOutcome(job) };
-  } catch (error) {
-    if (error instanceof AudioGuideGenerationError && error.code === 'POLL_TIMEOUT') {
-      return { response, job: null, outcome: 'launched' };
-    }
-    throw error;
-  }
+      {
+        onPolling: options?.onGenerating,
+        poll: options?.poll,
+      },
+    )),
+  };
 }
 
 export function fetchPrivateGuidesForPlace(

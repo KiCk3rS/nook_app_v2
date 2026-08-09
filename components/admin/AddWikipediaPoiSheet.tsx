@@ -3,7 +3,6 @@ import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   BackHandler,
   KeyboardAvoidingView,
   Modal,
@@ -24,7 +23,10 @@ import {
   zIndex,
 } from '../../constants/theme';
 import { useWikipediaSearch } from '../../hooks/useWikipediaSearch';
-import { createPoiFromWikipedia } from '../../lib/api/adminPois';
+import {
+  createPoiFromWikipedia,
+  type AdminPoi,
+} from '../../lib/api/adminPois';
 import type { WikipediaSearchItem } from '../../lib/api/adminWikipedia';
 import {
   mapAdminWikipediaErrorKey,
@@ -32,6 +34,7 @@ import {
 } from '../../lib/mappers/adminWikipediaError';
 import { AddWikipediaConfirmStep } from './AddWikipediaConfirmStep';
 import { AddWikipediaSearchStep } from './AddWikipediaSearchStep';
+import { AddWikipediaSuccessStep } from './AddWikipediaSuccessStep';
 
 type SheetPhase =
   | { kind: 'search' }
@@ -40,6 +43,11 @@ type SheetPhase =
       item: WikipediaSearchItem;
       createErrorKey: AdminWikipediaErrorKey | null;
       isCreating: boolean;
+    }
+  | {
+      kind: 'success';
+      poi: AdminPoi;
+      missingCoords: boolean;
     };
 
 interface AddWikipediaPoiSheetProps {
@@ -76,16 +84,31 @@ export function AddWikipediaPoiSheet({
     setPhase({ kind: 'search' });
   }, []);
 
+  const navigateToPlace = useCallback(
+    (poiId: string, openAdminAudio = false) => {
+      reset();
+      onClose();
+      router.push(
+        openAdminAudio
+          ? `/place/${poiId}?adminGenerateAudio=1`
+          : `/place/${poiId}`,
+      );
+    },
+    [onClose, reset, router],
+  );
+
   const handleClose = useCallback(() => {
     if (isCreating) return;
+    if (phase.kind === 'success') {
+      navigateToPlace(phase.poi.id);
+      return;
+    }
     reset();
     onClose();
-  }, [isCreating, onClose, reset]);
+  }, [isCreating, navigateToPlace, onClose, phase, reset]);
 
   useEffect(() => {
-    if (!visible) {
-      reset();
-    }
+    if (!visible) reset();
   }, [visible, reset]);
 
   useEffect(() => {
@@ -95,11 +118,15 @@ export function AddWikipediaPoiSheet({
         setPhase({ kind: 'search' });
         return true;
       }
+      if (phase.kind === 'success') {
+        navigateToPlace(phase.poi.id);
+        return true;
+      }
       handleClose();
       return true;
     });
     return () => sub.remove();
-  }, [visible, phase, handleClose]);
+  }, [visible, phase, handleClose, navigateToPlace]);
 
   function handleSelect(item: WikipediaSearchItem) {
     setPhase({
@@ -130,19 +157,11 @@ export function AddWikipediaPoiSheet({
         wikipediaUrl: item.wikipediaUrl,
         status: 'DRAFT',
       });
-      const missingCoords = poi.lat == null || poi.lng == null;
-
-      reset();
-      onClose();
-      router.push(`/place/${poi.id}`);
-
-      if (missingCoords) {
-        Alert.alert(
-          t('adminAddPlace:noCoordsAlertTitle'),
-          t('adminAddPlace:noCoordsAlertBody'),
-          [{ text: t('adminAddPlace:noCoordsAlertOk') }],
-        );
-      }
+      setPhase({
+        kind: 'success',
+        poi,
+        missingCoords: poi.lat == null || poi.lng == null,
+      });
     } catch (error) {
       setPhase({
         kind: 'confirm',
@@ -153,13 +172,22 @@ export function AddWikipediaPoiSheet({
     }
   }
 
+  const headerTitle =
+    phase.kind === 'confirm'
+      ? t('adminAddPlace:confirmTitle')
+      : phase.kind === 'success'
+        ? t('adminAddPlace:successTitle')
+        : t('adminAddPlace:sheetTitle');
+
   return (
     <Modal
       visible={visible}
       transparent
       animationType="slide"
       onRequestClose={handleClose}
-      onShow={() => inputRef.current?.focus()}
+      onShow={() => {
+        if (phase.kind === 'search') inputRef.current?.focus();
+      }}
       statusBarTranslucent
       accessibilityViewIsModal
     >
@@ -175,7 +203,11 @@ export function AddWikipediaPoiSheet({
         <View style={styles.header}>
           <Pressable
             onPress={
-              phase.kind === 'confirm' ? handleBackToSearch : handleClose
+              phase.kind === 'confirm'
+                ? handleBackToSearch
+                : phase.kind === 'success'
+                  ? () => navigateToPlace(phase.poi.id)
+                  : handleClose
             }
             style={({ pressed }) => [
               styles.headerButton,
@@ -185,7 +217,9 @@ export function AddWikipediaPoiSheet({
             accessibilityLabel={
               phase.kind === 'confirm'
                 ? t('adminAddPlace:backToSearch')
-                : t('common:closeSheet')
+                : phase.kind === 'success'
+                  ? t('adminAddPlace:ctaViewPlace')
+                  : t('common:closeSheet')
             }
             hitSlop={8}
             disabled={isCreating}
@@ -197,9 +231,7 @@ export function AddWikipediaPoiSheet({
             />
           </Pressable>
           <Text style={styles.headerTitle} numberOfLines={1}>
-            {phase.kind === 'confirm'
-              ? t('adminAddPlace:confirmTitle')
-              : t('adminAddPlace:sheetTitle')}
+            {headerTitle}
           </Text>
           <View style={styles.headerButton} />
         </View>
@@ -222,14 +254,25 @@ export function AddWikipediaPoiSheet({
               inputRef={inputRef}
             />
           </KeyboardAvoidingView>
-        ) : (
+        ) : null}
+
+        {phase.kind === 'confirm' ? (
           <AddWikipediaConfirmStep
             item={phase.item}
             isCreating={phase.isCreating}
             errorKey={phase.createErrorKey}
             onCreate={() => void handleCreate()}
           />
-        )}
+        ) : null}
+
+        {phase.kind === 'success' ? (
+          <AddWikipediaSuccessStep
+            placeTitle={phase.poi.title}
+            missingCoords={phase.missingCoords}
+            onGenerateAudio={() => navigateToPlace(phase.poi.id, true)}
+            onViewPlace={() => navigateToPlace(phase.poi.id)}
+          />
+        ) : null}
       </View>
     </Modal>
   );

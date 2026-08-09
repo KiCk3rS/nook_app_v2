@@ -16,13 +16,13 @@ Après création d’un POI (ou depuis sa fiche), un **ADMIN** peut lancer la g�
 
 ## Prérequis
 
-- [ ] T25 : POI créable depuis Wikipedia ; navigation fiche
-- [ ] API déjà en place :
+- [x] T25 : POI créable depuis Wikipedia ; navigation fiche
+- [x] API déjà en place :
   - `POST /api/v1/admin/pois/:poiId/audio-guides/generate`
   - `GET /api/v1/admin/audio-guides/jobs/:jobId`
   - (optionnel) `POST .../jobs/:jobId/retry`
-- [ ] T11/T12 : `wikipediaUrl` disponible sur détail POI pour préremplir / valider le CTA fiche
-- [ ] Pattern user existant à mirroir : [`generateAudioGuideAndAwaitJob`](../../lib/api/audioGuides.ts) (routes `/me/...` — **ne pas** réutiliser tel quel)
+- [x] T11/T12 : `wikipediaUrl` disponible sur détail POI pour préremplir / valider le CTA fiche
+- [x] Pattern user existant à mirroir : [`generateAudioGuideAndAwaitJob`](../../lib/api/audioGuides.ts) (routes `/me/...` — **ne pas** réutiliser tel quel)
 
 ## Endpoints consommés
 
@@ -36,20 +36,20 @@ Après création d’un POI (ou depuis sa fiche), un **ADMIN** peut lancer la g�
 
 ### Client API
 
-- [ ] `lib/api/adminAudioGuides.ts` (ou extension `adminPois.ts`) :
+- [x] `lib/api/adminAudioGuides.ts` (ou extension `adminPois.ts`) :
   - `generateAdminAudioGuide(poiId, payload)`
   - `getAdminAudioGuideJob(jobId)`
   - `generateAdminAudioGuideAndAwaitJob(...)` — poll aligné sur la politique user (intervalles / timeout)
-- [ ] Ne pas toucher au solde crédits / `CreditsContext`
+- [x] Ne pas toucher au solde crédits / `CreditsContext`
 
 ### UI
 
-- [ ] CTA post-création (feuille succès T25) : « Générer l’audioguide »
-- [ ] CTA sur fiche **A3.1** si `isAdmin` && `wikipediaUrl` présent
-- [ ] Paramètres minimaux V1 : langue dérivée URL ou préférence app ; durée cible optionnelle (défaut API)
-- [ ] États : launching, pending, ready, error (+ retry si dispo)
-- [ ] Succès : rafraîchir détail POI / liste audios ; accès lecteur A3.2 si piste publiée
-- [ ] Microcopy distincte de A3.3 (pas de mentions crédits / abonnement)
+- [x] CTA post-création (feuille succès T25) : « Générer l’audioguide »
+- [x] CTA sur fiche **A3.1** si `isAdmin` && `wikipediaUrl` présent
+- [x] Paramètres minimaux V1 : langue dérivée URL ou préférence app ; durée cible optionnelle (défaut API)
+- [x] États : launching, pending, ready, error (+ retry si dispo)
+- [x] Succès : rafraîchir détail POI / liste audios ; accès lecteur A3.2 si piste publiée
+- [x] Microcopy distincte de A3.3 (pas de mentions crédits / abonnement)
 
 ### Hors scope T26
 
@@ -69,17 +69,17 @@ Après création d’un POI (ou depuis sa fiche), un **ADMIN** peut lancer la g�
 
 ## Critères d’acceptation
 
-- [ ] Admin peut lancer generate après création Wikipedia sans perdre de crédits
-- [ ] User non-admin : aucun CTA génération admin
-- [ ] Job suivi jusqu’à état terminal (ready ou error) avec message compréhensible
-- [ ] Ready : audio visible / jouable selon règles publication admin
-- [ ] `npm test` vert
+- [x] Admin peut lancer generate après création Wikipedia sans perdre de crédits
+- [x] User non-admin : aucun CTA génération admin
+- [x] Job suivi jusqu’à état terminal (ready ou error) avec message compréhensible
+- [x] Ready : audio visible / jouable selon règles publication admin
+- [x] `npm test` vert
 
 ## Tests unitaires
 
-- [ ] `generateAdminAudioGuide` : URL path `/admin/pois/.../generate`, body, 202
-- [ ] `generateAdminAudioGuideAndAwaitJob` : poll jusqu’à ready ; échec si error ; timeout
-- [ ] Pas d’appel `/me/credits` dans ce flux
+- [x] `generateAdminAudioGuide` : URL path `/admin/pois/.../generate`, body, 202
+- [x] `generateAdminAudioGuideAndAwaitJob` : poll jusqu’à ready ; échec si error ; timeout
+- [x] Pas d’appel `/me/credits` dans ce flux
 
 ## Références
 

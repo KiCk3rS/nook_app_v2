@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AdminGenerateAudioGuideEntry } from '../../components/admin/AdminGenerateAudioGuideEntry';
 import { CreditsPackSheet } from '../../components/paywall/CreditsPackSheet';
 import { SubscriptionPaywallSheet } from '../../components/paywall/SubscriptionPaywallSheet';
 import { AudioGuideList } from '../../components/place/AudioGuideList';
@@ -48,11 +49,25 @@ const PRIVATE_GUIDE_POLL_MS = 3000;
 
 export default function PlaceDetailScreen() {
   const router = useRouter();
-  const { t, i18n } = useTranslation(['common', 'createGuide', 'creditsPack', 'place']);
+  const { t, i18n } = useTranslation([
+    'common',
+    'createGuide',
+    'creditsPack',
+    'place',
+  ]);
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
-  const { id, createGuide } = useLocalSearchParams<{ id: string; createGuide?: string }>();
-  const { isAuthenticated, isLoading: isAuthLoading, user, preferences, isMockSession } = useAuth();
+  const { id, createGuide } = useLocalSearchParams<{
+    id: string;
+    createGuide?: string;
+  }>();
+  const {
+    isAuthenticated,
+    isLoading: isAuthLoading,
+    user,
+    preferences,
+    isMockSession,
+  } = useAuth();
 
   const placeId = typeof id === 'string' ? id : undefined;
   const {
@@ -68,7 +83,8 @@ export default function PlaceDetailScreen() {
   const [privateGuides, setPrivateGuides] = useState<AudioGuide[]>([]);
   const [createGuideVisible, setCreateGuideVisible] = useState(false);
   const [creditsPackVisible, setCreditsPackVisible] = useState(false);
-  const [subscriptionPaywallVisible, setSubscriptionPaywallVisible] = useState(false);
+  const [subscriptionPaywallVisible, setSubscriptionPaywallVisible] =
+    useState(false);
   const [requiredCredits, setRequiredCredits] = useState<number | undefined>();
   const [purchaseToastVisible, setPurchaseToastVisible] = useState(false);
   const [purchasedCredits, setPurchasedCredits] = useState(0);
@@ -107,14 +123,18 @@ export default function PlaceDetailScreen() {
     return [...privateGuides, ...publicGuides];
   }, [isAuthenticated, privateGuides, publicGuides]);
 
-  const hasPendingGuides = privateGuides.some((guide) => guide.status === 'pending');
+  const hasPendingGuides = privateGuides.some(
+    (guide) => guide.status === 'pending',
+  );
 
   const stickyGuide = useMemo(() => {
     if (activeGuideId && playbackPlace?.id === place?.id) {
       return (
         displayedGuides.find(
           (guide) => guide.id === activeGuideId && guide.status === 'ready',
-        ) ?? displayedGuides.find((guide) => guide.status === 'ready') ?? null
+        ) ??
+        displayedGuides.find((guide) => guide.status === 'ready') ??
+        null
       );
     }
     return displayedGuides.find((guide) => guide.status === 'ready') ?? null;
@@ -125,9 +145,10 @@ export default function PlaceDetailScreen() {
     stickyGuide !== null &&
     activeGuideId === stickyGuide.id &&
     viewMode !== 'idle';
-  const stickyCtaLabel = isStickyGuideActive && isPlaying
-    ? t('common:pauseGuide')
-    : t('common:listenGuide');
+  const stickyCtaLabel =
+    isStickyGuideActive && isPlaying
+      ? t('common:pauseGuide')
+      : t('common:listenGuide');
 
   const loadPrivateGuides = useCallback(async () => {
     if (!place || !isAuthenticated || !user) {
@@ -135,12 +156,21 @@ export default function PlaceDetailScreen() {
       return;
     }
     try {
-      const guides = await fetchPrivateGuidesForPlace(user.id, place.id, isMockSession);
+      const guides = await fetchPrivateGuidesForPlace(
+        user.id,
+        place.id,
+        isMockSession,
+      );
       setPrivateGuides(guides);
     } catch {
       setPrivateGuides([]);
     }
   }, [isAuthenticated, isMockSession, place, user]);
+
+  const refreshPlaceContent = useCallback(() => {
+    reload();
+    void loadPrivateGuides();
+  }, [loadPrivateGuides, reload]);
 
   useEffect(() => {
     void loadPrivateGuides();
@@ -165,7 +195,14 @@ export default function PlaceDetailScreen() {
       setCreateGuideVisible(true);
       router.setParams({ createGuide: undefined });
     }
-  }, [createGuide, isAuthenticated, isAuthLoading, place, placeWikipediaUrl, router]);
+  }, [
+    createGuide,
+    isAuthenticated,
+    isAuthLoading,
+    place,
+    placeWikipediaUrl,
+    router,
+  ]);
 
   useEffect(() => {
     if (!purchaseToastVisible) return;
@@ -200,7 +237,10 @@ export default function PlaceDetailScreen() {
   async function handleShare() {
     if (!place) return;
     await Share.share({
-      message: t('place:shareMessage', { name: place.name, address: place.address }),
+      message: t('place:shareMessage', {
+        name: place.name,
+        address: place.address,
+      }),
     });
   }
 
@@ -237,7 +277,8 @@ export default function PlaceDetailScreen() {
     openCreateGuideFlow();
   }
 
-  const stickyBarHeight = componentSizes.buttonPrimaryHeight + insets.bottom + spacing.md;
+  const stickyBarHeight =
+    componentSizes.buttonPrimaryHeight + insets.bottom + spacing.md;
   const scrollBottomPadding = showStickyListenBar
     ? insets.bottom + spacing.xxl + stickyBarHeight
     : insets.bottom + spacing.xxl;
@@ -345,6 +386,17 @@ export default function PlaceDetailScreen() {
 
           <Text style={styles.sectionTitle}>{t('place:descriptionSection')}</Text>
           <PlaceDescription description={place.description} />
+
+          {placeWikipediaUrl ? (
+            <AdminGenerateAudioGuideEntry
+              poiId={place.id}
+              poiName={place.name}
+              wikipediaUrl={placeWikipediaUrl}
+              appLanguage={appLanguage}
+              authLoading={isAuthLoading}
+              onRefresh={refreshPlaceContent}
+            />
+          ) : null}
 
           <AudioGuideList
             guides={displayedGuides}

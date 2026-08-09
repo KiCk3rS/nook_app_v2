@@ -5,7 +5,8 @@ export type AudioGuideJobStatus = 'pending' | 'ready' | 'error';
 export interface AudioGuideJob {
   id: string;
   status: AudioGuideJobStatus;
-  guideId: string;
+  /** Identifiant guide/audio produit ; `null` tant que non disponible. */
+  guideId: string | null;
   errorMessage: string | null;
 }
 

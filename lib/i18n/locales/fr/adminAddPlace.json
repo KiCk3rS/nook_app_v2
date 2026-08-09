@@ -20,5 +20,9 @@
   "noCoordsAlertOk": "Compris",
   "ctaCreate": "Créer le lieu",
   "creating": "Création en cours…",
-  "backToSearch": "Retour à la recherche"
+  "backToSearch": "Retour à la recherche",
+  "successTitle": "Lieu créé",
+  "successBody": "Le brouillon est prêt. Tu peux générer l’audioguide maintenant ou ouvrir la fiche.",
+  "ctaGenerateAudio": "Générer l’audioguide",
+  "ctaViewPlace": "Voir la fiche"
 }

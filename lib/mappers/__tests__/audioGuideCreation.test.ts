@@ -4,6 +4,7 @@ import {
   mapGenerateAudioGuideError,
   pollAudioGuideJobUntilTerminal,
   resolveAudioGuideAwaitOutcome,
+  awaitAudioGuideJob,
 } from '../audioGuideCreation';
 import type { AudioGuideJob } from '../../../types/audioGuideCreation';
 import { AudioGuideGenerationError } from '../../../types/audioGuideCreation';
@@ -121,5 +122,49 @@ describe('resolveAudioGuideAwaitOutcome', () => {
       job: expect.objectContaining({ status: 'ready' }),
       outcome: 'ready',
     });
+  });
+});
+
+describe('awaitAudioGuideJob', () => {
+  it('retourne ready après poll', async () => {
+    const fetchJob = jest
+      .fn<Promise<AudioGuideJob>, [string]>()
+      .mockResolvedValueOnce({
+        id: 'job-1',
+        status: 'pending',
+        guideId: null,
+        errorMessage: null,
+      })
+      .mockResolvedValueOnce({
+        id: 'job-1',
+        status: 'ready',
+        guideId: 'guide-1',
+        errorMessage: null,
+      });
+
+    const onPolling = jest.fn();
+    const result = await awaitAudioGuideJob('job-1', fetchJob, {
+      onPolling,
+      poll: { intervalMs: 0, maxAttempts: 5 },
+    });
+
+    expect(onPolling).toHaveBeenCalledTimes(1);
+    expect(result.outcome).toBe('ready');
+    expect(result.job?.guideId).toBe('guide-1');
+  });
+
+  it('retourne launched sur timeout', async () => {
+    const fetchJob = jest.fn<Promise<AudioGuideJob>, [string]>().mockResolvedValue({
+      id: 'job-1',
+      status: 'pending',
+      guideId: null,
+      errorMessage: null,
+    });
+
+    const result = await awaitAudioGuideJob('job-1', fetchJob, {
+      poll: { intervalMs: 0, maxAttempts: 2 },
+    });
+
+    expect(result).toEqual({ job: null, outcome: 'launched' });
   });
 });

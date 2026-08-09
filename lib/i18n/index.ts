@@ -5,6 +5,7 @@ import { initReactI18next } from 'react-i18next';
 import enAuth from './locales/en/auth.json';
 import enAudioPlayer from './locales/en/audioPlayer.json';
 import enAdminAddPlace from './locales/en/adminAddPlace.json';
+import enAdminAudioGuide from './locales/en/adminAudioGuide.json';
 import enCategories from './locales/en/categories.json';
 import enCreateGuide from './locales/en/createGuide.json';
 import enCreditsPack from './locales/en/creditsPack.json';
@@ -24,6 +25,7 @@ import enUserItineraries from './locales/en/userItineraries.json';
 import frAuth from './locales/fr/auth.json';
 import frAudioPlayer from './locales/fr/audioPlayer.json';
 import frAdminAddPlace from './locales/fr/adminAddPlace.json';
+import frAdminAudioGuide from './locales/fr/adminAudioGuide.json';
 import frCategories from './locales/fr/categories.json';
 import frCreateGuide from './locales/fr/createGuide.json';
 import frCreditsPack from './locales/fr/creditsPack.json';
@@ -55,6 +57,7 @@ const resources = {
     common: frCommon,
     audioPlayer: frAudioPlayer,
     adminAddPlace: frAdminAddPlace,
+    adminAudioGuide: frAdminAudioGuide,
     auth: frAuth,
     settings: frSettings,
     tabs: frTabs,
@@ -77,6 +80,7 @@ const resources = {
     common: enCommon,
     audioPlayer: enAudioPlayer,
     adminAddPlace: enAdminAddPlace,
+    adminAudioGuide: enAdminAudioGuide,
     auth: enAuth,
     settings: enSettings,
     tabs: enTabs,
@@ -139,6 +143,7 @@ export function initI18n(initialLocale: AppLocale = DEFAULT_LOCALE): typeof i18n
       'common',
       'audioPlayer',
       'adminAddPlace',
+      'adminAudioGuide',
       'auth',
       'settings',
       'tabs',

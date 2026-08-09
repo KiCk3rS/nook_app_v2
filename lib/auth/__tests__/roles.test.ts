@@ -1,4 +1,5 @@
 import {
+  canUseAdminEditorialTools,
   canUseAdminWikipediaCreation,
   isAdmin,
 } from '../roles';
@@ -36,13 +37,13 @@ describe('isAdmin', () => {
   });
 });
 
-describe('canUseAdminWikipediaCreation', () => {
+describe('canUseAdminEditorialTools', () => {
   const admin = userWithRole('ADMIN');
   const user = userWithRole('USER');
 
   it('autorise un ADMIN authentifié sur API réelle', () => {
     expect(
-      canUseAdminWikipediaCreation({
+      canUseAdminEditorialTools({
         user: admin,
         isAuthenticated: true,
         isMockSession: false,
@@ -53,7 +54,7 @@ describe('canUseAdminWikipediaCreation', () => {
 
   it('refuse USER, non auth, mock, API absente', () => {
     expect(
-      canUseAdminWikipediaCreation({
+      canUseAdminEditorialTools({
         user,
         isAuthenticated: true,
         isMockSession: false,
@@ -61,7 +62,7 @@ describe('canUseAdminWikipediaCreation', () => {
       }),
     ).toBe(false);
     expect(
-      canUseAdminWikipediaCreation({
+      canUseAdminEditorialTools({
         user: admin,
         isAuthenticated: false,
         isMockSession: false,
@@ -69,7 +70,7 @@ describe('canUseAdminWikipediaCreation', () => {
       }),
     ).toBe(false);
     expect(
-      canUseAdminWikipediaCreation({
+      canUseAdminEditorialTools({
         user: admin,
         isAuthenticated: true,
         isMockSession: true,
@@ -77,12 +78,24 @@ describe('canUseAdminWikipediaCreation', () => {
       }),
     ).toBe(false);
     expect(
-      canUseAdminWikipediaCreation({
+      canUseAdminEditorialTools({
         user: admin,
         isAuthenticated: true,
         isMockSession: false,
         apiConfigured: false,
       }),
     ).toBe(false);
+  });
+
+  it('alias Wikipedia partage la même gate', () => {
+    const params = {
+      user: admin,
+      isAuthenticated: true,
+      isMockSession: false,
+      apiConfigured: true,
+    };
+    expect(canUseAdminWikipediaCreation(params)).toBe(
+      canUseAdminEditorialTools(params),
+    );
   });
 });
