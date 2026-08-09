@@ -6,6 +6,7 @@
 | **Durée** | 1–2 j |
 | **Dépend de** | T04, T06 |
 | **Priorité écran** | P1 — A1.3, A6.1, A6.4 |
+| **Statut** | ✅ terminé (2026-07-05) — checklist réalignée 2026-08-09 |
 
 ## Objectif
 
@@ -13,28 +14,28 @@ Comportement cohérent demo vs API réelle ; écrans d'erreur service ; stats pr
 
 ## Prérequis
 
-- [ ] T04 : listen-history API
-- [ ] T06 : favoris API
-- [ ] T00 : health endpoint
+- [x] T04 : listen-history API
+- [x] T06 : favoris API
+- [x] T00 : health endpoint
 
 ## Étapes
 
 ### Demo vs API
 
-- [ ] Harmoniser `app/auth/login.tsx` et `register.tsx` avec `AuthContext` :
+- [x] Harmoniser `app/auth/login.tsx` et `register.tsx` avec `AuthContext` :
   - Si API configurée : pas de fallback mock silencieux sur échec login
   - Demo uniquement via `shouldShowDemoLogin()` + action explicite
-- [ ] Documenter règle dans `lib/config.ts` ou commentaire README integration
+- [x] Documenter règle dans `lib/config.ts` ou commentaire README integration
 
 ### Mode dégradé (A1.3)
 
-- [ ] Utiliser `fetchHealth()` au démarrage ou sur écran racine
-- [ ] UI erreur : API down, offline, playback 503
-- [ ] Actions : réessayer, continuer en mode limité si applicable
+- [x] Utiliser `fetchHealth()` au démarrage ou sur écran racine
+- [x] UI erreur : API down, offline, playback 503
+- [x] Actions : réessayer, continuer en mode limité si applicable
 
 ### Profil
 
-- [ ] `app/(tabs)/profil.tsx` :
+- [x] `app/(tabs)/profil.tsx` :
   - Stats écoutes → `listen-history` count ou agrégat API
   - Stats favoris → count API
   - Retirer compteurs mock-only quand connecté + API
@@ -48,10 +49,10 @@ Comportement cohérent demo vs API réelle ; écrans d'erreur service ; stats pr
 
 ## Critères d'acceptation
 
-- [ ] Avec API up : login échoué n'active pas session mock automatiquement
-- [ ] Bouton demo visible seulement selon règles produit
-- [ ] Health fail affiche message + retry
-- [ ] Profil connecté : stats cohérentes avec favoris/historique API
+- [x] Avec API up : login échoué n'active pas session mock automatiquement
+- [x] Bouton demo visible seulement selon règles produit
+- [x] Health fail affiche message + retry
+- [x] Profil connecté : stats cohérentes avec favoris/historique API
 
 ## Specs écrans liées
 
@@ -62,15 +63,15 @@ Comportement cohérent demo vs API réelle ; écrans d'erreur service ; stats pr
 
 ### App
 
-- [ ] `lib/__tests__/config.test.ts` :
+- [x] `lib/__tests__/config.test.ts` :
   - `shouldShowDemoLogin()` : sans API → true ; avec API + prod → false ; dev → true
   - `getApiBaseUrl()` trim trailing slash
-- [ ] `lib/auth/__tests__/demoSessionPolicy.test.ts` (helper extrait de AuthContext) :
+- [x] `lib/auth/__tests__/demoSessionPolicy.test.ts` (helper extrait de AuthContext) :
   - login échoué n'appelle pas `loginAsMock` si API configurée
   - demo explicite seulement via flag/bouton
-- [ ] `lib/profile/__tests__/profileStats.test.ts` :
+- [x] `lib/profile/__tests__/profileStats.test.ts` :
   - agrégation count favoris / historique depuis listes API
 
 ### Exécution
 
-- [ ] `npm test` vert dans `nook_app_v2`
+- [x] `npm test` vert dans `nook_app_v2`

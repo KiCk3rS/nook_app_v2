@@ -9,6 +9,7 @@
 | **Priorité** | Admin |
 | **Features** | F-014, F-015 ; écrans B1 / B3 / B6 |
 | **Priorité écran** | Admin — Partie B [`ecrans.md`](../ecrans.md) |
+| **Statut** | ✅ terminé — open question lat/lng V1.1 |
 
 ## Objectif
 
@@ -16,9 +17,9 @@ Rédiger la **fiche écran / flux** du parcours admin mobile : rechercher un art
 
 ## Prérequis
 
-- [ ] Skill [`spec-ecran-app`](../../.cursor/skills/spec-ecran-app/SKILL.md) + checklist UX
-- [ ] Inventaire [`docs/ecrans.md`](../ecrans.md) Partie B (B1, B3, B6) manqué
-- [ ] Contrat admin existant lu : `POST /admin/pois`, `POST /admin/pois/:poiId/audio-guides/generate` (réf. API)
+- [x] Skill [`spec-ecran-app`](../../.cursor/skills/spec-ecran-app/SKILL.md) + checklist UX
+- [x] Inventaire [`docs/ecrans.md`](../ecrans.md) Partie B (B1, B3, B6) manqué
+- [x] Contrat admin existant lu : `POST /admin/pois`, `POST /admin/pois/:poiId/audio-guides/generate` (réf. API)
 
 ## Livrable
 

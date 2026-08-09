@@ -8,6 +8,7 @@
 | **Bloque** | — |
 | **Priorité** | P1 — [INV-03](../mock-inventory.md) |
 | **Priorité écran** | P1 — A3.2 |
+| **Statut** | ✅ terminé — audit suivi 2026-08-09 |
 
 ## Objectif
 
@@ -15,18 +16,18 @@ Brancher l'onglet **Contenu** du lecteur audio sur l'API transcript ; conserver 
 
 ## Prérequis
 
-- [ ] T13 : endpoint transcript disponible
-- [ ] T04 terminée (lecteur, `useGuideTranscript` ou équivalent)
+- [x] T13 : endpoint transcript disponible
+- [x] T04 terminée (lecteur, `useGuideTranscript` ou équivalent)
 
 ## Étapes
 
-- [ ] Créer `lib/api/transcripts.ts` → `fetchAudioTranscript(poiId, audioId)`
-- [ ] Étendre `types/api.ts` (`TranscriptSegment`)
-- [ ] Refactor `lib/guideTranscript.ts` :
+- [x] Créer `lib/api/transcripts.ts` → `fetchAudioTranscript(poiId, audioId)`
+- [x] Étendre `types/api.ts` (`TranscriptSegment`)
+- [x] Refactor `lib/guideTranscript.ts` :
   - si `shouldUseMockData` → `MOCK_GUIDE_TRANSCRIPTS`
   - sinon → fetch API (hook async ou loader dans `AudioPlayerSheet`)
-- [ ] États : loading, vide (« texte pas encore disponible »), erreur
-- [ ] Cache mémoire optionnel par `audioId` (TTL à documenter)
+- [x] États : loading, vide (« texte pas encore disponible »), erreur
+- [x] Cache mémoire optionnel par `audioId` (TTL à documenter)
 
 ## Fichiers concernés
 
@@ -37,16 +38,16 @@ Brancher l'onglet **Contenu** du lecteur audio sur l'API transcript ; conserver 
 
 ## Critères d'acceptation
 
-- [ ] Guide API avec transcript seedé : surlignage phrase synchronisé en prod
-- [ ] Guide sans transcript : message vide discret (spec A3.2)
-- [ ] Mode démo : mock `1-a` / `2-a` inchangé
-- [ ] Point de contrôle audit #3 validé sur staging
-- [ ] `npm test` vert
+- [x] Guide API avec transcript seedé : surlignage phrase synchronisé en prod
+- [x] Guide sans transcript : message vide discret (spec A3.2)
+- [x] Mode démo : mock `1-a` / `2-a` inchangé
+- [x] Point de contrôle audit #3 validé sur staging
+- [x] `npm test` vert
 
 ## Tests unitaires
 
-- [ ] `lib/api/__tests__/transcripts.test.ts` : parse segments
-- [ ] `lib/guideTranscript.test.ts` : `findActiveSegmentIndex` inchangé ; resolver mock vs API
+- [x] `lib/api/__tests__/transcripts.test.ts` : parse segments
+- [x] `lib/guideTranscript.test.ts` : `findActiveSegmentIndex` inchangé ; resolver mock vs API
 
 ## Références
 

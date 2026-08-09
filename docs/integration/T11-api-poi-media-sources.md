@@ -8,6 +8,7 @@
 | **Bloque** | T12 |
 | **Priorité** | P0 — [INV-01](../mock-inventory.md), [INV-02](../mock-inventory.md) |
 | **Features** | F-006, F-015 |
+| **Statut** | ✅ terminé — audit suivi 2026-08-09 (`pois.service` + DTO détail) |
 
 ## Objectif
 
@@ -15,38 +16,38 @@ Enrichir `GET /api/v1/pois/:id` pour que l'app affiche de vraies images et pré-
 
 ## Prérequis
 
-- [ ] T10 terminée
-- [ ] Stockage S3 / signing opérationnel (déjà utilisé par discovery `coverImage` et admin POI images)
-- [ ] Décision D5 validée : URLs signées sur détail public (recommandation audit : oui)
+- [x] T10 terminée
+- [x] Stockage S3 / signing opérationnel (déjà utilisé par discovery `coverImage` et admin POI images)
+- [x] Décision D5 validée : URLs signées sur détail public (recommandation audit : oui)
 
-## Lacune audit
+## Lacune audit (historique — comblée)
 
-| Champ | État actuel API | Impact app |
-|-------|-----------------|------------|
-| `images[]` | `id`, `sortOrder`, `altText` — **sans URL** | `poiDetailToMockPlace` → `PLACE_IMAGE_PLACEHOLDER` systématique |
-| `wikipediaUrl` | **Absent** du DTO public | `getPlaceWikipediaUrl` → `undefined` ; création guide IA bloquée |
+| Champ | État API (après T11) | Impact app |
+|-------|----------------------|------------|
+| `images[]` / cover | `coverImage` signée sur détail (ou `null`) | Fiche lieu via T12 |
+| `wikipediaUrl` | Présent (nullable) sur DTO public | Préremplissage génération F-015 |
 
 ## Endpoints / contrat cible
 
 ### `GET /api/v1/pois/:id` (étendre réponse existante)
 
-- [ ] Ajouter `coverImage` (réutiliser `DiscoveryCoverImageDto` : `id`, `url`, `expiresAt`, `altText`) — image principale = première par `sortOrder`
-- [ ] Ajouter `wikipediaUrl` (nullable) — source éditoriale liée au POI pour génération F-015
+- [x] Ajouter `coverImage` (réutiliser `DiscoveryCoverImageDto` : `id`, `url`, `expiresAt`, `altText`) — image principale = première par `sortOrder`
+- [x] Ajouter `wikipediaUrl` (nullable) — source éditoriale liée au POI pour génération F-015
 
 Option écartée pour v1 : endpoint séparé `GET /pois/:id/images/:imageId/url` — préférer cohérence discovery.
 
 ### Données
 
-- [ ] Définir où vit `wikipediaUrl` en base (colonne POI, table sources, ou champ dérivé seed admin)
-- [ ] Seed / migration : peupler `wikipediaUrl` pour POI de démo staging (alignés seed T00)
+- [x] Définir où vit `wikipediaUrl` en base (colonne POI, table sources, ou champ dérivé seed admin)
+- [x] Seed / migration : peupler `wikipediaUrl` pour POI de démo staging (alignés seed T00)
 
 ## Étapes d'implémentation
 
-- [ ] Étendre `PoiDetailResponseDto` + mapper service (`pois.service.ts`)
-- [ ] Signer URL cover via service stockage existant (pattern admin / discovery)
-- [ ] Documenter TTL URL courte (aligner discovery / playback)
-- [ ] Mettre à jour Swagger + `docs/api-client-reference.md`
-- [ ] Resynchroniser `nook_app_v2/docs/api-client-reference.md`
+- [x] Étendre `PoiDetailResponseDto` + mapper service (`pois.service.ts`)
+- [x] Signer URL cover via service stockage existant (pattern admin / discovery)
+- [x] Documenter TTL URL courte (aligner discovery / playback)
+- [x] Mettre à jour Swagger + `docs/api-client-reference.md`
+- [x] Resynchroniser `nook_app_v2/docs/api-client-reference.md`
 
 ## Fichiers concernés (indicatif)
 
@@ -57,22 +58,22 @@ Option écartée pour v1 : endpoint séparé `GET /pois/:id/images/:imageId/url`
 
 ## Critères d'acceptation
 
-- [ ] `GET /pois/:id` retourne `coverImage.url` signée quand image publiée et stockage configuré
-- [ ] `GET /pois/:id` retourne `wikipediaUrl` pour POI seedés avec source Wikipedia
-- [ ] Sans stockage configuré : `coverImage` null (pas d'erreur 500)
-- [ ] Pas de régression sur `includeAudios`, children, popularité
-- [ ] `npm test` vert (`pois.service.spec.ts`, controller si touché)
-- [ ] Contrat app synchronisé
+- [x] `GET /pois/:id` retourne `coverImage.url` signée quand image publiée et stockage configuré
+- [x] `GET /pois/:id` retourne `wikipediaUrl` pour POI seedés avec source Wikipedia
+- [x] Sans stockage configuré : `coverImage` null (pas d'erreur 500)
+- [x] Pas de régression sur `includeAudios`, children, popularité
+- [x] `npm test` vert (`pois.service.spec.ts`, controller si touché)
+- [x] Contrat app synchronisé
 
 ## Tests unitaires
 
 ### API
 
-- [ ] `pois.service.spec.ts` :
+- [x] `pois.service.spec.ts` :
   - détail avec images → `coverImage` signée
   - détail sans images → `coverImage` null
   - `wikipediaUrl` présent / absent selon données
-- [ ] e2e : `GET /pois/:id` parse JSON avec nouveaux champs
+- [x] e2e : `GET /pois/:id` parse JSON avec nouveaux champs
 
 ## Références
 

@@ -8,6 +8,7 @@
 | **Bloque** | T25 |
 | **Priorité** | Admin |
 | **Features** | F-014, F-015 |
+| **Statut** | ✅ terminé |
 
 ## Objectif
 

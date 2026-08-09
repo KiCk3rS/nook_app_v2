@@ -7,6 +7,7 @@
 | **Dépend de** | T03 |
 | **Bloque** | T09 |
 | **Priorité écran** | P2 — A6.5 |
+| **Statut** | ✅ terminé (2026-07-05) — checklist réalignée 2026-08-09 |
 
 ## Objectif
 
@@ -14,8 +15,8 @@ Synchroniser les favoris avec l'API pour les utilisateurs connectés ; conserver
 
 ## Prérequis
 
-- [ ] T03 : POI identifiables par UUID API
-- [ ] Auth fonctionnelle (déjà en place)
+- [x] T03 : POI identifiables par UUID API
+- [x] Auth fonctionnelle (déjà en place)
 
 ## Endpoints
 
@@ -28,19 +29,19 @@ Synchroniser les favoris avec l'API pour les utilisateurs connectés ; conserver
 
 ## Étapes
 
-- [ ] Créer `lib/api/favorites.ts` :
+- [x] Créer `lib/api/favorites.ts` :
   - `fetchFavorites(query)`
   - `addFavorite(poiId)`
   - `removeFavorite(poiId)`
-- [ ] Refactor `contexts/FavoritesContext.tsx` :
+- [x] Refactor `contexts/FavoritesContext.tsx` :
   - User connecté + API → source of truth serveur
   - Demo / offline → AsyncStorage existant (`lib/favoritesStorage.ts`)
   - Sync au login (fetch initial)
-- [ ] Mettre à jour composants favoris pour snippets POI depuis réponse API :
+- [x] Mettre à jour composants favoris pour snippets POI depuis réponse API :
   - `components/favorites/FavoritePlaceRow.tsx`
   - `components/favorites/FavoriteSuggestionRow.tsx`
   - Écran favoris (depuis profil)
-- [ ] Toggle favori sur fiche lieu → API si connecté
+- [x] Toggle favori sur fiche lieu → API si connecté
 
 ## Fichiers concernés
 
@@ -50,27 +51,27 @@ Synchroniser les favoris avec l'API pour les utilisateurs connectés ; conserver
 
 ## Critères d'acceptation
 
-- [ ] Ajout/suppression favori persisté serveur après re-login
-- [ ] POST duplicate → 200 sans erreur UI
-- [ ] DELETE idempotent sans crash
-- [ ] Mode demo : comportement local inchangé
+- [x] Ajout/suppression favori persisté serveur après re-login
+- [x] POST duplicate → 200 sans erreur UI
+- [x] DELETE idempotent sans crash
+- [x] Mode demo : comportement local inchangé
 
 ## Tests unitaires
 
 ### App
 
-- [ ] `lib/api/__tests__/favorites.test.ts` :
+- [x] `lib/api/__tests__/favorites.test.ts` :
   - GET parse `{ items, total, ... }`
   - POST / DELETE appellent bons chemins et méthodes
-- [ ] Extraire logique sync (ex. `lib/favorites/syncFavorites.ts`) et tester :
+- [x] Extraire logique sync (ex. `lib/favorites/syncFavorites.ts`) et tester :
   - merge IDs serveur + local offline
   - mode demo → ignore API
   - optimistic update rollback sur erreur
 
 ### API — si touché
 
-- [ ] `favorites.service.spec.ts` : POST duplicate 200, DELETE idempotent
+- [x] `favorites.service.spec.ts` : POST duplicate 200, DELETE idempotent
 
 ### Exécution
 
-- [ ] `npm test` vert dans `nook_app_v2`
+- [x] `npm test` vert dans `nook_app_v2`

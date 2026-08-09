@@ -9,6 +9,7 @@
 | **Priorité** | Admin |
 | **Features** | F-015 (voie éditoriale admin) ; B6 / B7 via app ; B9 |
 | **Priorité écran** | Admin |
+| **Statut** | ✅ terminé (2026-08-09) |
 
 ## Objectif
 

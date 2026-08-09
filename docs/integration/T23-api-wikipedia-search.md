@@ -8,6 +8,7 @@
 | **Bloque** | T24, T25 |
 | **Priorité** | Admin |
 | **Features** | F-014 (acquisition source), MediaWiki |
+| **Statut** | ✅ terminé |
 
 ## Objectif
 

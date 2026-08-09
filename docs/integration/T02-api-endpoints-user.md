@@ -6,6 +6,7 @@
 | **Durée** | 3–5 j |
 | **Dépend de** | T00, T01 |
 | **Bloque** | T08 |
+| **Statut** | ✅ terminé (2026-07-05) — checklist réalignée 2026-08-09 |
 
 ## Objectif
 
@@ -13,31 +14,31 @@ Implémenter côté API les routes que l'app appelle déjà (ou documentées) ma
 
 ## Prérequis
 
-- [ ] T00 : contrat audité, orchestrator audio existant
-- [ ] Redis + worker BullMQ si génération audio async requise
+- [x] T00 : contrat audité, orchestrator audio existant
+- [x] Redis + worker BullMQ si génération audio async requise
 
 ## Endpoints à créer
 
 ### Crédits utilisateur
 
-- [ ] `GET /api/v1/me/credits` — solde + quota abonnement (Bearer)
-- [ ] `POST /api/v1/me/credits/purchase` — achat pack (stub ou intégration store)
+- [x] `GET /api/v1/me/credits` — solde + quota abonnement (Bearer)
+- [x] `POST /api/v1/me/credits/purchase` — achat pack (stub ou intégration store)
 
 ### Génération audio user (guide privé auteur)
 
-- [ ] `POST /api/v1/me/pois/:poiId/audio-guides/generate` → **202** + `{ jobId }`
-- [ ] `GET /api/v1/me/audio-guides/jobs/:jobId` — statut (auteur uniquement)
-- [ ] `GET /api/v1/me/pois/:poiId/audio-guides` — guides privés de l'utilisateur sur ce POI
+- [x] `POST /api/v1/me/pois/:poiId/audio-guides/generate` → **202** + `{ jobId }`
+- [x] `GET /api/v1/me/audio-guides/jobs/:jobId` — statut (auteur uniquement)
+- [x] `GET /api/v1/me/pois/:poiId/audio-guides` — guides privés de l'utilisateur sur ce POI
 
 ## Étapes d'implémentation
 
-- [ ] Créer module/controller user (séparé de `admin/pois`) ou étendre `audio-generation`
-- [ ] Réutiliser `AudioGenerationOrchestrator` avec garde ownership (userId = auteur)
-- [ ] DTOs + validation stricte (whitelist NestJS)
-- [ ] Codes erreur métier : `402` `AUDIO_GUIDE_INSUFFICIENT_CREDITS` si applicable
-- [ ] Tests e2e par endpoint (règle `nook-api-tests-per-feature`)
-- [ ] Mettre à jour Swagger + `docs/api-client-reference.md`
-- [ ] Resynchroniser copie app `nook_app_v2/docs/api-client-reference.md`
+- [x] Créer module/controller user (séparé de `admin/pois`) ou étendre `audio-generation`
+- [x] Réutiliser `AudioGenerationOrchestrator` avec garde ownership (userId = auteur)
+- [x] DTOs + validation stricte (whitelist NestJS)
+- [x] Codes erreur métier : `402` `AUDIO_GUIDE_INSUFFICIENT_CREDITS` si applicable
+- [x] Tests e2e par endpoint (règle `nook-api-tests-per-feature`)
+- [x] Mettre à jour Swagger + `docs/api-client-reference.md`
+- [x] Resynchroniser copie app `nook_app_v2/docs/api-client-reference.md`
 
 ## Fichiers concernés (indicatif)
 
@@ -48,12 +49,12 @@ Implémenter côté API les routes que l'app appelle déjà (ou documentées) ma
 
 ## Critères d'acceptation
 
-- [ ] Swagger documente les 5 routes user ci-dessus
-- [ ] `POST generate` retourne 202 ; job pollable ; guide visible dans `GET .../audio-guides`
-- [ ] Un user A ne peut pas lire le job de user B (404 ou 403)
-- [ ] Tests e2e verts sur CI locale
-- [ ] Copie contrat app synchronisée
-- [ ] `npm test` vert (specs service + controller user audio/credits)
+- [x] Swagger documente les 5 routes user ci-dessus
+- [x] `POST generate` retourne 202 ; job pollable ; guide visible dans `GET .../audio-guides`
+- [x] Un user A ne peut pas lire le job de user B (404 ou 403)
+- [x] Tests e2e verts sur CI locale
+- [x] Copie contrat app synchronisée
+- [x] `npm test` vert (specs service + controller user audio/credits)
 
 ## Notes
 
@@ -64,20 +65,20 @@ Implémenter côté API les routes que l'app appelle déjà (ou documentées) ma
 
 ### API — obligatoires (règle `nook-api-tests-per-feature`)
 
-- [ ] `me-credits.service.spec.ts` (ou équivalent) :
+- [x] `me-credits.service.spec.ts` (ou équivalent) :
   - solde initial, décrément, refus 402 si crédits insuffisants
   - quota abonnement mois courant si applicable
-- [ ] `user-audio-guides.service.spec.ts` :
+- [x] `user-audio-guides.service.spec.ts` :
   - `POST generate` crée job lié au userId + poiId
   - user B ne peut pas lire le job de user A
   - liste guides privés filtrée par auteur + POI
-- [ ] Controller spec mocké : codes HTTP 202 / 402 / 404
-- [ ] Réutiliser mocks Prisma (`test-support/prisma-user.factory.ts`) et patterns `auth.service.spec.ts`
+- [x] Controller spec mocké : codes HTTP 202 / 402 / 404
+- [x] Réutiliser mocks Prisma (`test-support/prisma-user.factory.ts`) et patterns `auth.service.spec.ts`
 
 ### API — e2e (complément, voir aussi T10)
 
-- [ ] Supertest : `GET /me/credits`, `POST generate` → poll job → `GET .../audio-guides`
+- [x] Supertest : `GET /me/credits`, `POST generate` → poll job → `GET .../audio-guides`
 
 ### Exécution
 
-- [ ] `npm test` vert dans `nook_api_v2` ; mentionner résultat Jest en clôture de tâche
+- [x] `npm test` vert dans `nook_api_v2` ; mentionner résultat Jest en clôture de tâche

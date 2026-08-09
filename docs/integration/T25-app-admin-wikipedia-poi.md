@@ -9,6 +9,7 @@
 | **Priorité** | Admin |
 | **Features** | F-014 ; écran B9 / A1.1 → A3.1 |
 | **Priorité écran** | Admin — B9 |
+| **Statut** | ✅ terminé (2026-08-09) |
 
 ## Objectif
 
