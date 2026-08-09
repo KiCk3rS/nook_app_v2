@@ -102,6 +102,24 @@ export interface DiscoveryItem {
   coverImage: DiscoveryCoverImage | null;
 }
 
+/** Compteurs carte ville (`GET /api/v1/cities` — stubs 0 OK en phase 1). */
+export interface CityStats {
+  publishedPoiCount: number;
+  editorialItineraryCount: number;
+  districtHubCount: number;
+}
+
+/** Item liste / recherche villes (`GET /api/v1/cities`). */
+export interface CitySummary {
+  id: string;
+  slug: string;
+  name: string;
+  subtitle: string | null;
+  coverImage: DiscoveryCoverImage | null;
+  stats: CityStats;
+  isPromoted: boolean;
+}
+
 export interface AudioAudience {
   slug: string;
   label: string;

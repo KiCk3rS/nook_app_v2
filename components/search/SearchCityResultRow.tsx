@@ -3,7 +3,6 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { SEARCH_SHEET_GUTTER } from '../../constants/searchDiscovery';
-import type { MockCity } from '../../constants/mockCities';
 import {
   colors,
   componentSizes,
@@ -11,9 +10,10 @@ import {
   spacing,
   textStyle,
 } from '../../constants/theme';
+import type { CityView } from '../../lib/mappers/cities';
 
 interface SearchCityResultRowProps {
-  city: MockCity;
+  city: CityView;
   subtitle: string | null;
   onPress: () => void;
 }

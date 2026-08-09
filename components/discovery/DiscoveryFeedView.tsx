@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   NativeScrollEvent,
@@ -16,8 +16,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PromotedCityCard } from '../city/PromotedCityCard';
 import { PopularCityCard } from '../city/PopularCityCard';
-import { popularCitySlugs, promotedCitySlugs } from '../../constants/discoveryFeed';
-import { getCityBySlug } from '../../constants/mockCities';
 import {
   colors,
   componentSizes,
@@ -25,6 +23,7 @@ import {
   spacing,
   textStyle,
 } from '../../constants/theme';
+import { useCityCarousels } from '../../hooks/useCityCarousels';
 import { useDiscoveryFeed } from '../../hooks/useDiscoveryFeed';
 import {
   trackDiscoveryFeedViewed,
@@ -104,22 +103,11 @@ export function DiscoveryFeedView() {
   const [showPromoted, setShowPromoted] = useState(true);
   const { latest, popular, topRated, initialLoading, loadMore } =
     useDiscoveryFeed();
-
-  const promotedCities = useMemo(
-    () =>
-      promotedCitySlugs
-        .map((slug) => getCityBySlug(slug))
-        .filter((city): city is NonNullable<typeof city> => city != null),
-    [],
-  );
-
-  const popularCities = useMemo(
-    () =>
-      popularCitySlugs
-        .map((slug) => getCityBySlug(slug))
-        .filter((city): city is NonNullable<typeof city> => city != null),
-    [],
-  );
+  const {
+    promotedCities,
+    popularCities,
+    loading: citiesLoading,
+  } = useCityCarousels();
 
   useEffect(() => {
     trackDiscoveryFeedViewed();
@@ -151,7 +139,7 @@ export function DiscoveryFeedView() {
           {t('title')}
         </Text>
 
-        {initialLoading ? (
+        {initialLoading || citiesLoading ? (
           <View style={styles.initialLoading}>
             <ActivityIndicator color={colors.primary} size="large" />
           </View>

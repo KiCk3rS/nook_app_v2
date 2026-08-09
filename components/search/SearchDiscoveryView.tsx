@@ -1,15 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { PromotedCityCard } from '../city/PromotedCityCard';
 import { PopularCityCard } from '../city/PopularCityCard';
-import {
-  popularCitySlugs,
-  promotedCitySlugs,
-  SEARCH_SHEET_GUTTER,
-} from '../../constants/searchDiscovery';
-import { getCityBySlug } from '../../constants/mockCities';
+import { SEARCH_SHEET_GUTTER } from '../../constants/searchDiscovery';
 import {
   colors,
   componentSizes,
@@ -17,6 +12,7 @@ import {
   spacing,
   textStyle,
 } from '../../constants/theme';
+import { useCityCarousels } from '../../hooks/useCityCarousels';
 
 interface SearchDiscoveryViewProps {
   showPromoted: boolean;
@@ -30,13 +26,7 @@ export function SearchDiscoveryView({
   onSelectCity,
 }: SearchDiscoveryViewProps) {
   const { t } = useTranslation('search');
-  const promotedCities = promotedCitySlugs
-    .map((slug) => getCityBySlug(slug))
-    .filter((city): city is NonNullable<typeof city> => city !== undefined);
-
-  const popularCities = popularCitySlugs
-    .map((slug) => getCityBySlug(slug))
-    .filter((city): city is NonNullable<typeof city> => city !== undefined);
+  const { promotedCities, popularCities, loading } = useCityCarousels();
 
   return (
     <ScrollView
@@ -45,6 +35,12 @@ export function SearchDiscoveryView({
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={styles.content}
     >
+      {loading ? (
+        <View style={styles.loading}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      ) : null}
+
       {showPromoted && promotedCities.length > 0 ? (
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -119,6 +115,10 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
     paddingBottom: spacing.xl,
     gap: spacing.lg,
+  },
+  loading: {
+    paddingVertical: spacing.md,
+    alignItems: 'center',
   },
   section: {
     gap: spacing.md,

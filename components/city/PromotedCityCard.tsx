@@ -1,7 +1,6 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import type { MockCity } from '../../constants/mockCities';
 import {
   colors,
   radius,
@@ -9,9 +8,10 @@ import {
   surfaceCardBorder,
   textStyle,
 } from '../../constants/theme';
+import type { CityView } from '../../lib/mappers/cities';
 
 interface PromotedCityCardProps {
-  city: MockCity;
+  city: CityView;
   onPress: () => void;
 }
 
@@ -39,9 +39,11 @@ export function PromotedCityCard({ city, onPress }: PromotedCityCardProps) {
         <Text style={styles.title} numberOfLines={2}>
           {city.name}
         </Text>
-        <Text style={styles.subtitle} numberOfLines={1}>
-          {city.subtitle}
-        </Text>
+        {city.subtitle ? (
+          <Text style={styles.subtitle} numberOfLines={1}>
+            {city.subtitle}
+          </Text>
+        ) : null}
       </View>
     </Pressable>
   );

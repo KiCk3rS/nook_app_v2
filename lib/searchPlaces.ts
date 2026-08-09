@@ -5,12 +5,19 @@ import {
 } from '../constants/mockPlaces';
 import { getCityBySlug, mockCities, type MockCity } from '../constants/mockCities';
 import { isApiConfigured } from './config';
+import { searchCities } from './api/cities';
 import { fetchPois } from './api/pois';
+import {
+  citySummaryToCityView,
+  mockCityToCityView,
+  type CityView,
+} from './mappers/cities';
 import {
   mockPlaceToPreview,
   poiSummaryToMockPlaceSummary,
 } from './mappers/poi';
 import type { CataloguePlacePreview } from '../types/catalogue';
+import type { CitySummary, PoiSummary } from '../types/api';
 
 export interface SearchPlaceResult {
   place: MockPlace;
@@ -23,13 +30,13 @@ export interface SearchCatalogueResult {
 }
 
 export interface SearchCityResult {
-  city: MockCity;
+  city: CityView;
   subtitle: string | null;
 }
 
 export type SearchResult =
   | { type: 'place'; place: MockPlace; subtitle: string | null }
-  | { type: 'city'; city: MockCity; subtitle: string | null };
+  | { type: 'city'; city: CityView; subtitle: string | null };
 
 type MatchTier = 0 | 1 | 2 | 3;
 
@@ -97,25 +104,66 @@ function buildApiPlaceSubtitle(
   return labels.length > 0 ? labels.join(' · ') : null;
 }
 
-function searchCitiesLocal(query: string): SearchResult[] {
+function toCitySearchResult(city: CityView): SearchResult {
+  return {
+    type: 'city',
+    city,
+    subtitle: city.subtitle || null,
+  };
+}
+
+function citySummariesToResults(items: CitySummary[]): SearchResult[] {
+  return items.map((item) => toCitySearchResult(citySummaryToCityView(item)));
+}
+
+function poiSummariesToResults(
+  items: PoiSummary[],
+  query: string,
+): SearchResult[] {
+  return items.map((poi) => ({
+    type: 'place' as const,
+    place: poiSummaryToMockPlaceSummary(poi),
+    subtitle: buildApiPlaceSubtitle(poi.title, poi.categories, query),
+  }));
+}
+
+/** Villes mock classées pour une query (fallback offline / erreur API). */
+function localCityResults(query: string): SearchResult[] {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const cityRanked = mockCities
+  return mockCities
     .map((city) => {
       const tier = getCityMatchTier(city, trimmed);
-      return tier === null ? null : { type: 'city' as const, city, tier };
+      return tier === null ? null : { city, tier };
     })
     .filter(
-      (entry): entry is { type: 'city'; city: MockCity; tier: MatchTier } =>
-        entry !== null,
-    );
+      (entry): entry is { city: MockCity; tier: MatchTier } => entry !== null,
+    )
+    .map((entry) => toCitySearchResult(mockCityToCityView(entry.city)));
+}
 
-  return cityRanked.map((entry) => ({
-    type: 'city' as const,
-    city: entry.city,
-    subtitle: entry.city.subtitle,
-  }));
+function localPlaceResults(query: string): SearchResult[] {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  return mockPlaces
+    .map((place) => {
+      const tier = getPlaceMatchTier(place, trimmed);
+      return tier === null ? null : { place, tier };
+    })
+    .filter(
+      (entry): entry is { place: MockPlace; tier: MatchTier } => entry !== null,
+    )
+    .sort((a, b) => {
+      if (a.tier !== b.tier) return a.tier - b.tier;
+      return a.place.id.localeCompare(b.place.id, undefined, { numeric: true });
+    })
+    .map(({ place }) => ({
+      type: 'place' as const,
+      place,
+      subtitle: buildPlaceSubtitle(place, trimmed),
+    }));
 }
 
 /**
@@ -164,11 +212,7 @@ export function searchAllLocal(query: string): SearchResult[] {
 
   return merged.map((entry) => {
     if (entry.type === 'city') {
-      return {
-        type: 'city' as const,
-        city: entry.city,
-        subtitle: entry.city.subtitle,
-      };
+      return toCitySearchResult(mockCityToCityView(entry.city));
     }
     return {
       type: 'place' as const,
@@ -184,36 +228,45 @@ export function searchAll(query: string): SearchResult[] {
 }
 
 /**
- * Recherche POI via API si configurée, sinon mock local.
- * Les villes mock restent disponibles dans les deux modes.
+ * Recherche hybride : villes + POI via API si configurée.
+ * Chaque source a son fallback indépendant ; mock complet seulement si les deux échouent
+ * ou si l’API n’est pas configurée.
  */
 export async function searchAllAsync(query: string): Promise<SearchResult[]> {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const cityResults = searchCitiesLocal(trimmed);
-
   if (!isApiConfigured()) {
     return searchAllLocal(trimmed);
   }
 
-  try {
-    const { items } = await fetchPois({
+  const [citiesOutcome, poisOutcome] = await Promise.allSettled([
+    searchCities(trimmed),
+    fetchPois({
       q: trimmed,
       sort: 'relevance',
       limit: 50,
-    });
+    }),
+  ]);
 
-    const placeResults: SearchResult[] = items.map((poi) => ({
-      type: 'place' as const,
-      place: poiSummaryToMockPlaceSummary(poi),
-      subtitle: buildApiPlaceSubtitle(poi.title, poi.categories, trimmed),
-    }));
-
-    return [...cityResults, ...placeResults];
-  } catch {
+  if (
+    citiesOutcome.status === 'rejected' &&
+    poisOutcome.status === 'rejected'
+  ) {
     return searchAllLocal(trimmed);
   }
+
+  const cityResults =
+    citiesOutcome.status === 'fulfilled'
+      ? citySummariesToResults(citiesOutcome.value)
+      : localCityResults(trimmed);
+
+  const placeResults =
+    poisOutcome.status === 'fulfilled'
+      ? poiSummariesToResults(poisOutcome.value.items, trimmed)
+      : localPlaceResults(trimmed);
+
+  return [...cityResults, ...placeResults];
 }
 
 /** Convertit un résultat mock en preview catalogue (tests / UI). */

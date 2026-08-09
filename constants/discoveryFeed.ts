@@ -5,6 +5,7 @@ import {
   formatListenCount,
 } from '../lib/i18n/formatters';
 import { getPlaceById, type MockPlace } from './mockPlaces';
+/** @deprecated Réexport fallback offline — préférer `useCityCarousels` / `GET /cities`. */
 import { popularCitySlugs, promotedCitySlugs } from './searchDiscovery';
 
 export { promotedCitySlugs, popularCitySlugs };
