@@ -75,35 +75,37 @@ Flux opérationnel mobile pour un compte `role: ADMIN` : recherche Wikipedia (pr
 
 ## Suivi d'avancement
 
+> **Audit doc 2026-08-09** : réalignement fiches ↔ code. Les checklists T02/T06–T09/T11–T14 étaient restées à `[ ]` alors que le code et les tests étaient livrés ; T22/T23/T26 étaient déjà cochés dans les fiches mais pas dans ce tableau.
+
 | Tâche | Statut | Date début | Date fin | Notes |
 |-------|--------|------------|----------|-------|
 | T00 | ✅ terminé | 2026-07-05 | 2026-07-05 | Contrat sync, seed POI, health client, Jest app |
 | T01 | ✅ terminé | 2026-07-05 | 2026-07-05 | Client HTTP, refresh proactif, SecureStore prod |
-| T02 | ✅ terminé | 2026-07-05 | 2026-07-05 | Endpoints /me/credits, génération audio user, tests Jest 178/178 |
-| T03 | ✅ terminé | 2026-07-05 | 2026-07-05 | POI carte/recherche/fiche, mappers, hooks, tests 35/35 |
-| T04 | ✅ terminé | 2026-07-05 | 2026-07-05 | Playback URL signée, play-event, listen-history, tests 51/51 |
-| T05 | ✅ terminé | 2026-07-05 | 2026-07-05 | Discovery API (3 sections), pagination offset, fallback mock, tests 63/63 |
-| T06 | ✅ terminé | 2026-07-05 | 2026-07-05 | Favoris API (GET/POST/DELETE), sync login, FavoritesContext, rollback optimiste, tests 103/103 |
-| T07 | ✅ terminé | 2026-07-05 | 2026-07-05 | Client parcours user : pagination, CRUD, guidage steps API |
-| T08 | ✅ terminé | 2026-07-05 | 2026-07-05 | Crédits/génération API, `generateAudioGuideAndAwaitJob`, guide-chat `credits.balance`, mappers, tests 91/91 |
-| T09 | ✅ terminé | 2026-07-05 | 2026-07-05 | Auth/démo sans fallback silencieux, health + mode limité, stats profil API, tests 131/131 |
-| T10 | ✅ terminé | 2026-07-05 | 2026-07-05 | E2E Supertest API, CI GH Actions, runbook, eas.json, me.test.ts — API 178u+28e2e, App 137u |
-| T11 | ⬜ à faire | | | POI `coverImage` + `wikipediaUrl` — API |
-| T12 | ⬜ à faire | | | POI média & Wikipedia — App |
-| T13 | ⬜ à faire | | | Transcript audio — API |
-| T14 | ⬜ à faire | | | Transcript — App |
-| T15 | ⬜ à faire | | | F-018 `GET /cities` |
+| T02 | ✅ terminé | 2026-07-05 | 2026-07-05 | Endpoints `/me/credits`, génération audio user ; checklist fiche réalignée 2026-08-09 |
+| T03 | ✅ terminé | 2026-07-05 | 2026-07-05 | POI carte/recherche/fiche, mappers, hooks |
+| T04 | ✅ terminé | 2026-07-05 | 2026-07-05 | Playback URL signée, play-event, listen-history |
+| T05 | ✅ terminé | 2026-07-05 | 2026-07-05 | Discovery API (3 sections), pagination offset, fallback mock |
+| T06 | ✅ terminé | 2026-07-05 | 2026-07-05 | Favoris API, FavoritesContext, sync ; checklist fiche réalignée 2026-08-09 |
+| T07 | ✅ terminé | 2026-07-05 | 2026-07-05 | Parcours user CRUD + pagination ; checklist fiche réalignée 2026-08-09 |
+| T08 | ✅ terminé | 2026-07-05 | 2026-07-05 | Crédits/génération + guide-chat ; checklist fiche réalignée 2026-08-09 |
+| T09 | ✅ terminé | 2026-07-05 | 2026-07-05 | Auth/démo, health, stats profil ; checklist fiche réalignée 2026-08-09 |
+| T10 | ✅ terminé | 2026-07-05 | 2026-07-05 | E2E + CI + runbook (reste manuel : build EAS preview staging) |
+| T11 | ✅ terminé | — | 2026-08-09* | `GET /pois/:id` → `coverImage` + `wikipediaUrl` (*audit : déjà en code, suivi mis à jour) |
+| T12 | ✅ terminé | — | 2026-08-09* | Mappers fiche POI (`poiDetailToMockPlace`) ; résidus `getPlaceById` favoris → T20 |
+| T13 | ✅ terminé | — | 2026-08-09* | `GET .../audios/:audioId/transcript` + persistance segments |
+| T14 | ✅ terminé | — | 2026-08-09* | `fetchAudioTranscript` + `useGuideTranscript` (mock démo conservé) |
+| T15 | ✅ terminé | 2026-08-09 | 2026-08-09 | F-018-a `GET /cities` + seed Paris/Lyon |
 | T16 | ⬜ à faire | | | Villes recherche & discovery — App |
 | T17 | ⬜ à faire | | | F-018 hub ville — API |
 | T18 | ⬜ à faire | | | Hub ville A4.3 — App |
 | T19 | ⬜ à faire | | | Hubs quartier A4.5 |
-| T20 | ⬜ à faire | | | Profil & résidus hybrides |
+| T20 | ⬜ à faire | | | Profil & résidus hybrides (`getPlaceById`, covers parcours, etc.) |
 | T21 | ⏸️ bloqué | | | Backlog P3 — décision produit |
-| T22 | ⬜ à faire | | | Spec écran flux admin Wikipedia → POI → audio |
-| T23 | ⬜ à faire | | | API recherche Wikipedia admin |
-| T24 | ✅ fait | | | API création POI depuis Wikipedia |
-| T25 | ✅ terminé | 2026-08-09 | 2026-08-09 | Helper `isAdmin`, clients search/from-wikipedia, feuille admin carte A1.1, tests 150 |
-| T26 | ⬜ à faire | | | App génération audio admin + suivi job |
+| T22 | ✅ terminé | — | 2026-08-09 | Spec B9 + `ecran-B9` (open : override lat/lng V1.1) |
+| T23 | ✅ terminé | — | 2026-08-09 | `GET /admin/wikipedia/search` |
+| T24 | ✅ terminé | — | 2026-08-09 | `POST /admin/pois/from-wikipedia` |
+| T25 | ✅ terminé | 2026-08-09 | 2026-08-09 | App admin : recherche Wikipedia + création POI |
+| T26 | ✅ terminé | 2026-08-09 | 2026-08-09 | App admin : génération audio + suivi job |
 
 Légende statut : ⬜ à faire · 🔄 en cours · ✅ terminé · ⏸️ bloqué
 
@@ -129,16 +131,16 @@ Chaque fiche **T00–T26** (hors T22 purement docs) contient une section **Tests
 
 Audit documentaire réalisé le **2026-07-05** : [mock-inventory.md](./mock-inventory.md).
 
-**Synthèse (mode prod, API branchée, session réelle) :**
+**Synthèse (mode prod, API branchée, session réelle) — audit 2026-08-09 :**
 
-| Priorité | Lacune | Tâche(s) |
-|----------|--------|----------|
-| P0 | `wikipediaUrl` + images POI | [T11](./T11-api-poi-media-sources.md), [T12](./T12-app-poi-media-sources.md) |
-| P1 | Transcript lecteur audio | [T13](./T13-api-transcript-audio.md), [T14](./T14-app-transcript-audio.md) |
-| P1 | Villes recherche / discovery | [T15](./T15-api-cities-f018-phase1.md), [T16](./T16-app-cities-recherche.md) |
-| P2 | Hubs ville / quartier | [T17](./T17-api-hub-ville-f018.md) → [T19](./T19-hubs-quartier-f018.md) |
-| P2 | Profil & résidus hybrides | [T20](./T20-app-profil-residus.md) |
-| P3 | Éditorial, reset MDP, IAP | [T21](./T21-backlog-p3.md) ⏸️ |
+| Priorité | Lacune | Tâche(s) | Statut |
+|----------|--------|----------|--------|
+| P0 | `wikipediaUrl` + images POI | [T11](./T11-api-poi-media-sources.md), [T12](./T12-app-poi-media-sources.md) | ✅ |
+| P1 | Transcript lecteur audio | [T13](./T13-api-transcript-audio.md), [T14](./T14-app-transcript-audio.md) | ✅ |
+| P1 | Villes recherche / discovery | [T15](./T15-api-cities-f018-phase1.md), [T16](./T16-app-cities-recherche.md) | T15 ✅ · T16 ⬜ |
+| P2 | Hubs ville / quartier | [T17](./T17-api-hub-ville-f018.md) → [T19](./T19-hubs-quartier-f018.md) | ⬜ |
+| P2 | Profil & résidus hybrides | [T20](./T20-app-profil-residus.md) | ⬜ |
+| P3 | Éditorial, reset MDP, IAP | [T21](./T21-backlog-p3.md) | ⏸️ |
 
 **Conservés volontairement :** session démo (`shouldUseMockData`), fallback `!isApiConfigured()`, mocks Jest.
 

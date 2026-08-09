@@ -217,19 +217,21 @@ Implémentation : `src/discovery/discovery.controller.ts`.
 
 ---
 
-### Villes et hubs territoriaux (F-018 — proposé, non implémenté)
+### Villes et hubs territoriaux (F-018)
 
-> Spec détaillée (dépôt API) : [`nook_api_v2/docs/spec-f018-hubs-ville.md`](../../../nook_api_v2/docs/spec-f018-hubs-ville.md)
+> Spec détaillée (dépôt API) : [`nook_api_v2/docs/spec-f018-hubs-ville.md`](../../../nook_api_v2/docs/spec-f018-hubs-ville.md)  
+> **F-018-a** (liste) : implémenté · **F-018-b** (hub) : proposé — T17
 
 | Méthode | Chemin | Auth | Description | Codes notables |
 |--------|--------|------|-------------|----------------|
 | GET | `/api/v1/cities` | none | Liste / recherche villes publiées (F-018-a) | 200 ; 422 |
-| GET | `/api/v1/cities/:slugOrId/hub` | none | Vitrine hub ville A4.3 (F-018-b) | 200 ; 404 ; 422 |
+| GET | `/api/v1/cities/:slugOrId/hub` | none | Vitrine hub ville A4.3 (F-018-b) — non implémenté | 200 ; 404 ; 422 |
 
 **`GET /cities`** — query : `q`, `promoted`, `popular`, `limit`, `offset`  
-Réponse : `PaginatedResponse<CityListItemDto>` (cover pré-signée, stats, `isPromoted`).
+Réponse : `PaginatedResponse<CityListItemDto>` (`nook_api_v2/src/cities/dto/list-cities.response.dto.ts`) — cover pré-signée, `stats` (stubs 0 en phase 1), `isPromoted`.  
+Seules les villes `status = PUBLISHED`. Tri : `sortOrder DESC, name ASC, id ASC` (éditorial / `popular`) ; `name ASC, id ASC` si `q`.
 
-**`GET /cities/:slugOrId/hub`** — réponse : `CityHubResponseDto` (héros, `map`, catégories itinéraires, incontournables, premium, affiliation).
+**`GET /cities/:slugOrId/hub`** — réponse cible : `CityHubResponseDto` — **T17**.
 
 ---
 
