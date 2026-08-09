@@ -444,6 +444,33 @@ Implémentation : `src/pois/admin-poi-images.controller.ts`.
 
 Implémentation : `src/categories/admin-categories.controller.ts`.
 
+### Recherche Wikipedia admin (F-014 / acquisition source)
+
+| Méthode | Chemin | Description | Codes notables |
+|--------|--------|-------------|----------------|
+| GET | `/api/v1/admin/wikipedia/search` | Proxy MediaWiki `opensearch` (`q`, `lang` défaut `fr`, `limit` défaut 10 max 20) | 200 ; 401 ; 403 ; 422 ; 503 ; 429 |
+
+Query : `q` requis (min 2 caractères) ; `lang` optionnel (code ISO 2–3 lettres) ; `limit` optionnel.  
+Réponse : `{ items: [{ title, wikipediaUrl, description, thumbnailUrl }] }` — `description` / `thumbnailUrl` peuvent être `null` ; ordre MediaWiki conservé.  
+DTO : `src/wikipedia/dto/admin-wikipedia-search.query.dto.ts`, `admin-wikipedia-search.response.dto.ts`  
+Client MediaWiki : `src/mediawiki/mediawiki.client.ts` (module `MediaWikiModule`)  
+Implémentation : `src/wikipedia/admin-wikipedia.controller.ts`.
+
+**Exemple réponse**
+
+```json
+{
+  "items": [
+    {
+      "title": "Tour Eiffel",
+      "wikipediaUrl": "https://fr.wikipedia.org/wiki/Tour_Eiffel",
+      "description": "Monument parisien…",
+      "thumbnailUrl": null
+    }
+  ]
+}
+```
+
 ### Génération audio IA (F-015)
 
 | Méthode | Chemin | Description | Codes notables |

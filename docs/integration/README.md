@@ -1,6 +1,6 @@
 # Intégration API NOOK — Tâches exécutables
 
-Découpage du plan d'intégration [`nook_api_v2` → `nook_app_v2`](../../.cursor/plans/intégration_api_nook_6cfc7cdc.plan.md) en **11 tâches** (T00–T10), puis **11 tâches post-audit mock** (T11–T21) dérivées de [mock-inventory.md](./mock-inventory.md).
+Découpage du plan d'intégration [`nook_api_v2` → `nook_app_v2`](../../.cursor/plans/intégration_api_nook_6cfc7cdc.plan.md) en **11 tâches** (T00–T10), puis **11 tâches post-audit mock** (T11–T21) dérivées de [mock-inventory.md](./mock-inventory.md), puis **5 tâches admin Wikipedia → POI → audio** (T22–T26).
 
 ## Comment utiliser ce dossier
 
@@ -41,6 +41,18 @@ Découpage du plan d'intégration [`nook_api_v2` → `nook_app_v2`](../../.curso
 | 20 | [T20-app-profil-residus.md](./T20-app-profil-residus.md) | App (+ API mineure) | 2–3 j | T07, T12 | P2 |
 | 21 | [T21-backlog-p3.md](./T21-backlog-p3.md) | API + App | epic | T10, décision produit | P3 |
 
+### Admin — Wikipedia → POI → Audio (T22–T26)
+
+Flux opérationnel mobile pour un compte `role: ADMIN` : recherche Wikipedia (proxy API) → création POI → génération audio éditoriale (F-015). Documentation uniquement au départ ; implémentation tâche par tâche.
+
+| # | Fichier | Dépôt | Durée | Dépend de | P |
+|---|---------|-------|-------|-----------|---|
+| 22 | [T22-spec-ecran-admin-wikipedia-poi.md](./T22-spec-ecran-admin-wikipedia-poi.md) | App (docs) | 0,5–1 j | — | Admin |
+| 23 | [T23-api-wikipedia-search.md](./T23-api-wikipedia-search.md) | API | 1–2 j | T22 | Admin |
+| 24 | [T24-api-poi-from-wikipedia.md](./T24-api-poi-from-wikipedia.md) | API | 2–3 j | T23, T11 | Admin |
+| 25 | [T25-app-admin-wikipedia-poi.md](./T25-app-admin-wikipedia-poi.md) | App | 2–3 j | T22, T23, T24 | Admin |
+| 26 | [T26-app-admin-audio-guide.md](./T26-app-admin-audio-guide.md) | App | 1–2 j | T25, T11/T12 | Admin |
+
 ## Parallélisation possible
 
 - **T02** (API endpoints user) ∥ **T03, T05, T07** après T01.
@@ -54,6 +66,12 @@ Découpage du plan d'intégration [`nook_api_v2` → `nook_app_v2`](../../.curso
 - **T17** attend T15 ; **T18** attend T16 + T17.
 - **T19** attend T18 ; **T20** peut démarrer après **T12** (en parallèle de F-018).
 - **T21** : bloqué décisions produit D2/D3.
+
+**Admin Wikipedia → POI → Audio :**
+
+- **T22** (spec) en premier ; puis **T23** (search API).
+- **T11** (persistance / exposition `wikipediaUrl`) doit être prêt avant ou pendant **T24**.
+- **T24** attend T23 (+ T11) ; **T25** attend T22–T24 ; **T26** attend T25 (+ T11/T12 pour la fiche).
 
 ## Suivi d'avancement
 
@@ -81,6 +99,11 @@ Découpage du plan d'intégration [`nook_api_v2` → `nook_app_v2`](../../.curso
 | T19 | ⬜ à faire | | | Hubs quartier A4.5 |
 | T20 | ⬜ à faire | | | Profil & résidus hybrides |
 | T21 | ⏸️ bloqué | | | Backlog P3 — décision produit |
+| T22 | ⬜ à faire | | | Spec écran flux admin Wikipedia → POI → audio |
+| T23 | ⬜ à faire | | | API recherche Wikipedia admin |
+| T24 | ⬜ à faire | | | API création POI depuis Wikipedia |
+| T25 | ⬜ à faire | | | App UI recherche + création POI admin |
+| T26 | ⬜ à faire | | | App génération audio admin + suivi job |
 
 Légende statut : ⬜ à faire · 🔄 en cours · ✅ terminé · ⏸️ bloqué
 
@@ -98,7 +121,7 @@ Légende statut : ⬜ à faire · 🔄 en cours · ✅ terminé · ⏸️ bloqu�
 | **nook_api_v2** | Jest + ts-jest (existant) | `npm test` | Obligatoire pour tout code sous `src/` — voir `nook-api-tests-per-feature` |
 | **nook_app_v2** | Jest + jest-expo (à installer en **T00**) | `npm test` | Obligatoire pour `lib/api/*`, mappers, helpers purs ; contexts via helpers extraits |
 
-Chaque fiche **T00–T21** contient une section **Tests unitaires** avec fichiers cibles et cas à couvrir. T10 valide que les deux suites passent avant clôture de la phase intégration initiale.
+Chaque fiche **T00–T26** (hors T22 purement docs) contient une section **Tests unitaires** avec fichiers cibles et cas à couvrir lorsque du code est prévu. T10 valide que les deux suites passent avant clôture de la phase intégration initiale.
 
 **Principe app** : tester la logique pure et les clients API (mock `fetch`) ; éviter de tester les composants RN lourds (Maps, expo-av) en unitaire — réservés à la matrice manuelle T10.
 
