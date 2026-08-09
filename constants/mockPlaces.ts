@@ -38,6 +38,8 @@ export interface MockPlace {
   parentId?: string;
   /** Statut publication API (`DRAFT` visible admin uniquement). */
   publicationStatus?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  /** Ancre hub quartier → deep link A4.5 (API ou mock). */
+  districtHub?: { citySlug: string; districtSlug: string } | null;
 }
 
 export function getCategoryLabel(categoryId: string): string {

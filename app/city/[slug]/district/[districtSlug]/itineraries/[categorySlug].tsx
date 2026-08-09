@@ -22,25 +22,37 @@ import {
 } from '../../../../../../constants/theme';
 import { usePremium } from '../../../../../../contexts/PremiumContext';
 import { trackItineraryCategoryListViewed } from '../../../../../../lib/analytics';
+import { isApiConfigured } from '../../../../../../lib/config';
 
 export default function DistrictItineraryCategoryListScreen() {
   const { t } = useTranslation(['hub', 'common']);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { slug, districtSlug, categorySlug } = useLocalSearchParams<{
-    slug: string;
-    districtSlug: string;
-    categorySlug: string;
-  }>();
+  const { slug, districtSlug, categorySlug, districtName: districtNameParam } =
+    useLocalSearchParams<{
+      slug: string;
+      districtSlug: string;
+      categorySlug: string;
+      districtName?: string;
+    }>();
 
   const city = useMemo(
     () => (typeof slug === 'string' ? getCityBySlug(slug) : undefined),
     [slug],
   );
-  const district = useMemo(() => {
-    if (typeof slug !== 'string' || typeof districtSlug !== 'string') return undefined;
-    return getDistrictBySlug(slug, districtSlug);
-  }, [slug, districtSlug]);
+  const districtName = useMemo(() => {
+    if (typeof districtNameParam === 'string' && districtNameParam.trim()) {
+      return districtNameParam.trim();
+    }
+    if (
+      typeof slug !== 'string' ||
+      typeof districtSlug !== 'string' ||
+      isApiConfigured()
+    ) {
+      return undefined;
+    }
+    return getDistrictBySlug(slug, districtSlug)?.name;
+  }, [slug, districtSlug, districtNameParam]);
   const categoryLabel = useMemo(
     () => (typeof categorySlug === 'string' ? getCategoryLabel(categorySlug) : ''),
     [categorySlug],
@@ -98,7 +110,9 @@ export default function DistrictItineraryCategoryListScreen() {
           <Text style={styles.headerTitle} accessibilityRole="header">
             {categoryLabel}
           </Text>
-          {district ? <Text style={styles.headerSubtitle}>{district.name}</Text> : null}
+          {districtName ? (
+            <Text style={styles.headerSubtitle}>{districtName}</Text>
+          ) : null}
         </View>
       </View>
 
@@ -109,12 +123,12 @@ export default function DistrictItineraryCategoryListScreen() {
             onPress={handleBack}
             accessibilityRole="button"
             accessibilityLabel={t('hub:a11yBackToDistrict', {
-              name: district?.name ?? t('hub:a11yBackToDistrictFallback'),
+              name: districtName ?? t('hub:a11yBackToDistrictFallback'),
             })}
           >
             <Text style={styles.emptyLink}>
               {t('hub:backTo', {
-                name: district?.name ?? t('hub:a11yBackToDistrictFallback'),
+                name: districtName ?? t('hub:a11yBackToDistrictFallback'),
               })}
             </Text>
           </Pressable>

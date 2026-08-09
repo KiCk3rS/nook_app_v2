@@ -1,8 +1,13 @@
 import { PLACE_IMAGE_PLACEHOLDER } from '../../../constants/placeImages';
-import type { CityHub, CityHubPoiSnippet } from '../../../types/api';
+import type {
+  CityHub,
+  CityHubPoiSnippet,
+  DistrictHub,
+} from '../../../types/api';
 import {
   cityHubPoiSnippetToMockPlace,
   cityHubToHubData,
+  districtHubToHubData,
   mockCityToHubData,
 } from '../cityHub';
 
@@ -20,6 +25,7 @@ const samplePoi: CityHubPoiSnippet = {
     expiresAt: '2026-08-10T00:00:00.000Z',
     altText: null,
   },
+  districtHub: null,
 };
 
 const sampleHub: CityHub = {
@@ -84,6 +90,12 @@ describe('cityHubToHubData', () => {
       featuredPremiumItineraryId: null,
       touristPasses: [],
       affiliateExperiences: [],
+      mapRegion: {
+        latitude: 48.8566,
+        longitude: 2.3522,
+        latitudeDelta: 0.06,
+        longitudeDelta: 0.115,
+      },
     });
     expect(data.mustSeePlaces).toHaveLength(1);
     expect(data.mustSeePlaces[0]?.id).toBe('poi-1');
@@ -134,5 +146,56 @@ describe('mockCityToHubData', () => {
     expect(data.recommendedPlaces).toHaveLength(0);
     expect(data.featuredPremiumItineraryId).toBe('itin-paris-premium');
     expect(data.touristPasses).toHaveLength(1);
+  });
+});
+
+describe('districtHubToHubData', () => {
+  const sampleDistrictHub: DistrictHub = {
+    id: 'district-marais',
+    slug: 'le-marais',
+    name: 'Le Marais',
+    subtitle: '4 parcours · 6 lieux',
+    citySlug: 'paris',
+    cityName: 'Paris',
+    anchorPoiId: 'poi-marais',
+    coverImage: {
+      id: 'cover-d',
+      url: 'https://cdn.example.com/marais.jpg',
+      expiresAt: '2026-08-10T00:00:00.000Z',
+      altText: null,
+    },
+    map: {
+      center: { lat: 48.859, lng: 2.3622 },
+      bbox: { north: 48.865, south: 48.853, east: 2.372, west: 2.352 },
+      latitudeDelta: 0.06,
+      longitudeDelta: 0.06,
+    },
+    stats: { publishedPoiCount: 0, editorialItineraryCount: 0 },
+    itineraryCategories: [],
+    featuredPremiumItinerary: null,
+    mustSeePois: [samplePoi],
+    recommendedPois: [],
+    touristPasses: [{ id: 'ignored' }],
+    affiliateExperiences: [{ id: 'ignored' }],
+  };
+
+  it('mappe hub quartier avec parent ville et région carte', () => {
+    const data = districtHubToHubData(sampleDistrictHub);
+    expect(data).toMatchObject({
+      citySlug: 'paris',
+      districtSlug: 'le-marais',
+      name: 'Le Marais',
+      parentCityName: 'Paris',
+      featuredPremiumItineraryId: null,
+      touristPasses: [],
+      affiliateExperiences: [],
+    });
+    expect(data.mapRegion).toEqual({
+      latitude: 48.859,
+      longitude: 2.3622,
+      latitudeDelta: 0.06,
+      longitudeDelta: 0.06,
+    });
+    expect(data.mustSeePlaces).toHaveLength(1);
   });
 });

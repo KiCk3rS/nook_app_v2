@@ -29,6 +29,8 @@ import { useServiceHealth } from '../../contexts/ServiceHealthContext';
 import { colors, miniPlayerHeight, spacing, textStyle, zIndex, radius } from '../../constants/theme';
 import { useLocationPermission } from '../../hooks/useLocationPermission';
 import { usePoisInBbox } from '../../hooks/usePoisInBbox';
+import { isApiConfigured } from '../../lib/config';
+import { parseFocusMapRegion } from '../../lib/focusMapRegion';
 import type { MapRegion } from '../../lib/itineraryMap';
 import { markerToPreview, mockPlaceToPreview } from '../../lib/mappers/poi';
 import type { PermissionSheetSource } from '../../lib/analytics';
@@ -52,11 +54,16 @@ export default function CarteScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const mapRef = useRef<HomeMapHandle>(null);
-  const { focusCity, focusDistrict, focusItinerary } = useLocalSearchParams<{
-    focusCity?: string;
-    focusDistrict?: string;
-    focusItinerary?: string;
-  }>();
+  const { focusCity, focusDistrict, focusItinerary, focusLat, focusLng, focusLatDelta, focusLngDelta } =
+    useLocalSearchParams<{
+      focusCity?: string;
+      focusDistrict?: string;
+      focusItinerary?: string;
+      focusLat?: string;
+      focusLng?: string;
+      focusLatDelta?: string;
+      focusLngDelta?: string;
+    }>();
 
   const [selectedCategoryId, setSelectedCategoryId] = useState('all');
 
@@ -119,22 +126,44 @@ export default function CarteScreen() {
   }, [focusItinerary]);
 
   useEffect(() => {
-    if (typeof focusCity !== 'string' || focusItinerary) return;
-    const city = getCityBySlug(focusCity);
-    if (city) {
-      mapRef.current?.centerOnRegion(city.mapRegion);
-    }
-  }, [focusCity, focusItinerary]);
+    if (focusItinerary) return;
 
-  useEffect(() => {
-    if (typeof focusDistrict !== 'string' || focusItinerary) return;
-    const [citySlug, districtSlug] = focusDistrict.split('/');
-    if (!citySlug || !districtSlug) return;
-    const district = getDistrictBySlug(citySlug, districtSlug);
-    if (district) {
-      mapRef.current?.centerOnRegion(district.mapRegion);
+    const fromParams = parseFocusMapRegion({
+      focusLat,
+      focusLng,
+      focusLatDelta,
+      focusLngDelta,
+    });
+    if (fromParams) {
+      mapRef.current?.centerOnRegion(fromParams);
+      return;
     }
-  }, [focusDistrict, focusItinerary]);
+
+    if (typeof focusCity === 'string') {
+      const city = getCityBySlug(focusCity);
+      if (city) {
+        mapRef.current?.centerOnRegion(city.mapRegion);
+      }
+      return;
+    }
+
+    if (typeof focusDistrict === 'string') {
+      const [citySlug, districtSlug] = focusDistrict.split('/');
+      if (!citySlug || !districtSlug || isApiConfigured()) return;
+      const district = getDistrictBySlug(citySlug, districtSlug);
+      if (district) {
+        mapRef.current?.centerOnRegion(district.mapRegion);
+      }
+    }
+  }, [
+    focusCity,
+    focusDistrict,
+    focusItinerary,
+    focusLat,
+    focusLng,
+    focusLatDelta,
+    focusLngDelta,
+  ]);
 
   useEffect(() => {
     if (!itineraryMapSession) return;

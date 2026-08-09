@@ -66,6 +66,28 @@ export const mockDistricts: MockDistrict[] = [
       },
     ],
   },
+  {
+    id: 'district-montmartre',
+    slug: 'montmartre',
+    citySlug: 'paris',
+    name: 'Montmartre',
+    coverImageUrl:
+      'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=80',
+    subtitle: 'Butte artistique · basilique · cabarets',
+    presentation: 'hub',
+    /** Sacré-Cœur mock id — ancre carte Montmartre. */
+    anchorPoiId: '4',
+    mapRegion: {
+      latitude: 48.8867,
+      longitude: 2.3431,
+      latitudeDelta: 0.016,
+      longitudeDelta: 0.02,
+    },
+    mustSeePoiIds: ['4'],
+    recommendedPoiIds: ['3'],
+    featuredPremiumItineraryId: null,
+    affiliateExperiences: [],
+  },
 ];
 
 export function getDistrictBySlug(

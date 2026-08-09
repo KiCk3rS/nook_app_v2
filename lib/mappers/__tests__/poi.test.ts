@@ -28,6 +28,8 @@ describe('poiSummaryToMarker', () => {
       categoryId: 'musee',
       categoryLabel: 'Musée',
       parentId: null,
+      publicationStatus: undefined,
+      districtHub: null,
     });
   });
 

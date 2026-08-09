@@ -42,7 +42,7 @@ import {
 } from '../../constants/theme';
 import { usePremium } from '../../contexts/PremiumContext';
 import type { TerritorialHubData } from '../../lib/mappers/cityHub';
-import { getPlaceHrefById } from '../../lib/placeNavigation';
+import { getPlaceHref, getPlaceHrefById } from '../../lib/placeNavigation';
 
 export type { TerritorialHubData };
 
@@ -124,11 +124,23 @@ export function TerritorialHubView({
   function handleMapCta() {
     if (!config) return;
     config.onMapCtaTapped?.();
+    const region = config.mapRegion;
+    const focusParams = region
+      ? {
+          focusLat: String(region.latitude),
+          focusLng: String(region.longitude),
+          focusLatDelta: String(region.latitudeDelta),
+          focusLngDelta: String(region.longitudeDelta),
+        }
+      : {};
     router.push({
       pathname: '/(tabs)',
       params: config.districtSlug
-        ? { focusDistrict: `${config.citySlug}/${config.districtSlug}` }
-        : { focusCity: config.citySlug },
+        ? {
+            focusDistrict: `${config.citySlug}/${config.districtSlug}`,
+            ...focusParams,
+          }
+        : { focusCity: config.citySlug, ...focusParams },
     });
   }
 
@@ -136,9 +148,15 @@ export function TerritorialHubView({
     if (!config) return;
     config.onCategoryTapped?.(categorySlug);
     if (config.districtSlug) {
-      router.push(
-        `/city/${config.citySlug}/district/${config.districtSlug}/itineraries/${categorySlug}`,
-      );
+      router.push({
+        pathname: '/city/[slug]/district/[districtSlug]/itineraries/[categorySlug]',
+        params: {
+          slug: config.citySlug,
+          districtSlug: config.districtSlug,
+          categorySlug,
+          districtName: config.name,
+        },
+      });
       return;
     }
     router.push(`/city/${config.citySlug}/itineraries/${categorySlug}`);
@@ -165,7 +183,10 @@ export function TerritorialHubView({
   function handlePoiPress(poiId: string, section: 'must_see' | 'recommended') {
     if (!config) return;
     config.onPoiTapped?.(poiId, section);
-    router.push(getPlaceHrefById(poiId));
+    const place =
+      config.mustSeePlaces.find((p) => p.id === poiId) ??
+      config.recommendedPlaces.find((p) => p.id === poiId);
+    router.push(place ? getPlaceHref(place) : getPlaceHrefById(poiId));
   }
 
   function handleAffiliatePress(

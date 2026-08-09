@@ -3,8 +3,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { TerritorialHubView } from '../../../../../components/city/TerritorialHubView';
-import { getCityBySlug } from '../../../../../constants/mockCities';
-import { getDistrictBySlug } from '../../../../../constants/mockDistricts';
+import { useDistrictHub } from '../../../../../hooks/useDistrictHub';
 import {
   trackHubDistrictAffiliateTapped,
   trackHubDistrictCategoryTapped,
@@ -13,7 +12,6 @@ import {
   trackHubDistrictPremiumTapped,
   trackHubDistrictViewed,
 } from '../../../../../lib/analytics';
-import { mockDistrictToHubData } from '../../../../../lib/mappers/cityHub';
 
 export default function DistrictHubScreen() {
   const { t } = useTranslation('hub');
@@ -21,51 +19,47 @@ export default function DistrictHubScreen() {
     slug: string;
     districtSlug: string;
   }>();
-
-  const city = useMemo(
-    () => (typeof slug === 'string' ? getCityBySlug(slug) : undefined),
-    [slug],
+  const { status, hub, reload } = useDistrictHub(
+    typeof slug === 'string' ? slug : undefined,
+    typeof districtSlug === 'string' ? districtSlug : undefined,
   );
-  const district = useMemo(() => {
-    if (typeof slug !== 'string' || typeof districtSlug !== 'string') return undefined;
-    return getDistrictBySlug(slug, districtSlug);
-  }, [slug, districtSlug]);
 
   const config = useMemo(() => {
-    if (!city || !district) return null;
-    const data = mockDistrictToHubData(city.name, city.slug, district);
+    if (!hub || !hub.districtSlug) return null;
+    const dSlug = hub.districtSlug;
     return {
-      ...data,
-      onViewed: () => trackHubDistrictViewed(city.slug, district.slug, 'direct'),
+      ...hub,
+      onViewed: () => trackHubDistrictViewed(hub.citySlug, dSlug, 'direct'),
       onCategoryTapped: (categorySlug: string) =>
-        trackHubDistrictCategoryTapped(city.slug, district.slug, categorySlug),
+        trackHubDistrictCategoryTapped(hub.citySlug, dSlug, categorySlug),
       onPremiumTapped: (itineraryId: string, isLocked: boolean) =>
-        trackHubDistrictPremiumTapped(city.slug, district.slug, itineraryId, isLocked),
+        trackHubDistrictPremiumTapped(hub.citySlug, dSlug, itineraryId, isLocked),
       onPoiTapped: (poiId: string, section: 'must_see' | 'recommended') =>
-        trackHubDistrictPoiTapped(city.slug, district.slug, poiId, section),
+        trackHubDistrictPoiTapped(hub.citySlug, dSlug, poiId, section),
       onAffiliateTapped: (
         partner: string,
         slot: 'tourist_pass' | 'experience',
         itemId: string,
       ) =>
         trackHubDistrictAffiliateTapped(
-          city.slug,
-          district.slug,
+          hub.citySlug,
+          dSlug,
           partner,
           slot,
           itemId,
         ),
-      onMapCtaTapped: () => trackHubDistrictMapCtaTapped(city.slug, district.slug),
+      onMapCtaTapped: () => trackHubDistrictMapCtaTapped(hub.citySlug, dSlug),
     };
-  }, [city, district]);
+  }, [hub]);
 
   return (
     <TerritorialHubView
-      status={config ? 'ready' : 'not_found'}
+      status={status}
       config={config}
       notFoundTitle={t('districtNotFoundTitle')}
       notFoundBody={t('districtNotFoundBody')}
       paywallSource="hub_district"
+      onRetry={reload}
     />
   );
 }

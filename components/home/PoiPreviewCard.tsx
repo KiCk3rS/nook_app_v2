@@ -12,7 +12,7 @@ import {
 import { useFavorites } from '../../contexts/FavoritesContext';
 import type { CataloguePlaceMarker, CataloguePlacePreview } from '../../types/catalogue';
 import { getCategoryDisplayLabel } from '../../lib/mappers/poi';
-import { getPlaceHrefById } from '../../lib/placeNavigation';
+import { getMarkerHref } from '../../lib/placeNavigation';
 import {
   colors,
   componentSizes,
@@ -39,7 +39,7 @@ export function PoiPreviewCard({ place, onClose }: PoiPreviewCardProps) {
   const readyGuideCount = place.readyAudioCount;
 
   function handleOpenDetail() {
-    router.push(getPlaceHrefById(place.id));
+    router.push(getMarkerHref(place));
   }
 
   return (

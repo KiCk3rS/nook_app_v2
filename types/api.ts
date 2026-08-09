@@ -21,6 +21,12 @@ export interface PoiCategory {
   label: string;
 }
 
+/** Deep link hub quartier quand le POI est l’ancre éditoriale. */
+export interface DistrictHubRef {
+  citySlug: string;
+  districtSlug: string;
+}
+
 /** Item carte / liste POI (`GET /api/v1/pois`). */
 export interface PoiSummary {
   id: string;
@@ -31,6 +37,8 @@ export interface PoiSummary {
   status?: PublicationStatus;
   categories: PoiCategory[];
   parentPoiId?: string | null;
+  /** Ancre hub quartier A4.5 si applicable. */
+  districtHub?: DistrictHubRef | null;
 }
 
 export type PublicationStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
@@ -73,6 +81,7 @@ export interface PoiDetail {
   coverImage?: PoiDetailCoverImage | null;
   audios?: AudioTrack[];
   popularity: PoiDetailPopularity | null;
+  districtHub?: DistrictHubRef | null;
 }
 
 export interface DiscoveryCoverImage {
@@ -155,6 +164,7 @@ export interface CityHubPoiSnippet {
   categories: PoiCategory[];
   popularity: DiscoveryPopularity | null;
   coverImage: DiscoveryCoverImage | null;
+  districtHub?: DistrictHubRef | null;
 }
 
 /**
@@ -176,6 +186,15 @@ export interface CityHub {
   touristPasses: Record<string, unknown>[];
   affiliateExperiences: Record<string, unknown>[];
 }
+
+/**
+ * Réponse `GET /api/v1/cities/:citySlug/districts/:districtSlug/hub` (T19 / A4.5).
+ */
+export type DistrictHub = CityHub & {
+  citySlug: string;
+  cityName: string;
+  anchorPoiId: string;
+};
 
 export interface AudioAudience {
   slug: string;

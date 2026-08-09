@@ -1,4 +1,9 @@
-import type { CityHub, CitySummary, PaginatedResponse } from '../../types/api';
+import type {
+  CityHub,
+  CitySummary,
+  DistrictHub,
+  PaginatedResponse,
+} from '../../types/api';
 import { apiRequest, buildQuery } from './client';
 
 export interface ListCitiesQuery {
@@ -57,4 +62,16 @@ export async function searchCities(
 export function fetchCityHub(slugOrId: string): Promise<CityHub> {
   const key = slugOrId.trim();
   return apiRequest<CityHub>(`/cities/${encodeURIComponent(key)}/hub`);
+}
+
+/** `GET /api/v1/cities/:citySlug/districts/:districtSlug/hub` — hub quartier (T19). */
+export function fetchDistrictHub(
+  citySlug: string,
+  districtSlug: string,
+): Promise<DistrictHub> {
+  const city = citySlug.trim();
+  const district = districtSlug.trim();
+  return apiRequest<DistrictHub>(
+    `/cities/${encodeURIComponent(city)}/districts/${encodeURIComponent(district)}/hub`,
+  );
 }

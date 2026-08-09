@@ -98,7 +98,7 @@ Flux opérationnel mobile pour un compte `role: ADMIN` : recherche Wikipedia (pr
 | T16 | ⬜ à faire | | | Villes recherche & discovery — App |
 | T17 | ⬜ à faire | | | F-018 hub ville — API |
 | T18 | ✅ fait | | | Hub ville A4.3 — App |
-| T19 | ⬜ à faire | | | Hubs quartier A4.5 |
+| T19 | ✅ terminé | 2026-08-09 | 2026-08-09 | Hubs quartier A4.5 — option B + seed Marais/Montmartre |
 | T20 | ⬜ à faire | | | Profil & résidus hybrides (`getPlaceById`, covers parcours, etc.) |
 | T21 | ⏸️ bloqué | | | Backlog P3 — décision produit |
 | T22 | ✅ terminé | — | 2026-08-09 | Spec B9 + `ecran-B9` (open : override lat/lng V1.1) |
@@ -138,7 +138,7 @@ Audit documentaire réalisé le **2026-07-05** : [mock-inventory.md](./mock-inve
 | P0 | `wikipediaUrl` + images POI | [T11](./T11-api-poi-media-sources.md), [T12](./T12-app-poi-media-sources.md) | ✅ |
 | P1 | Transcript lecteur audio | [T13](./T13-api-transcript-audio.md), [T14](./T14-app-transcript-audio.md) | ✅ |
 | P1 | Villes recherche / discovery | [T15](./T15-api-cities-f018-phase1.md), [T16](./T16-app-cities-recherche.md) | T15 ✅ · T16 ⬜ |
-| P2 | Hubs ville / quartier | [T17](./T17-api-hub-ville-f018.md) → [T19](./T19-hubs-quartier-f018.md) | ⬜ |
+| P2 | Hubs ville / quartier | [T17](./T17-api-hub-ville-f018.md) → [T19](./T19-hubs-quartier-f018.md) | T17/T18 ✅ · T19 ✅ |
 | P2 | Profil & résidus hybrides | [T20](./T20-app-profil-residus.md) | ⬜ |
 | P3 | Éditorial, reset MDP, IAP | [T21](./T21-backlog-p3.md) | ⏸️ |
 

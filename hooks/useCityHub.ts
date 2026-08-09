@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 
 import { getCityBySlug } from '../constants/mockCities';
 import { fetchCityHub } from '../lib/api/cities';
@@ -6,89 +6,27 @@ import { isApiConfigured } from '../lib/config';
 import {
   cityHubToHubData,
   mockCityToHubData,
-  type TerritorialHubData,
 } from '../lib/mappers/cityHub';
-import { ApiError } from '../types/api';
+import {
+  useTerritorialHubResource,
+  type UseTerritorialHubResult,
+} from './useTerritorialHubResource';
 
-export type CityHubStatus = 'loading' | 'error' | 'not_found' | 'ready';
-
-export interface UseCityHubResult {
-  status: CityHubStatus;
-  hub: TerritorialHubData | null;
-  error: ApiError | Error | null;
-  reload: () => void;
-}
+export type { TerritorialHubStatus as CityHubStatus } from './useTerritorialHubResource';
+export type UseCityHubResult = UseTerritorialHubResult;
 
 export function useCityHub(slug: string | undefined): UseCityHubResult {
-  const [hub, setHub] = useState<TerritorialHubData | null>(null);
-  const [status, setStatus] = useState<CityHubStatus>(
-    slug?.trim() ? 'loading' : 'not_found',
-  );
-  const [error, setError] = useState<ApiError | Error | null>(null);
-  const [reloadToken, setReloadToken] = useState(0);
+  const key = slug?.trim() ?? '';
+  const enabled = key.length > 0;
 
-  const reload = useCallback(() => {
-    setReloadToken((n) => n + 1);
-  }, []);
-
-  useEffect(() => {
-    const key = slug?.trim();
-    if (!key) {
-      setHub(null);
-      setError(null);
-      setStatus('not_found');
-      return;
-    }
-
-    let cancelled = false;
-
-    async function loadMock(): Promise<void> {
-      const mock = getCityBySlug(key!);
-      if (cancelled) return;
-      if (!mock) {
-        setHub(null);
-        setError(null);
-        setStatus('not_found');
-        return;
-      }
-      setHub(mockCityToHubData(mock));
-      setError(null);
-      setStatus('ready');
-    }
-
-    async function loadApi(): Promise<void> {
-      setStatus('loading');
-      setError(null);
-
-      try {
-        const dto = await fetchCityHub(key!);
-        if (cancelled) return;
-        setHub(cityHubToHubData(dto));
-        setError(null);
-        setStatus('ready');
-      } catch (err) {
-        if (cancelled) return;
-        setHub(null);
-        if (err instanceof ApiError && err.statusCode === 404) {
-          setError(null);
-          setStatus('not_found');
-        } else {
-          setError(err instanceof Error ? err : new Error(String(err)));
-          setStatus('error');
-        }
-      }
-    }
-
+  const load = useCallback(async () => {
+    if (!key) return null;
     if (!isApiConfigured()) {
-      void loadMock();
-    } else {
-      void loadApi();
+      const mock = getCityBySlug(key);
+      return mock ? mockCityToHubData(mock) : null;
     }
+    return cityHubToHubData(await fetchCityHub(key));
+  }, [key]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [slug, reloadToken]);
-
-  return { status, hub, error, reload };
+  return useTerritorialHubResource(enabled, load);
 }

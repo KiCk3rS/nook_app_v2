@@ -220,19 +220,22 @@ Implémentation : `src/discovery/discovery.controller.ts`.
 ### Villes et hubs territoriaux (F-018)
 
 > Spec détaillée (dépôt API) : [`nook_api_v2/docs/spec-f018-hubs-ville.md`](../../../nook_api_v2/docs/spec-f018-hubs-ville.md)  
-> **F-018-a** (liste) : implémenté · **F-018-b** (hub) : proposé — T17
+> **F-018-a** (liste) : implémenté · **F-018-b** (hub ville) : implémenté · **hubs quartier A4.5** : implémenté (T19, option B)
 
 | Méthode | Chemin | Auth | Description | Codes notables |
 |--------|--------|------|-------------|----------------|
 | GET | `/api/v1/cities` | none | Liste / recherche villes publiées (F-018-a) | 200 ; 422 |
-| GET | `/api/v1/cities/:slugOrId/hub` | none | Vitrine hub ville A4.3 (F-018-b) — non implémenté | 200 ; 404 ; 422 |
+| GET | `/api/v1/cities/:slugOrId/hub` | none | Vitrine hub ville A4.3 (F-018-b) | 200 ; 404 ; 422 |
+| GET | `/api/v1/cities/:citySlug/districts/:districtSlug/hub` | none | Vitrine hub quartier A4.5 (T19) | 200 ; 404 ; 422 |
 
 **`GET /cities`** — query : `q`, `promoted`, `popular`, `limit`, `offset`  
-Réponse : `PaginatedResponse<CityListItemDto>` (`nook_api_v2/src/cities/dto/list-cities.response.dto.ts`) — cover pré-signée, `stats` (stubs 0 en phase 1), `isPromoted`.  
+Réponse : `PaginatedResponse<CityListItemDto>` (`nook_api_v2/src/cities/dto/list-cities.response.dto.ts`) — cover pré-signée, `stats` (`districtHubCount` = hubs quartier publiés), `isPromoted`.  
 Seules les villes `status = PUBLISHED`. Tri : `sortOrder DESC, name ASC, id ASC` (éditorial / `popular` / `promoted`) ; `name ASC, id ASC` si `q`.  
 `popular=true` : alias section A4.1 — même jeu et tri que la liste par défaut (pas de filtre additionnel).
 
-**`GET /cities/:slugOrId/hub`** — réponse cible : `CityHubResponseDto` — **T17**.
+**`GET /cities/:slugOrId/hub`** — réponse : `CityHubResponseDto`.
+
+**`GET /cities/:citySlug/districts/:districtSlug/hub`** — réponse : `DistrictHubResponseDto` (`citySlug`, `cityName`, `anchorPoiId`, must-see / recommended). Seed Paris : `le-marais`, `montmartre`.
 
 ---
 
