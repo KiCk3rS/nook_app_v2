@@ -193,11 +193,12 @@ Implémentation : `src/pois/pois.controller.ts`.
 | Méthode | Chemin | Auth | Description | Codes notables |
 |--------|--------|------|-------------|----------------|
 | GET | `/api/v1/pois/:poiId/audios` | none | Métadonnées des pistes publiées (F-007) | 200 ; 404 |
-| GET | `/api/v1/pois/:poiId/audios/:audioId/playback` | none | URL pré-signée courte durée (F-007) | 200 ; 404 ; 503 config média absente |
+| GET | `/api/v1/pois/:poiId/audios/:audioId/playback` | none (Bearer optionnel) | URL pré-signée courte durée (F-007) ; auteur JWT pour piste privée | 200 ; 404 ; 503 config média absente |
+| GET | `/api/v1/pois/:poiId/audios/:audioId/transcript` | none (Bearer optionnel) | Segments horodatés Contenu (`{ segments: [{ id, startMs, endMs, text }] }`) ; auteur JWT pour piste privée | 200 ; 404 |
 
-**Client audio** : le lecteur doit utiliser l’URL retournée et supporter **HTTP Range** pour reprise / seek (UC-007-2).
+**Client audio** : le lecteur doit utiliser l’URL retournée et supporter **HTTP Range** pour reprise / seek (UC-007-2). L’onglet Contenu consomme le transcript pour le surlignage phrase.
 
-DTO : `src/audios/dto/audio-track-public.dto.ts`, `src/audios/dto/audio-playback.response.dto.ts`  
+DTO : `src/audios/dto/audio-track-public.dto.ts`, `src/audios/dto/audio-playback.response.dto.ts`, `src/audios/dto/audio-transcript.response.dto.ts`  
 Implémentation : `src/audios/audios.controller.ts`.
 
 ---

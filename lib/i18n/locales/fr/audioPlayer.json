@@ -41,6 +41,7 @@
   "discussionRetry": "Réessayer",
   "discussionGetCredits": "Obtenir des crédits",
   "lyricsEmpty": "Le texte de ce guide n'est pas encore disponible.",
+  "lyricsLoading": "Chargement du texte…",
   "lyricsPanelA11y": "Paroles du guide audio",
   "lyricsSegmentA11y": "Aller à : {{text}}",
   "themesSectionTitle": "Autres thèmes",

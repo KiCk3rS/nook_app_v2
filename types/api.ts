@@ -126,6 +126,18 @@ export interface PlaybackUrl {
   expiresAt: string;
 }
 
+/** Segment transcript Contenu (`GET .../audios/:audioId/transcript`). */
+export interface TranscriptSegment {
+  id: string;
+  startMs: number;
+  endMs: number;
+  text: string;
+}
+
+export interface AudioTranscriptResponse {
+  segments: TranscriptSegment[];
+}
+
 /** Réponse `GET /api/v1/pois/:poiId/audios`. */
 export interface ListAudiosResponse {
   audios: AudioTrack[];

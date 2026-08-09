@@ -1,20 +1,14 @@
 import { MOCK_GUIDE_TRANSCRIPTS } from '../constants/mockGuideTranscripts';
+import type { TranscriptSegment } from '../types/api';
 
-export interface GuideTranscriptSegment {
-  id: string;
-  startMs: number;
-  endMs: number;
-  text: string;
-}
-
-/** Transcript d'un guide — mock aujourd'hui, branchement API prévu (F-016). */
-export function getGuideTranscript(guideId: string): GuideTranscriptSegment[] {
+/** Transcript mock en mode démo ; API via `useGuideTranscript` / `fetchAudioTranscript`. */
+export function getGuideTranscript(guideId: string): TranscriptSegment[] {
   return MOCK_GUIDE_TRANSCRIPTS[guideId] ?? [];
 }
 
 /** Index du segment actif selon la position de lecture (phrase par phrase). */
 export function findActiveSegmentIndex(
-  segments: GuideTranscriptSegment[],
+  segments: TranscriptSegment[],
   positionMs: number,
 ): number {
   if (segments.length === 0) return -1;

@@ -18,6 +18,7 @@ export function fetchPlaybackUrl(
 ): Promise<PlaybackUrl> {
   return apiRequest<PlaybackUrl>(
     `/pois/${encodeURIComponent(poiId)}/audios/${encodeURIComponent(audioId)}/playback`,
+    { auth: true },
   );
 }
 

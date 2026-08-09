@@ -41,6 +41,7 @@
   "discussionRetry": "Try again",
   "discussionGetCredits": "Get credits",
   "lyricsEmpty": "This guide's transcript is not available yet.",
+  "lyricsLoading": "Loading transcript…",
   "lyricsPanelA11y": "Audio guide lyrics",
   "lyricsSegmentA11y": "Go to: {{text}}",
   "themesSectionTitle": "Other themes",

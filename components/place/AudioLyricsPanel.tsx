@@ -10,15 +10,14 @@ import {
   type ListRenderItemInfo,
 } from 'react-native';
 
-import {
-  findActiveSegmentIndex,
-  type GuideTranscriptSegment,
-} from '../../lib/guideTranscript';
+import { findActiveSegmentIndex } from '../../lib/guideTranscript';
+import type { TranscriptSegment } from '../../types/api';
 import { colors, radius, spacing, textStyle } from '../../constants/theme';
 
 interface AudioLyricsPanelProps {
-  segments: GuideTranscriptSegment[];
+  segments: TranscriptSegment[];
   positionMs: number;
+  loading?: boolean;
   onSeek: (ms: number) => void;
 }
 
@@ -28,7 +27,7 @@ function SegmentRow({
   isPast,
   onPress,
 }: {
-  segment: GuideTranscriptSegment;
+  segment: TranscriptSegment;
   isActive: boolean;
   isPast: boolean;
   onPress: () => void;
@@ -60,9 +59,14 @@ function SegmentRow({
   );
 }
 
-export function AudioLyricsPanel({ segments, positionMs, onSeek }: AudioLyricsPanelProps) {
+export function AudioLyricsPanel({
+  segments,
+  positionMs,
+  loading = false,
+  onSeek,
+}: AudioLyricsPanelProps) {
   const { t } = useTranslation('audioPlayer');
-  const listRef = useRef<FlatList<GuideTranscriptSegment>>(null);
+  const listRef = useRef<FlatList<TranscriptSegment>>(null);
   const activeIndex = findActiveSegmentIndex(segments, positionMs);
   const lastScrolledIndexRef = useRef(-1);
 
@@ -77,6 +81,14 @@ export function AudioLyricsPanel({ segments, positionMs, onSeek }: AudioLyricsPa
     });
   }, [activeIndex]);
 
+  if (loading) {
+    return (
+      <View style={styles.emptyWrap}>
+        <Text style={styles.emptyText}>{t('lyricsLoading')}</Text>
+      </View>
+    );
+  }
+
   if (segments.length === 0) {
     return (
       <View style={styles.emptyWrap}>
@@ -85,7 +97,7 @@ export function AudioLyricsPanel({ segments, positionMs, onSeek }: AudioLyricsPa
     );
   }
 
-  function renderItem({ item, index }: ListRenderItemInfo<GuideTranscriptSegment>) {
+  function renderItem({ item, index }: ListRenderItemInfo<TranscriptSegment>) {
     const isActive = index === activeIndex;
     const isPast = activeIndex >= 0 && index < activeIndex;
 

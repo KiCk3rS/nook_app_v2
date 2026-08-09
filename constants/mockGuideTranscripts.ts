@@ -1,7 +1,7 @@
-import type { GuideTranscriptSegment } from '../lib/guideTranscript';
+import type { TranscriptSegment } from '../types/api';
 
 /** Segments horodatés mock — alignés sur la démo audio (~3 min). */
-export const MOCK_GUIDE_TRANSCRIPTS: Record<string, GuideTranscriptSegment[]> = {
+export const MOCK_GUIDE_TRANSCRIPTS: Record<string, TranscriptSegment[]> = {
   '1-a': [
     {
       id: '1-a-1',

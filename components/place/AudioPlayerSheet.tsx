@@ -173,7 +173,8 @@ export function AudioPlayerSheet({
   const showDiscussionPanel = activeMenuId === 'discussion';
   const showThemesPanel = activeMenuId === 'themes';
   const showPlaybackControls = activeMenuId === null || showContentPanel;
-  const transcriptSegments = useGuideTranscript(guide.id);
+  const { segments: transcriptSegments, loading: transcriptLoading } =
+    useGuideTranscript(place.id, guide.id);
   const keyboardHeight = useKeyboardHeight(showDiscussionPanel);
   const keyboardOffset = Math.max(0, keyboardHeight - insets.bottom);
   const compactHero = showDiscussionPanel && keyboardOffset > 0;
@@ -236,6 +237,7 @@ export function AudioPlayerSheet({
             <AudioLyricsPanel
               segments={transcriptSegments}
               positionMs={positionMs}
+              loading={transcriptLoading}
               onSeek={handleLyricsSeek}
             />
           ) : null}
