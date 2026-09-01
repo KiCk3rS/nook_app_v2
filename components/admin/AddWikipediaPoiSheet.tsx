@@ -22,6 +22,7 @@ import {
   textStyle,
   zIndex,
 } from '../../constants/theme';
+import { useWikipediaNearby } from '../../hooks/useWikipediaNearby';
 import { useWikipediaSearch } from '../../hooks/useWikipediaSearch';
 import {
   createPoiFromWikipedia,
@@ -32,15 +33,19 @@ import {
   mapAdminWikipediaErrorKey,
   type AdminWikipediaErrorKey,
 } from '../../lib/mappers/adminWikipediaError';
+import type { AddPlaceSheetMode, PlacementPin } from './AdminAddPlaceContext';
+import { AddPlaceModeTabs } from './AddPlaceModeTabs';
 import { AddWikipediaConfirmStep } from './AddWikipediaConfirmStep';
+import { AddWikipediaNearbyStep } from './AddWikipediaNearbyStep';
 import { AddWikipediaSearchStep } from './AddWikipediaSearchStep';
 import { AddWikipediaSuccessStep } from './AddWikipediaSuccessStep';
 
 type SheetPhase =
-  | { kind: 'search' }
+  | { kind: 'browse'; tab: AddPlaceSheetMode }
   | {
       kind: 'confirm';
       item: WikipediaSearchItem;
+      anchor: PlacementPin | null;
       createErrorKey: AdminWikipediaErrorKey | null;
       isCreating: boolean;
     }
@@ -52,12 +57,18 @@ type SheetPhase =
 
 interface AddWikipediaPoiSheetProps {
   visible: boolean;
+  initialMode: AddPlaceSheetMode;
+  placementPin: PlacementPin | null;
   onClose: () => void;
+  onSuccess: () => void;
 }
 
 export function AddWikipediaPoiSheet({
   visible,
+  initialMode,
+  placementPin,
   onClose,
+  onSuccess,
 }: AddWikipediaPoiSheetProps) {
   const { t, i18n } = useTranslation(['adminAddPlace', 'common']);
   const insets = useSafeAreaInsets();
@@ -65,10 +76,16 @@ export function AddWikipediaPoiSheet({
   const inputRef = useRef<TextInput>(null);
 
   const [query, setQuery] = useState('');
-  const [phase, setPhase] = useState<SheetPhase>({ kind: 'search' });
+  const [phase, setPhase] = useState<SheetPhase>({
+    kind: 'browse',
+    tab: initialMode,
+  });
 
   const lang = (i18n.language?.split('-')[0] || 'fr').toLowerCase();
-  const searchEnabled = visible && phase.kind === 'search';
+  const browseTab = phase.kind === 'browse' ? phase.tab : 'search';
+  const searchEnabled = visible && phase.kind === 'browse' && browseTab === 'search';
+  const nearbyEnabled =
+    visible && phase.kind === 'browse' && browseTab === 'nearby';
 
   const { debouncedQuery, items, isSearching, errorKey, retry } =
     useWikipediaSearch({
@@ -77,16 +94,27 @@ export function AddWikipediaPoiSheet({
       lang,
     });
 
+  const nearby = useWikipediaNearby({
+    enabled: nearbyEnabled,
+    lat: placementPin?.lat ?? null,
+    lng: placementPin?.lng ?? null,
+    lang,
+  });
+
   const isCreating = phase.kind === 'confirm' && phase.isCreating;
 
-  const reset = useCallback(() => {
-    setQuery('');
-    setPhase({ kind: 'search' });
-  }, []);
+  const reset = useCallback(
+    (tab: AddPlaceSheetMode = initialMode) => {
+      setQuery('');
+      setPhase({ kind: 'browse', tab });
+    },
+    [initialMode],
+  );
 
   const navigateToPlace = useCallback(
     (poiId: string, openAdminAudio = false) => {
       reset();
+      onSuccess();
       onClose();
       router.push(
         openAdminAudio
@@ -94,7 +122,7 @@ export function AddWikipediaPoiSheet({
           : `/place/${poiId}`,
       );
     },
-    [onClose, reset, router],
+    [onClose, onSuccess, reset, router],
   );
 
   const handleClose = useCallback(() => {
@@ -108,14 +136,17 @@ export function AddWikipediaPoiSheet({
   }, [isCreating, navigateToPlace, onClose, phase, reset]);
 
   useEffect(() => {
-    if (!visible) reset();
-  }, [visible, reset]);
+    if (!visible) {
+      setQuery('');
+      setPhase({ kind: 'browse', tab: initialMode });
+    }
+  }, [visible, initialMode]);
 
   useEffect(() => {
     if (!visible) return;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       if (phase.kind === 'confirm' && !phase.isCreating) {
-        setPhase({ kind: 'search' });
+        setPhase({ kind: 'browse', tab: placementPin ? 'nearby' : 'search' });
         return true;
       }
       if (phase.kind === 'success') {
@@ -126,28 +157,33 @@ export function AddWikipediaPoiSheet({
       return true;
     });
     return () => sub.remove();
-  }, [visible, phase, handleClose, navigateToPlace]);
+  }, [visible, phase, handleClose, navigateToPlace, placementPin]);
 
   function handleSelect(item: WikipediaSearchItem) {
     setPhase({
       kind: 'confirm',
       item,
+      anchor: placementPin,
       createErrorKey: null,
       isCreating: false,
     });
   }
 
-  function handleBackToSearch() {
+  function handleBackToBrowse() {
     if (isCreating) return;
-    setPhase({ kind: 'search' });
+    setPhase({
+      kind: 'browse',
+      tab: placementPin ? 'nearby' : 'search',
+    });
   }
 
   async function handleCreate() {
     if (phase.kind !== 'confirm' || phase.isCreating) return;
-    const { item } = phase;
+    const { item, anchor } = phase;
     setPhase({
       kind: 'confirm',
       item,
+      anchor,
       createErrorKey: null,
       isCreating: true,
     });
@@ -156,6 +192,8 @@ export function AddWikipediaPoiSheet({
       const poi = await createPoiFromWikipedia({
         wikipediaUrl: item.wikipediaUrl,
         status: 'DRAFT',
+        lat: anchor?.lat,
+        lng: anchor?.lng,
       });
       setPhase({
         kind: 'success',
@@ -166,6 +204,7 @@ export function AddWikipediaPoiSheet({
       setPhase({
         kind: 'confirm',
         item,
+        anchor,
         createErrorKey: mapAdminWikipediaErrorKey(error),
         isCreating: false,
       });
@@ -177,7 +216,9 @@ export function AddWikipediaPoiSheet({
       ? t('adminAddPlace:confirmTitle')
       : phase.kind === 'success'
         ? t('adminAddPlace:successTitle')
-        : t('adminAddPlace:sheetTitle');
+        : browseTab === 'nearby'
+          ? t('adminAddPlace:nearbySheetTitle')
+          : t('adminAddPlace:sheetTitle');
 
   return (
     <Modal
@@ -186,7 +227,9 @@ export function AddWikipediaPoiSheet({
       animationType="slide"
       onRequestClose={handleClose}
       onShow={() => {
-        if (phase.kind === 'search') inputRef.current?.focus();
+        if (phase.kind === 'browse' && browseTab === 'search') {
+          inputRef.current?.focus();
+        }
       }}
       statusBarTranslucent
       accessibilityViewIsModal
@@ -204,7 +247,7 @@ export function AddWikipediaPoiSheet({
           <Pressable
             onPress={
               phase.kind === 'confirm'
-                ? handleBackToSearch
+                ? handleBackToBrowse
                 : phase.kind === 'success'
                   ? () => navigateToPlace(phase.poi.id)
                   : handleClose
@@ -236,29 +279,57 @@ export function AddWikipediaPoiSheet({
           <View style={styles.headerButton} />
         </View>
 
-        {phase.kind === 'search' ? (
-          <KeyboardAvoidingView
-            style={styles.body}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            keyboardVerticalOffset={insets.top}
-          >
-            <AddWikipediaSearchStep
-              query={query}
-              onQueryChange={setQuery}
-              debouncedQuery={debouncedQuery}
-              items={items}
-              isSearching={isSearching}
-              errorKey={errorKey}
-              onRetry={retry}
-              onSelect={handleSelect}
-              inputRef={inputRef}
+        {phase.kind === 'browse' ? (
+          <>
+            <AddPlaceModeTabs
+              mode={browseTab}
+              onChange={(tab) => setPhase({ kind: 'browse', tab })}
             />
-          </KeyboardAvoidingView>
+            {browseTab === 'search' ? (
+              <KeyboardAvoidingView
+                style={styles.body}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                keyboardVerticalOffset={insets.top}
+              >
+                <AddWikipediaSearchStep
+                  query={query}
+                  onQueryChange={setQuery}
+                  debouncedQuery={debouncedQuery}
+                  items={items}
+                  isSearching={isSearching}
+                  errorKey={errorKey}
+                  onRetry={retry}
+                  onSelect={handleSelect}
+                  inputRef={inputRef}
+                />
+              </KeyboardAvoidingView>
+            ) : (
+              <View style={styles.body}>
+                <AddWikipediaNearbyStep
+                  hasPlacementPin={placementPin != null}
+                  anchor={nearby.anchor}
+                  items={nearby.items}
+                  existingNearbyPois={nearby.existingNearbyPois}
+                  radiusMeters={nearby.radiusMeters}
+                  isSearching={nearby.isSearching}
+                  errorKey={nearby.errorKey}
+                  onRetry={nearby.retry}
+                  onSelect={handleSelect}
+                  onIncreaseRadius={nearby.increaseRadius}
+                  onDecreaseRadius={nearby.decreaseRadius}
+                  onSwitchToSearch={() =>
+                    setPhase({ kind: 'browse', tab: 'search' })
+                  }
+                />
+              </View>
+            )}
+          </>
         ) : null}
 
         {phase.kind === 'confirm' ? (
           <AddWikipediaConfirmStep
             item={phase.item}
+            hasMapAnchor={phase.anchor != null}
             isCreating={phase.isCreating}
             errorKey={phase.createErrorKey}
             onCreate={() => void handleCreate()}

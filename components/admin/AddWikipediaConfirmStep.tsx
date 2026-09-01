@@ -19,6 +19,7 @@ import type { AdminWikipediaErrorKey } from '../../lib/mappers/adminWikipediaErr
 
 interface AddWikipediaConfirmStepProps {
   item: WikipediaSearchItem;
+  hasMapAnchor?: boolean;
   isCreating: boolean;
   errorKey: AdminWikipediaErrorKey | null;
   onCreate: () => void;
@@ -26,6 +27,7 @@ interface AddWikipediaConfirmStepProps {
 
 export function AddWikipediaConfirmStep({
   item,
+  hasMapAnchor = false,
   isCreating,
   errorKey,
   onCreate,
@@ -43,7 +45,9 @@ export function AddWikipediaConfirmStep({
         {item.wikipediaUrl}
       </Text>
       <Text style={styles.note}>{t('confirmDraftNote')}</Text>
-      <Text style={styles.note}>{t('confirmPositionNote')}</Text>
+      <Text style={styles.note}>
+        {hasMapAnchor ? t('confirmMapPosition') : t('confirmPositionNote')}
+      </Text>
 
       {errorKey ? (
         <View style={styles.errorBlock}>

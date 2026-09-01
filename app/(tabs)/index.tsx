@@ -10,6 +10,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 
 import { AdminAddPlaceEntry } from '../../components/admin/AdminAddPlaceEntry';
+import { AdminAddPlaceProvider } from '../../components/admin/AdminAddPlaceContext';
 import { CategorySlider } from '../../components/home/CategorySlider';
 import { GeolocControl } from '../../components/home/GeolocControl';
 import { HomeMap, type HomeMapHandle } from '../../components/home/HomeMap';
@@ -401,6 +402,7 @@ export default function CarteScreen() {
 
 
   return (
+    <AdminAddPlaceProvider>
 
     <View style={styles.container}>
 
@@ -555,6 +557,7 @@ export default function CarteScreen() {
 
     </View>
 
+    </AdminAddPlaceProvider>
   );
 
 }

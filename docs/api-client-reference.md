@@ -542,6 +542,13 @@ Implémentation : `src/wikipedia/admin-wikipedia.controller.ts`.
 }
 ```
 
+| Méthode | Chemin | Description | Codes notables |
+|--------|--------|-------------|----------------|
+| GET | `/api/v1/admin/wikipedia/nearby` | Articles Wikipedia à proximité (`geosearch` + filtre Nook + doublons POI). Query : `lat`, `lng` requis ; `radiusMeters` défaut 300 (50–2000) ; `lang` défaut `fr` ; `limit` défaut 10 max 20 | 200 ; 401 ; 403 ; 422 ; 503 ; 429 |
+
+Query : `lat`, `lng` requis ; `radiusMeters` optionnel ; `lang` optionnel ; `limit` optionnel.
+Réponse : `{ anchor: { lat, lng, label, radiusMeters }, items: [{ title, wikipediaUrl, description, thumbnailUrl, distanceMeters, wikiLat, wikiLng }], existingNearbyPois: [{ id, title, status, distanceMeters }] }`.
+
 ### Génération audio IA (F-015)
 
 | Méthode | Chemin | Description | Codes notables |

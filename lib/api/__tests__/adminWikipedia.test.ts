@@ -1,6 +1,6 @@
 import { ApiError } from '../../../types/api';
 import { setMemoryAccessToken } from '../client';
-import { searchWikipedia } from '../adminWikipedia';
+import { searchWikipedia, searchWikipediaNearby } from '../adminWikipedia';
 
 jest.mock('../../config', () => ({
   getApiBaseUrl: () => 'http://localhost:3000',
@@ -94,5 +94,49 @@ describe('searchWikipedia', () => {
     await expect(searchWikipedia({ q: 'eiffel' })).rejects.toMatchObject({
       statusCode: 401,
     });
+  });
+});
+
+describe('searchWikipediaNearby', () => {
+  beforeEach(() => {
+    setMemoryAccessToken('test-admin-token');
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    setMemoryAccessToken(null);
+  });
+
+  it('construit la query string lat/lng/radiusMeters', async () => {
+    global.fetch = jest.fn().mockResolvedValue(
+      jsonResponse({
+        anchor: {
+          lat: 48.8584,
+          lng: 2.2945,
+          label: null,
+          radiusMeters: 300,
+        },
+        items: [],
+        existingNearbyPois: [],
+      }),
+    ) as typeof fetch;
+
+    await searchWikipediaNearby({
+      lat: 48.8584,
+      lng: 2.2945,
+      radiusMeters: 300,
+      lang: 'fr',
+      limit: 10,
+    });
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:3000/api/v1/admin/wikipedia/nearby?lat=48.8584&lng=2.2945&radiusMeters=300&lang=fr&limit=10',
+      expect.objectContaining({
+        method: 'GET',
+        headers: expect.objectContaining({
+          Authorization: expect.stringMatching(/^Bearer /),
+        }),
+      }),
+    );
   });
 });

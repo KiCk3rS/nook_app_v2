@@ -24,5 +24,18 @@
   "successTitle": "Place created",
   "successBody": "The draft is ready. You can generate the audioguide now or open the place page.",
   "ctaGenerateAudio": "Generate audioguide",
-  "ctaViewPlace": "View place"
+  "ctaViewPlace": "View place",
+  "tabNearby": "Nearby",
+  "tabSearch": "Search",
+  "nearbySheetTitle": "Nearby places",
+  "nearbyHint": "Long-press the map to drop a pin and find Wikipedia articles nearby.",
+  "anchorLabel": "Near: {{label}}",
+  "radiusLabel": "Radius: {{meters}} m",
+  "distanceBadge": "{{meters}} m",
+  "duplicateWarning": "A place already exists about {{meters}} m away: “{{title}}”",
+  "duplicateViewExisting": "View place",
+  "nearbyEmpty": "No Wikipedia articles nearby. Widen the radius or search by name.",
+  "confirmMapPosition": "Location: pin placed on the map",
+  "increaseRadius": "Increase search radius",
+  "decreaseRadius": "Decrease search radius"
 }

@@ -9,7 +9,7 @@
 | **Priorité** | Admin — évolution B9 (V1.1) |
 | **Features** | F-014 (création POI), F-004 (géo) |
 | **Priorité écran** | **B9.1** — extension [`ecran-B9.1-admin-carte-ancrage-poi.md`](../ecran-B9.1-admin-carte-ancrage-poi.md) |
-| **Statut** | 📋 spec — non implémenté |
+| **Statut** | 🔄 Phase 1 en cours — API + app MVP livrés (2026-09-01) |
 
 ## Problème
 
@@ -264,23 +264,23 @@ Quand `items` vide après geosearch **et** recherche texte :
 
 ### API
 
-- [ ] `GET /admin/wikipedia/nearby?lat=48.8584&lng=2.2945&lang=fr` → 200, `items` non vide (Tour Eiffel en seed réseau)
-- [ ] Items exclus si denylist P31 ou sans média (même règle T23)
-- [ ] `existingNearbyPois` contient un POI à &lt; 75 m si présent en base
-- [ ] JWT `USER` → 403 ; sans JWT → 401
-- [ ] `lat`/`lng` invalides → 422
-- [ ] Timeout MediaWiki → 503
-- [ ] `npm test` vert (client MW + service nearby)
+- [x] `GET /admin/wikipedia/nearby?lat=48.8584&lng=2.2945&lang=fr` → 200, `items` non vide (Tour Eiffel en seed réseau)
+- [x] Items exclus si denylist P31 ou sans média (même règle T23)
+- [x] `existingNearbyPois` contient un POI à &lt; 75 m si présent en base
+- [x] JWT `USER` → 403 ; sans JWT → 401
+- [x] `lat`/`lng` invalides → 422
+- [x] Timeout MediaWiki → 503
+- [x] `npm test` vert (client MW + service nearby)
 
 ### App
 
-- [ ] Admin : long-press carte place un pin et ouvre la feuille « Près d’ici »
-- [ ] Liste candidats Wikipedia triée par distance ; sélection → confirmation → création
-- [ ] `POST from-wikipedia` reçoit `lat`/`lng` du pin ; POI créé à la position du pin (pas seulement wiki)
-- [ ] Alerte doublon affichée si `existingNearbyPois` non vide ; création toujours possible
-- [ ] USER : pas de long-press admin, pas de changement flux standard
-- [ ] Mode recherche T25 inchangé fonctionnellement
-- [ ] `npm test` vert (client + hooks)
+- [x] Admin : long-press carte place un pin et ouvre la feuille « Près d’ici »
+- [x] Liste candidats Wikipedia triée par distance ; sélection → confirmation → création
+- [x] `POST from-wikipedia` reçoit `lat`/`lng` du pin ; POI créé à la position du pin (pas seulement wiki)
+- [x] Alerte doublon affichée si `existingNearbyPois` non vide ; création toujours possible
+- [x] USER : pas de long-press admin, pas de changement flux standard
+- [x] Mode recherche T25 inchangé fonctionnellement
+- [x] `npm test` vert (client adminWikipedia)
 
 ### E2E manuel terrain
 

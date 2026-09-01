@@ -24,5 +24,18 @@
   "successTitle": "Lieu créé",
   "successBody": "Le brouillon est prêt. Tu peux générer l’audioguide maintenant ou ouvrir la fiche.",
   "ctaGenerateAudio": "Générer l’audioguide",
-  "ctaViewPlace": "Voir la fiche"
+  "ctaViewPlace": "Voir la fiche",
+  "tabNearby": "Près d’ici",
+  "tabSearch": "Rechercher",
+  "nearbySheetTitle": "Lieux à proximité",
+  "nearbyHint": "Fais un appui long sur la carte pour placer un point et chercher des articles Wikipedia autour.",
+  "anchorLabel": "Près de : {{label}}",
+  "radiusLabel": "Rayon : {{meters}} m",
+  "distanceBadge": "{{meters}} m",
+  "duplicateWarning": "Un lieu existe déjà à environ {{meters}} m : « {{title}} »",
+  "duplicateViewExisting": "Voir la fiche",
+  "nearbyEmpty": "Aucun article Wikipedia à proximité. Élargis le rayon ou recherche par nom.",
+  "confirmMapPosition": "Position : point placé sur la carte",
+  "increaseRadius": "Élargir le rayon de recherche",
+  "decreaseRadius": "Réduire le rayon de recherche"
 }

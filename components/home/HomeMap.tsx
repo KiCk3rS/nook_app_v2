@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 
-import MapView, { Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import { Platform, StyleSheet, View } from 'react-native';
 
@@ -12,6 +12,7 @@ import {
   type MapRegion,
 } from '../../lib/itineraryMap';
 import type { CataloguePlaceMarker } from '../../types/catalogue';
+import { useAdminAddPlace } from '../admin/AdminAddPlaceContext';
 
 import { ItineraryStepMarker } from './ItineraryStepMarker';
 import { PlaceMapMarker } from './PlaceMapMarker';
@@ -70,6 +71,7 @@ export const HomeMap = forwardRef<HomeMapHandle, HomeMapProps>(function HomeMap(
   const mapRef = useRef<MapView>(null);
   const mapProvider = Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined;
   const ignoreNextMapPress = useRef(false);
+  const adminAddPlace = useAdminAddPlace();
 
   const visiblePlaces = useMemo(() => {
     if (itineraryOverlay) return [];
@@ -141,6 +143,24 @@ export const HomeMap = forwardRef<HomeMapHandle, HomeMapProps>(function HomeMap(
     onSelectPlace(null);
   }
 
+  function handleMapLongPress(event: {
+    nativeEvent: { coordinate: { latitude: number; longitude: number } };
+  }) {
+    if (!adminAddPlace?.isAdminPlacementEnabled || itineraryOverlay) return;
+    ignoreNextMapPress.current = true;
+    adminAddPlace.placePinAt(event.nativeEvent.coordinate);
+    adminAddPlace.openSheet('nearby');
+  }
+
+  function handlePlacementPinDragEnd(event: {
+    nativeEvent: { coordinate: { latitude: number; longitude: number } };
+  }) {
+    adminAddPlace?.setPlacementPin({
+      lat: event.nativeEvent.coordinate.latitude,
+      lng: event.nativeEvent.coordinate.longitude,
+    });
+  }
+
   function handleRegionChangeComplete(region: MapRegion) {
     onRegionChange?.(region);
   }
@@ -161,8 +181,25 @@ export const HomeMap = forwardRef<HomeMapHandle, HomeMapProps>(function HomeMap(
         customMapStyle={HIDE_NATIVE_POI_MAP_STYLE}
         showsPointsOfInterests={false}
         onPress={handleMapPress}
+        onLongPress={handleMapLongPress}
         onRegionChangeComplete={handleRegionChangeComplete}
       >
+        {adminAddPlace?.placementPin ? (
+          <Marker
+            coordinate={{
+              latitude: adminAddPlace.placementPin.lat,
+              longitude: adminAddPlace.placementPin.lng,
+            }}
+            draggable
+            pinColor="violet"
+            onDragStart={() => {
+              ignoreNextMapPress.current = true;
+            }}
+            onDragEnd={handlePlacementPinDragEnd}
+            accessibilityLabel="Point de création de lieu"
+          />
+        ) : null}
+
         {visiblePlaces.map((place) => (
           <PlaceMapMarker
             key={place.id}
