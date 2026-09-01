@@ -152,6 +152,49 @@ export function trackHubDistrictMapCtaTapped(
   // hub_district_map_cta_tapped
 }
 
+export function trackHubSiteViewed(
+  _poiId: string,
+  _source: 'search' | 'feed' | 'deeplink' | 'direct' | 'map' | 'city_hub',
+): void {
+  // hub_site_viewed
+}
+
+export function trackHubSiteCategoryTapped(
+  _poiId: string,
+  _categorySlug: string,
+): void {
+  // hub_site_category_tapped
+}
+
+export function trackHubSitePremiumTapped(
+  _poiId: string,
+  _itineraryId: string,
+  _isLocked: boolean,
+): void {
+  // hub_site_premium_tapped
+}
+
+export function trackHubSitePoiTapped(
+  _poiId: string,
+  _childPoiId: string,
+  _section: 'must_see' | 'recommended',
+): void {
+  // hub_site_poi_tapped
+}
+
+export function trackHubSiteAffiliateTapped(
+  _poiId: string,
+  _partnerId: string,
+  _slot: 'tourist_pass' | 'experience',
+  _itemId: string,
+): void {
+  // hub_site_affiliate_tapped
+}
+
+export function trackHubSiteMapCtaTapped(_poiId: string): void {
+  // hub_site_map_cta_tapped
+}
+
 export function trackItineraryCategoryListViewed(
   _citySlug: string,
   _categorySlug: string,

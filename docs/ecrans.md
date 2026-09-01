@@ -108,6 +108,7 @@ Ces écrans répondent à la problématique **éditoriale et opérationnelle** d
 | B7 | **Suivi des jobs de génération** | États (en attente, en cours, terminé, erreur) ; identifiant de traitement ; reprise / nouvelle tentative. | §4.2, §5.5 | Admin |
 | B8 | **Détail d’un job / journal de traitement** | Traçabilité opérationnelle sans exposer de secrets ; messages d’erreur compréhensibles. | §4.2, §5.5 | Admin |
 | B9 | **Wikipedia → POI → audioguide** (flux mobile admin) | Depuis **A1.1** : recherche Wikipedia, création POI en **brouillon**, puis génération / suivi audioguide éditorial (sans crédits). | §4.1, §4.2 | Admin |
+| B9.1 | **Ancrage carte → Wikipedia → POI** (extension B9) | Long-press carte ou onglet « Près d’ici » : pin + candidats Wikipedia géolocalisés, création avec override position. | §4.1 | Admin |
 
 ---
 
@@ -120,7 +121,7 @@ Ces écrans répondent à la problématique **éditoriale et opérationnelle** d
 5. **Parcours** : A5.1 / A5.4 / A5.5 en boucle avec A1.1 et A3 ; itinéraires éditoriaux via **A5.6** / **A5.7**.  
 6. **Monétisation premium** : A4.3 / A5.6 / A5.7 → **A8.3** → contenu débloqué sur A5.6.  
 7. **Rétention** : A6.5, A6.6, A5.1 depuis A6.4 ou A1.1.  
-8. **Production** (équipe) : B2 → B3 / B4 / B5 ; B6 → B7 → B8 ; **flux mobile** : **B9** → **A3.1** → (audio) B6 / B7 via app.
+8. **Production** (équipe) : B2 → B3 / B4 / B5 ; B6 → B7 → B8 ; **flux mobile** : **B9** / **B9.1** → **A3.1** → (audio) B6 / B7 via app.
 
 ---
 
@@ -145,7 +146,8 @@ Ces écrans répondent à la problématique **éditoriale et opérationnelle** d
 - **A6.4** : profil / Mon compte — hub compte depuis bottom nav — spec [`ecran-A6.4-profil.md`](./ecran-A6.4-profil.md).  
 - **A6.1** / **A6.2** / **A6.3** : authentification (connexion, inscription, reset MDP) — spec fusionnée [`ecran-A6.1-authentification.md`](./ecran-A6.1-authentification.md).  
 - **A6.7** : paramètres (+ action déconnexion **A6.8**) — spec [`ecran-A6.7-parametres.md`](./ecran-A6.7-parametres.md).  
-- **B9** : flux admin mobile Wikipedia → POI (`DRAFT`) → audioguide — spec [`ecran-B9-admin-wikipedia-poi-audio.md`](./ecran-B9-admin-wikipedia-poi-audio.md). Entrée : « Ajouter un lieu » sur **A1.1** (admin uniquement). Implémentation app : T25 / T26.  
+- **B9** : flux admin mobile Wikipedia → POI (`DRAFT`) → audioguide — spec [`ecran-B9-admin-wikipedia-poi-audio.md`](./ecran-B9-admin-wikipedia-poi-audio.md). Entrée : « Ajouter un lieu » sur **A1.1** (admin uniquement). Implémentation app : T25 / T26.
+- **B9.1** : extension terrain — pin carte + Wikipedia nearby — spec [`ecran-B9.1-admin-carte-ancrage-poi.md`](./ecran-B9.1-admin-carte-ancrage-poi.md). Tâche : [T28](./integration/T28-admin-carte-ancrage-poi.md).  
 - Plusieurs IDs peuvent être **fusionnés** en une seule vue (ex. recherche + filtres + carte en onglets ou split).  
 - Le **lecteur audio** peut être un composant persistant (mini-player) plutôt qu’un « écran » à part entière ; l’important est de couvrir **reprise de lecture** et **contexte lieu**.  
 - L’alignement **liste / carte** (§3.2) impose des règles UX et techniques communes, quel que soit le nombre de vues physiques.  

@@ -12,6 +12,8 @@ export interface CataloguePlaceMarker {
   publicationStatus?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
   /** Ancre hub quartier → deep link A4.5. */
   districtHub?: { citySlug: string; districtSlug: string } | null;
+  /** Hub site A4.6 si `presentation === 'HUB'`. */
+  presentation?: 'PLACE' | 'HUB';
 }
 
 /** POI pour carte preview / recherche. */

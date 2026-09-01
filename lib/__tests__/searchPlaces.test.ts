@@ -130,6 +130,34 @@ describe('searchAllAsync', () => {
     expect(searchCities).toHaveBeenCalled();
   });
 
+  it('conserve presentation HUB sur les POI API (routing hub site)', async () => {
+    isApiConfigured.mockReturnValue(true);
+    searchCities.mockResolvedValue([]);
+    fetchPois.mockResolvedValue({
+      items: [
+        {
+          id: 'uuid-louvre',
+          title: 'Musée du Louvre',
+          lat: 48.86,
+          lng: 2.33,
+          categories: [{ slug: 'culture', label: 'Culture' }],
+          presentation: 'HUB',
+        },
+      ],
+      total: 1,
+      limit: 50,
+      offset: 0,
+    });
+
+    const result = await searchAllAsync('louvre');
+    const place = result.find(
+      (r): r is Extract<typeof r, { type: 'place' }> =>
+        r.type === 'place' && r.place.id === 'uuid-louvre',
+    );
+
+    expect(place?.place.presentation).toBe('HUB');
+  });
+
   it('retombe sur mock complet si les deux sources échouent', async () => {
     isApiConfigured.mockReturnValue(true);
     searchCities.mockRejectedValue(new Error('cities down'));

@@ -63,7 +63,7 @@ interface TerritorialHubViewProps {
   config: TerritorialHubConfig | null;
   notFoundTitle: string;
   notFoundBody: string;
-  paywallSource: 'hub_city' | 'hub_district';
+  paywallSource: 'hub_city' | 'hub_district' | 'hub_site';
   onRetry?: () => void;
 }
 
@@ -105,12 +105,14 @@ export function TerritorialHubView({
 
   async function handleShare() {
     if (!config) return;
-    const message = config.districtSlug
-      ? t('hub:districtShareMessage', {
-          district: config.name,
-          city: config.parentCityName ?? config.citySlug,
-        })
-      : t('hub:shareMessage', { name: config.name });
+    const message = config.poiHubId
+      ? t('hub:siteShareMessage', { name: config.name })
+      : config.districtSlug
+        ? t('hub:districtShareMessage', {
+            district: config.name,
+            city: config.parentCityName ?? config.citySlug,
+          })
+        : t('hub:shareMessage', { name: config.name });
     await Share.share({ message });
   }
 
@@ -255,9 +257,11 @@ export function TerritorialHubView({
     (cat) => (categoryCounts[cat.slug] ?? 0) > 0,
   );
 
-  const recommendedTitle = config.districtSlug
-    ? t('hub:districtPopularFallback', { district: config.name })
-    : t('hub:popularFallback', { city: config.name });
+  const recommendedTitle = config.poiHubId
+    ? t('hub:sitePopularFallback', { site: config.name })
+    : config.districtSlug
+      ? t('hub:districtPopularFallback', { district: config.name })
+      : t('hub:popularFallback', { city: config.name });
 
   const touristPasses = config.touristPasses;
   const featuredNavKey = featuredItinerary
@@ -291,11 +295,17 @@ export function TerritorialHubView({
               style={({ pressed }) => [styles.parentLink, pressed && styles.parentLinkPressed]}
               onPress={handleParentCityPress}
               accessibilityRole="link"
-              accessibilityLabel={t('hub:parentCityLink', { city: config.parentCityName })}
+              accessibilityLabel={
+                config.poiHubId
+                  ? t('hub:siteParentCityLink', { city: config.parentCityName })
+                  : t('hub:parentCityLink', { city: config.parentCityName })
+              }
             >
               <Ionicons name="chevron-back" size={16} color={colors.primary} />
               <Text style={styles.parentLinkText}>
-                {t('hub:parentCityLink', { city: config.parentCityName })}
+                {config.poiHubId
+                  ? t('hub:siteParentCityLink', { city: config.parentCityName })
+                  : t('hub:parentCityLink', { city: config.parentCityName })}
               </Text>
             </Pressable>
           ) : null}

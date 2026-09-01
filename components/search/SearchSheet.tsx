@@ -25,7 +25,8 @@ import {
   trackSearchSheetDismissed,
   trackSearchSheetOpened,
 } from '../../lib/analytics';
-import { getPlaceHrefById } from '../../lib/placeNavigation';
+import { getPlaceHref } from '../../lib/placeNavigation';
+import type { MockPlace } from '../../constants/mockPlaces';
 import type { SearchResult } from '../../lib/searchPlaces';
 import { searchAllAsync } from '../../lib/searchPlaces';
 import {
@@ -139,10 +140,10 @@ export function SearchSheet({
 
   const isResultsMode = debouncedQuery.length >= 1;
 
-  function handleSelectPlace(placeId: string) {
-    trackSearchResultTap(placeId);
+  function handleSelectPlace(place: MockPlace) {
+    trackSearchResultTap(place.id);
     handleClose();
-    router.push(getPlaceHrefById(placeId));
+    router.push(getPlaceHref(place));
   }
 
   function handleSelectCity(citySlug: string) {

@@ -1,6 +1,7 @@
 import type {
   PaginatedResponse,
   PoiDetail,
+  PoiHub,
   PoiSummary,
 } from '../../types/api';
 import { ApiError } from '../../types/api';
@@ -99,4 +100,9 @@ export function fetchPoiChildren(
   return apiRequest<PaginatedResponse<PoiSummary>>(
     `/pois/${encodeURIComponent(id)}/children${suffix}`,
   );
+}
+
+/** `GET /api/v1/pois/:id/hub` — vitrine hub site A4.6 (T27). */
+export function fetchPoiHub(id: string): Promise<PoiHub> {
+  return apiRequest<PoiHub>(`/pois/${encodeURIComponent(id)}/hub`);
 }

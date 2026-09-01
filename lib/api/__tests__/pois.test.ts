@@ -2,6 +2,7 @@ import { ApiError } from '../../../types/api';
 import {
   fetchPoiById,
   fetchPoiChildren,
+  fetchPoiHub,
   fetchPois,
   hasValidPoisListFilter,
 } from '../pois';
@@ -146,6 +147,40 @@ describe('fetchPoiChildren', () => {
 
     expect(global.fetch).toHaveBeenCalledWith(
       'http://localhost:3000/api/v1/pois/parent-id/children?limit=20&offset=0',
+      expect.any(Object),
+    );
+  });
+});
+
+describe('fetchPoiHub', () => {
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+
+  it('appelle /pois/:id/hub', async () => {
+    global.fetch = jest.fn().mockResolvedValue(
+      jsonResponse({
+        id: 'louvre-id',
+        name: 'Musée du Louvre',
+        subtitle: '4 incontournables',
+        citySlug: 'paris',
+        cityName: 'Paris',
+        coverImage: null,
+        map: { center: null, bbox: null, latitudeDelta: 0.06, longitudeDelta: 0.06 },
+        stats: { publishedPoiCount: 0, editorialItineraryCount: 0 },
+        itineraryCategories: [],
+        featuredPremiumItinerary: null,
+        mustSeePois: [],
+        recommendedPois: [],
+        touristPasses: [],
+        affiliateExperiences: [],
+      }),
+    ) as typeof fetch;
+
+    const hub = await fetchPoiHub('louvre-id');
+    expect(hub.name).toBe('Musée du Louvre');
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:3000/api/v1/pois/louvre-id/hub',
       expect.any(Object),
     );
   });

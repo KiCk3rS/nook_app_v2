@@ -34,4 +34,19 @@ describe('placeNavigation', () => {
       }),
     ).toBe('/city/paris/district/le-marais');
   });
+
+  it('mode démo : Louvre mock → hub site', () => {
+    mockedIsApiConfigured.mockReturnValue(false);
+    expect(getPlaceHrefById('2')).toBe('/place/2/hub');
+  });
+
+  it('mode API avec presentation HUB → hub site', () => {
+    mockedIsApiConfigured.mockReturnValue(true);
+    expect(
+      getPlaceHref({
+        id: 'uuid-louvre',
+        presentation: 'HUB',
+      }),
+    ).toBe('/place/uuid-louvre/hub');
+  });
 });

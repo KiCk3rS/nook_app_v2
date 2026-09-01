@@ -38,8 +38,8 @@ Brancher `app/city/[slug]/index.tsx` et `TerritorialHubView` sur `GET /cities/:s
 
 ## Critères d'acceptation
 
-- [ ] `/city/paris` affiche données API staging (cover, must-see réels)
-- [ ] Point de contrôle audit #2 validé
+- [x] `/city/paris` affiche données API (validé en local 2026-09-01 : must-see, catégories, premium)
+- [x] Point de contrôle audit #2 validé en local
 - [x] 404 ville inconnue gérée
 - [x] Mode démo inchangé
 - [x] `npm test` vert

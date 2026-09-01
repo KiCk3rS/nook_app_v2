@@ -8,6 +8,7 @@
 | **Bloque** | T18 |
 | **Priorité** | P1 — [INV-04](../mock-inventory.md) |
 | **Priorité écran** | P1 — A2.1, A4.1 |
+| **Statut** | ✅ **terminé** (2026-09-01) — réalignement doc ; code livré depuis 2026-08 |
 
 ## Objectif
 
@@ -15,49 +16,49 @@ Remplacer `mockCities` + `searchDiscovery.ts` (slugs hardcodés) par `GET /citie
 
 ## Prérequis
 
-- [ ] T15 : `GET /cities` opérationnel
-- [ ] T03 / T05 terminées (recherche, discovery)
+- [x] T15 : `GET /cities` opérationnel
+- [x] T03 / T05 terminées (recherche, discovery)
 
 ## Étapes
 
 ### Client API
 
-- [ ] `lib/api/cities.ts` : `fetchCities(query)`, helpers `fetchPromotedCities`, `fetchPopularCities`, `searchCities`
-- [ ] Types `CitySummary` dans `types/api.ts`
-- [ ] Mapper `cityDtoToMockCity` ou migration types UI (`MockCity` → `CityView`)
+- [x] `lib/api/cities.ts` : `fetchCities(query)`, helpers `fetchPromotedCities`, `fetchPopularCities`, `searchCities`
+- [x] Types `CitySummary` dans `types/api.ts`
+- [x] Mapper `citySummaryToCityView` / `mockCityToCityView` (`lib/mappers/cities.ts`)
 
 ### Intégration écrans
 
-- [ ] `lib/searchPlaces.ts` — `searchCitiesLocal` → API si configurée
-- [ ] `components/search/SearchDiscoveryView.tsx` — fetch promoted/popular au mount
-- [ ] `components/discovery/DiscoveryFeedView.tsx` — liens ville depuis API
-- [ ] Conserver `mockCities` si `!isApiConfigured()` ou erreur réseau (fallback documenté)
+- [x] `lib/searchPlaces.ts` — `searchCities` API si configurée
+- [x] `components/search/SearchDiscoveryView.tsx` — `useCityCarousels` au mount
+- [x] `components/discovery/DiscoveryFeedView.tsx` — liens ville via `useCityCarousels`
+- [x] Conserver `mockCities` si `!isApiConfigured()` ou erreur réseau (fallback documenté)
 
 ### Config
 
-- [ ] Déprécier `constants/searchDiscovery.ts` slugs en prod (garder pour offline)
+- [x] `constants/searchDiscovery.ts` — slugs conservés pour fallback offline uniquement
 
 ## Fichiers concernés
 
-- `lib/api/cities.ts`, `lib/mappers/cities.ts` (nouveau)
+- `lib/api/cities.ts`, `lib/mappers/cities.ts`
+- `hooks/useCityCarousels.ts`
 - `lib/searchPlaces.ts`
 - `components/search/SearchDiscoveryView.tsx`
 - `components/discovery/DiscoveryFeedView.tsx`
-- `components/search/SearchCityResultRow.tsx`, `PromotedCityCard.tsx`, `PopularCityCard.tsx`
 
 ## Critères d'acceptation
 
-- [ ] Recherche : villes depuis API + POI depuis API (hybride complet)
-- [ ] Villes promues/populaires dynamiques (plus de slugs `paris`/`lyon` hardcodés en prod)
-- [ ] Tap ville → navigation `/city/:slug` (hub encore mock jusqu'à T18)
-- [ ] Points de contrôle audit #1 validés
-- [ ] `npm test` vert
+- [x] Recherche : villes depuis API + POI depuis API (hybride complet)
+- [x] Villes promues/populaires dynamiques (plus de slugs hardcodés en prod)
+- [x] Tap ville → navigation `/city/:slug` (hub API depuis T18)
+- [x] Point de contrôle audit #1 validé en local (2026-09-01) : `GET /cities?promoted=true` → Paris
+- [x] `npm test` vert (`cities.test.ts`, `searchPlaces.test.ts`)
 
 ## Tests unitaires
 
-- [ ] `lib/api/__tests__/cities.test.ts`
-- [ ] `lib/mappers/__tests__/cities.test.ts`
-- [ ] `lib/__tests__/searchPlaces.test.ts` : villes API mockées
+- [x] `lib/api/__tests__/cities.test.ts`
+- [x] `lib/mappers/__tests__/cities.test.ts`
+- [x] `lib/__tests__/searchPlaces.test.ts` : villes API mockées
 
 ## Références
 

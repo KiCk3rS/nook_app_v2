@@ -1,9 +1,10 @@
 import { getDistrictByAnchorPoiId } from '../constants/mockDistricts';
+import { isMockSiteHubPoiId } from '../constants/mockSiteHubs';
 import { isApiConfigured } from './config';
 import type { MockPlace } from '../constants/mockPlaces';
 import type { CataloguePlaceMarker } from '../types/catalogue';
 
-type PlaceLike = Pick<MockPlace, 'id'> & {
+type PlaceLike = Pick<MockPlace, 'id' | 'presentation'> & {
   districtHub?: { citySlug: string; districtSlug: string } | null;
 };
 
@@ -29,8 +30,18 @@ function resolveDistrictHref(place: PlaceLike): string | null {
   return null;
 }
 
+function resolveSiteHref(place: PlaceLike): string | null {
+  if (place.presentation === 'HUB') {
+    return `/place/${place.id}/hub`;
+  }
+  if (!isApiConfigured() && isMockSiteHubPoiId(place.id)) {
+    return `/place/${place.id}/hub`;
+  }
+  return null;
+}
+
 export function getPlaceHref(place: PlaceLike): string {
-  return resolveDistrictHref(place) ?? `/place/${place.id}`;
+  return resolveDistrictHref(place) ?? resolveSiteHref(place) ?? `/place/${place.id}`;
 }
 
 export function getPlaceHrefById(placeId: string): string {

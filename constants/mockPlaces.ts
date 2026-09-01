@@ -40,6 +40,8 @@ export interface MockPlace {
   publicationStatus?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
   /** Ancre hub quartier → deep link A4.5 (API ou mock). */
   districtHub?: { citySlug: string; districtSlug: string } | null;
+  /** Hub site A4.6 — offline mock Louvre. */
+  presentation?: 'PLACE' | 'HUB';
 }
 
 export function getCategoryLabel(categoryId: string): string {
@@ -153,6 +155,7 @@ export const mockPlaces: MockPlace[] = [
     latitude: 48.8606,
     longitude: 2.3376,
     categoryId: 'musee',
+    presentation: 'HUB',
     address: 'Rue de Rivoli, 75001 Paris',
     imageUrl:
       'https://images.unsplash.com/photo-1743880475189-e36f80868bcc?w=800&q=80',
@@ -422,6 +425,34 @@ export const mockPlaces: MockPlace[] = [
         publishedAt: '16/01/2026',
         status: 'ready',
         rating: 4.7,
+      },
+    ],
+  },
+  {
+    id: '11',
+    name: 'La Liberté guidant le peuple',
+    latitude: 48.8606,
+    longitude: 2.3376,
+    categoryId: 'oeuvre',
+    parentId: '2',
+    address: 'Musée du Louvre — Aile Denon, 1er étage',
+    imageUrl:
+      'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&q=80',
+    wikipediaUrl:
+      'https://fr.wikipedia.org/wiki/La_Libert%C3%A9_guidant_le_peuple',
+    description:
+      'Tableau d\'Eugène Delacroix commémorant les Trois Glorieuses de 1830.',
+    audioGuides: [
+      {
+        id: '11-a',
+        title: 'La Liberté guidant le peuple',
+        summary: 'Delacroix et l\'allégorie révolutionnaire.',
+        durationSec: 195,
+        language: 'FR',
+        authorName: 'Utilisateur',
+        publishedAt: '17/01/2026',
+        status: 'ready',
+        rating: 4.5,
       },
     ],
   },

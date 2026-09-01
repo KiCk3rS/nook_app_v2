@@ -29,6 +29,8 @@ export interface DistrictHubRef {
   districtSlug: string;
 }
 
+export type PoiPresentation = 'PLACE' | 'HUB';
+
 /** Item carte / liste POI (`GET /api/v1/pois`). */
 export interface PoiSummary {
   id: string;
@@ -39,6 +41,8 @@ export interface PoiSummary {
   status?: PublicationStatus;
   categories: PoiCategory[];
   parentPoiId?: string | null;
+  /** Présentation catalogue : fiche lieu ou hub site A4.6. */
+  presentation?: PoiPresentation;
   /** Ancre hub quartier A4.5 si applicable. */
   districtHub?: DistrictHubRef | null;
 }
@@ -83,6 +87,7 @@ export interface PoiDetail {
   coverImage?: PoiDetailCoverImage | null;
   audios?: AudioTrack[];
   popularity: PoiDetailPopularity | null;
+  presentation?: PoiPresentation;
   districtHub?: DistrictHubRef | null;
 }
 
@@ -218,6 +223,15 @@ export type DistrictHub = CityHub & {
   citySlug: string;
   cityName: string;
   anchorPoiId: string;
+};
+
+/**
+ * Réponse `GET /api/v1/pois/:id/hub` (T27 / A4.6).
+ */
+export type PoiHub = Omit<CityHub, 'slug'> & {
+  name: string;
+  citySlug: string | null;
+  cityName: string | null;
 };
 
 export interface AudioAudience {

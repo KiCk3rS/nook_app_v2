@@ -13,7 +13,7 @@ import type {
   CataloguePlaceMarker,
   CataloguePlacePreview,
 } from '../../types/catalogue';
-import type { DistrictHubRef } from '../../types/api';
+import type { DistrictHubRef, PoiPresentation } from '../../types/api';
 
 function primaryCategory(categories: PoiCategory[]): PoiCategory | undefined {
   return categories[0];
@@ -30,6 +30,7 @@ export interface PoiCardLike {
   coverImageUrl?: string | null;
   status?: PublicationStatus;
   districtHub?: DistrictHubRef | null;
+  presentation?: PoiPresentation;
 }
 
 export function poiCardLikeToMockPlace(poi: PoiCardLike): MockPlace {
@@ -47,6 +48,7 @@ export function poiCardLikeToMockPlace(poi: PoiCardLike): MockPlace {
     parentId: poi.parentPoiId ?? undefined,
     publicationStatus: poi.status,
     districtHub: poi.districtHub ?? null,
+    presentation: poi.presentation,
   };
 }
 
@@ -78,6 +80,7 @@ export function poiSummaryToMarker(poi: PoiSummary): CataloguePlaceMarker {
     parentId: poi.parentPoiId ?? null,
     publicationStatus: poi.status,
     districtHub: poi.districtHub ?? null,
+    presentation: poi.presentation,
   };
 }
 
@@ -113,6 +116,7 @@ export function mockPlaceToMarker(place: MockPlace): CataloguePlaceMarker {
     parentId: place.parentId ?? null,
     publicationStatus: place.publicationStatus,
     districtHub: place.districtHub ?? null,
+    presentation: place.presentation,
   };
 }
 
@@ -163,6 +167,7 @@ export function poiDetailToMockPlace(detail: PoiDetail): MockPlace {
     publicationStatus: detail.status,
     wikipediaUrl: detail.wikipediaUrl?.trim() || undefined,
     districtHub: detail.districtHub ?? null,
+    presentation: detail.presentation,
   };
 }
 
@@ -176,5 +181,6 @@ export function poiSummaryToMockPlaceSummary(poi: PoiSummary): MockPlace {
     parentPoiId: poi.parentPoiId,
     status: poi.status,
     districtHub: poi.districtHub,
+    presentation: poi.presentation,
   });
 }

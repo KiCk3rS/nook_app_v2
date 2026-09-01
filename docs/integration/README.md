@@ -53,6 +53,7 @@ Flux opérationnel mobile pour un compte `role: ADMIN` : recherche Wikipedia (pr
 | 25 | [T25-app-admin-wikipedia-poi.md](./T25-app-admin-wikipedia-poi.md) | App | 2–3 j | T22, T23, T24 | Admin |
 | 26 | [T26-app-admin-audio-guide.md](./T26-app-admin-audio-guide.md) | App | 1–2 j | T25, T11/T12 | Admin |
 | 27 | [T27-hub-poi-site.md](./T27-hub-poi-site.md) | API + App | 3–5 j | T19, F-006 | P2 |
+| 28 | [T28-admin-carte-ancrage-poi.md](./T28-admin-carte-ancrage-poi.md) | API + App | 5–8 j | T23–T25 (B9) | Admin |
 
 ## Parallélisation possible
 
@@ -73,6 +74,7 @@ Flux opérationnel mobile pour un compte `role: ADMIN` : recherche Wikipedia (pr
 - **T22** (spec) en premier ; puis **T23** (search API).
 - **T11** (persistance / exposition `wikipediaUrl`) doit être prêt avant ou pendant **T24**.
 - **T24** attend T23 (+ T11) ; **T25** attend T22–T24 ; **T26** attend T25 (+ T11/T12 pour la fiche).
+- **T28** (carte → Wikipedia nearby) : après T25 ; Phase 1 API (geosearch) puis App (pin carte) ; spec [`ecran-B9.1`](../ecran-B9.1-admin-carte-ancrage-poi.md).
 
 ## Suivi d'avancement
 
@@ -96,18 +98,18 @@ Flux opérationnel mobile pour un compte `role: ADMIN` : recherche Wikipedia (pr
 | T13 | ✅ terminé | — | 2026-08-09* | `GET .../audios/:audioId/transcript` + persistance segments |
 | T14 | ✅ terminé | — | 2026-08-09* | `fetchAudioTranscript` + `useGuideTranscript` (mock démo conservé) |
 | T15 | ✅ terminé | 2026-08-09 | 2026-08-09 | F-018-a `GET /cities` + seed Paris/Lyon |
-| T16 | ⬜ à faire | | | Villes recherche & discovery — App |
-| T17 | ⬜ à faire | | | F-018 hub ville — API |
-| T18 | ✅ fait | | | Hub ville A4.3 — App |
+| T16 | ✅ terminé | 2026-08-09 | 2026-09-01 | Villes recherche & discovery — `useCityCarousels`, `searchCities` ; audit #1 validé en local |
+| T17 | ✅ terminé | 2026-08-09 | 2026-08-09 | F-018 hub ville — `GET /cities/:slug/hub` |
+| T18 | ✅ terminé | 2026-08-09 | 2026-09-01 | Hub ville A4.3 — App ; `/city/paris` validé en local |
 | T19 | ✅ terminé | 2026-08-09 | 2026-08-09 | Hubs quartier A4.5 — option B + seed Marais/Montmartre |
-| T20 | ⬜ à faire | | | Profil & résidus hybrides (`getPlaceById`, covers parcours, etc.) |
+| T20 | ✅ terminé | 2026-08-09 | 2026-08-09 | Profil & résidus hybrides (`getPlaceById`, covers parcours, etc.) |
 | T21 | ✅ terminé | 2026-08-09 | 2026-08-09 | D2/D3 oui ; 21a–21d API+app (IAP option A stub ; reset MDP token dev) |
 | T22 | ✅ terminé | — | 2026-08-09 | Spec B9 + `ecran-B9` (open : override lat/lng V1.1) |
 | T23 | ✅ terminé | — | 2026-08-09 | `GET /admin/wikipedia/search` |
 | T24 | ✅ terminé | — | 2026-08-09 | `POST /admin/pois/from-wikipedia` |
 | T25 | ✅ terminé | 2026-08-09 | 2026-08-09 | App admin : recherche Wikipedia + création POI |
 | T26 | ✅ terminé | 2026-08-09 | 2026-08-09 | App admin : génération audio + suivi job |
-| T27 | ⬜ à faire | | | Hub site A4.6 (POI conteneur, Louvre) — spec prête |
+| T27 | ✅ terminé | 2026-09-01 | 2026-09-01 | Hub site A4.6 — Louvre ; validé produit |
 
 Légende statut : ⬜ à faire · 🔄 en cours · ✅ terminé · ⏸️ bloqué
 
@@ -139,10 +141,10 @@ Audit documentaire réalisé le **2026-07-05** : [mock-inventory.md](./mock-inve
 |----------|--------|----------|--------|
 | P0 | `wikipediaUrl` + images POI | [T11](./T11-api-poi-media-sources.md), [T12](./T12-app-poi-media-sources.md) | ✅ |
 | P1 | Transcript lecteur audio | [T13](./T13-api-transcript-audio.md), [T14](./T14-app-transcript-audio.md) | ✅ |
-| P1 | Villes recherche / discovery | [T15](./T15-api-cities-f018-phase1.md), [T16](./T16-app-cities-recherche.md) | T15 ✅ · T16 ⬜ |
-| P2 | Hubs ville / quartier | [T17](./T17-api-hub-ville-f018.md) → [T19](./T19-hubs-quartier-f018.md) | T17/T18 ✅ · T19 ✅ |
-| P2 | Hub site (POI conteneur) | [T27](./T27-hub-poi-site.md) · [A4.6](../ecran-A4.6-hub-site.md) | Spec ✅ · code ⬜ |
-| P2 | Profil & résidus hybrides | [T20](./T20-app-profil-residus.md) | ⬜ |
+| P1 | Villes recherche / discovery | [T15](./T15-api-cities-f018-phase1.md), [T16](./T16-app-cities-recherche.md) | ✅ |
+| P2 | Hubs ville / quartier | [T17](./T17-api-hub-ville-f018.md) → [T19](./T19-hubs-quartier-f018.md) | ✅ |
+| P2 | Hub site (POI conteneur) | [T27](./T27-hub-poi-site.md) · [A4.6](../ecran-A4.6-hub-site.md) | ✅ |
+| P2 | Profil & résidus hybrides | [T20](./T20-app-profil-residus.md) | ✅ |
 | P3 | Éditorial, reset MDP, IAP | [T21](./T21-backlog-p3.md) | ✅ |
 
 **Conservés volontairement :** session démo (`shouldUseMockData`), fallback `!isApiConfigured()`, mocks Jest.

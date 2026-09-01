@@ -1,9 +1,15 @@
-import type {
-  AffiliateExperienceItem,
-  MockCity,
-  TouristPassItem,
+import {
+  getCityBySlug,
+  type AffiliateExperienceItem,
+  type MockCity,
+  type TouristPassItem,
 } from '../../constants/mockCities';
 import type { MockDistrict } from '../../constants/mockDistricts';
+import {
+  LOUVRE_SITE_HUB_MUST_SEE_IDS,
+  LOUVRE_SITE_HUB_POI_ID,
+  LOUVRE_SITE_HUB_RECOMMENDED_IDS,
+} from '../../constants/mockSiteHubs';
 import { itineraryCategories } from '../../constants/itineraryCategories';
 import {
   countItinerariesByCategory,
@@ -18,6 +24,7 @@ import type {
   DistrictHub,
   DistrictHubRef,
   EditorialItinerary,
+  PoiHub,
 } from '../../types/api';
 import {
   mapEditorialItineraryCategoryCounts,
@@ -37,6 +44,8 @@ export type HubMapRegion = {
 export interface TerritorialHubData {
   citySlug: string;
   districtSlug?: string;
+  /** Hub site A4.6 — identifiant POI conteneur. */
+  poiHubId?: string;
   name: string;
   coverImageUrl: string;
   subtitle: string;
@@ -117,7 +126,7 @@ function hubCoreToData(
   >,
   extras: Pick<
     TerritorialHubData,
-    'citySlug' | 'districtSlug' | 'parentCityName'
+    'citySlug' | 'districtSlug' | 'parentCityName' | 'poiHubId'
   > & {
     featuredPremiumItinerary?: EditorialItinerary | null;
     itineraryCategoryCounts?: Record<string, number>;
@@ -136,6 +145,7 @@ function hubCoreToData(
   return {
     citySlug: extras.citySlug,
     districtSlug: extras.districtSlug,
+    poiHubId: extras.poiHubId,
     name: hub.name,
     coverImageUrl: hub.coverImage?.url?.trim() || PLACE_IMAGE_PLACEHOLDER,
     subtitle: hub.subtitle?.trim() ?? '',
@@ -170,6 +180,31 @@ export function districtHubToHubData(hub: DistrictHub): TerritorialHubData {
     districtSlug: hub.slug,
     parentCityName: hub.cityName,
   });
+}
+
+/**
+ * `GET /pois/:id/hub` → TerritorialHubView (A4.6).
+ * Pass touristiques masqués ; itinéraires site stub V1.
+ */
+export function poiHubToHubData(hub: PoiHub): TerritorialHubData {
+  const citySlug = hub.citySlug ?? 'paris';
+  return hubCoreToData(
+    {
+      name: hub.name,
+      subtitle: hub.subtitle,
+      coverImage: hub.coverImage,
+      map: hub.map,
+      mustSeePois: hub.mustSeePois,
+      recommendedPois: hub.recommendedPois,
+      itineraryCategories: hub.itineraryCategories,
+      featuredPremiumItinerary: hub.featuredPremiumItinerary,
+    },
+    {
+      citySlug,
+      poiHubId: hub.id,
+      parentCityName: hub.cityName ?? undefined,
+    },
+  );
 }
 
 /** Mode démo (`!isApiConfigured()`). */
@@ -222,5 +257,38 @@ export function mockDistrictToHubData(
     affiliateExperiences: district.affiliateExperiences,
     parentCityName: cityName,
     mapRegion: district.mapRegion,
+  };
+}
+
+/** Hub site mock Louvre (offline / `!isApiConfigured()`). */
+export function mockLouvreSiteToHubData(): TerritorialHubData | null {
+  const louvre = getPlaceById(LOUVRE_SITE_HUB_POI_ID);
+  const city = getCityBySlug('paris');
+  if (!louvre || !city) return null;
+
+  const mustSeePlaces = resolveMockPlacesByIds([...LOUVRE_SITE_HUB_MUST_SEE_IDS]);
+  const recommendedPlaces = resolveMockPlacesByIds([
+    ...LOUVRE_SITE_HUB_RECOMMENDED_IDS,
+  ]);
+
+  return {
+    citySlug: city.slug,
+    poiHubId: louvre.id,
+    name: louvre.name,
+    coverImageUrl: louvre.imageUrl,
+    subtitle: `${mustSeePlaces.length} incontournables`,
+    mustSeePlaces,
+    recommendedPlaces,
+    featuredPremiumItinerary: null,
+    itineraryCategoryCounts: {},
+    touristPasses: [],
+    affiliateExperiences: [],
+    parentCityName: city.name,
+    mapRegion: {
+      latitude: louvre.latitude,
+      longitude: louvre.longitude,
+      latitudeDelta: 0.02,
+      longitudeDelta: 0.02,
+    },
   };
 }

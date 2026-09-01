@@ -1,6 +1,7 @@
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
+import type { MockPlace } from '../../constants/mockPlaces';
 import { SEARCH_SHEET_GUTTER } from '../../constants/searchDiscovery';
 import type { SearchResult } from '../../lib/searchPlaces';
 import { colors, spacing, textStyle } from '../../constants/theme';
@@ -11,7 +12,7 @@ import { SearchResultRow } from './SearchResultRow';
 interface SearchResultsListProps {
   query: string;
   results: SearchResult[];
-  onSelectPlace: (placeId: string) => void;
+  onSelectPlace: (place: MockPlace) => void;
   onSelectCity: (citySlug: string) => void;
 }
 
@@ -49,7 +50,7 @@ export function SearchResultsList({
           <SearchResultRow
             place={item.place}
             subtitle={item.subtitle}
-            onPress={() => onSelectPlace(item.place.id)}
+            onPress={() => onSelectPlace(item.place)}
           />
         )
       }
