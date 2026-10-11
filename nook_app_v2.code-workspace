@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../nook_api_v2"
+		},
+		{
+			"path": "../nook_back_v2"
 		}
 	],
 	"settings": {}
