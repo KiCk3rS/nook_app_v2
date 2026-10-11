@@ -16,12 +16,21 @@ export type PlacementPin = {
   lng: number;
 };
 
+/** Aperçu marqueur (catégorie choisie dans le formulaire de création). */
+export type PlacementPinPreview = {
+  name: string;
+  iconKey: string;
+  colorHex: string;
+};
+
 export type AddPlaceSheetMode = 'search' | 'nearby';
 
 type AdminAddPlaceContextValue = {
   isAdminPlacementEnabled: boolean;
   placementPin: PlacementPin | null;
+  placementPreview: PlacementPinPreview | null;
   setPlacementPin: (pin: PlacementPin | null) => void;
+  setPlacementPreview: (preview: PlacementPinPreview | null) => void;
   placePinAt: (coord: { latitude: number; longitude: number }) => void;
   clearPlacementPin: () => void;
   sheetVisible: boolean;
@@ -46,6 +55,8 @@ interface AdminAddPlaceProviderProps {
 export function AdminAddPlaceProvider({ children }: AdminAddPlaceProviderProps) {
   const { user, isAuthenticated, isMockSession } = useAuth();
   const [placementPin, setPlacementPin] = useState<PlacementPin | null>(null);
+  const [placementPreview, setPlacementPreview] =
+    useState<PlacementPinPreview | null>(null);
   const [sheetVisible, setSheetVisible] = useState(false);
   const [sheetInitialMode, setSheetInitialMode] =
     useState<AddPlaceSheetMode>('search');
@@ -67,6 +78,7 @@ export function AdminAddPlaceProvider({ children }: AdminAddPlaceProviderProps) 
 
   const clearPlacementPin = useCallback(() => {
     setPlacementPin(null);
+    setPlacementPreview(null);
   }, []);
 
   const openSheet = useCallback(
@@ -80,10 +92,12 @@ export function AdminAddPlaceProvider({ children }: AdminAddPlaceProviderProps) 
 
   const closeSheet = useCallback(() => {
     setSheetVisible(false);
+    setPlacementPreview(null);
   }, []);
 
   const clearPlacementAfterSuccess = useCallback(() => {
     setPlacementPin(null);
+    setPlacementPreview(null);
     setSheetVisible(false);
   }, []);
 
@@ -91,7 +105,9 @@ export function AdminAddPlaceProvider({ children }: AdminAddPlaceProviderProps) 
     (): AdminAddPlaceContextValue => ({
       isAdminPlacementEnabled,
       placementPin,
+      placementPreview,
       setPlacementPin,
+      setPlacementPreview,
       placePinAt,
       clearPlacementPin,
       sheetVisible,
@@ -103,6 +119,7 @@ export function AdminAddPlaceProvider({ children }: AdminAddPlaceProviderProps) 
     [
       isAdminPlacementEnabled,
       placementPin,
+      placementPreview,
       placePinAt,
       clearPlacementPin,
       sheetVisible,

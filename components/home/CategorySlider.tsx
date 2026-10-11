@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
+import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
+import { ioniconForCategoryIconKey } from '../../lib/categoryIcons';
 import { colors, componentSizes, radius, spacing, textStyle } from '../../constants/theme';
 import { useCategories } from '../../hooks/usePoisInBbox';
 
@@ -14,41 +16,73 @@ export function CategorySlider({ selectedCategoryId, onSelectCategory }: Categor
   const { t } = useTranslation('categories');
   const { categories } = useCategories();
 
-  const chips = [
-    { id: 'all', slug: 'all', label: t('place.all') },
-    ...categories.map((c) => ({ id: c.slug, slug: c.slug, label: c.label })),
-  ];
-
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.content}
     >
-      {chips.map((category) => {
-        const isActive = category.slug === selectedCategoryId;
-
-        return (
-          <Pressable
-            key={category.id}
-            onPress={() => onSelectCategory(category.slug)}
-            style={[styles.chip, isActive ? styles.chipActive : styles.chipInactive]}
-            accessibilityRole="button"
-            accessibilityState={{ selected: isActive }}
-            accessibilityLabel={category.label}
-          >
-            <Ionicons
-              name="pricetag-outline"
-              size={14}
-              color={isActive ? colors.onPrimary : colors.muted}
-            />
-            <Text style={[styles.chipText, isActive ? styles.chipTextActive : styles.chipTextInactive]}>
-              {category.label}
-            </Text>
-          </Pressable>
-        );
-      })}
+      <Chip
+        label={t('place.all')}
+        selected={selectedCategoryId === 'all'}
+        tint={colors.primary}
+        iconName="pricetag-outline"
+        onPress={() => onSelectCategory('all')}
+      />
+      {categories.map((category) => (
+        <Chip
+          key={category.slug}
+          label={category.label}
+          selected={category.slug === selectedCategoryId}
+          tint={category.colorHex}
+          iconName={ioniconForCategoryIconKey(category.iconKey)}
+          onPress={() => onSelectCategory(category.slug)}
+        />
+      ))}
     </ScrollView>
+  );
+}
+
+function Chip({
+  label,
+  selected,
+  tint,
+  iconName,
+  onPress,
+}: {
+  label: string;
+  selected: boolean;
+  tint: string;
+  iconName: ComponentProps<typeof Ionicons>['name'];
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[
+        styles.chip,
+        selected
+          ? { backgroundColor: tint }
+          : [styles.chipInactive, { borderColor: tint }],
+      ]}
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
+      accessibilityLabel={label}
+    >
+      <Ionicons
+        name={iconName}
+        size={14}
+        color={selected ? colors.onPrimary : tint}
+      />
+      <Text
+        style={[
+          styles.chipText,
+          selected ? styles.chipTextActive : { color: tint },
+        ]}
+      >
+        {label}
+      </Text>
+    </Pressable>
   );
 }
 
@@ -67,21 +101,14 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     borderRadius: radius.full,
   },
-  chipActive: {
-    backgroundColor: colors.primary,
-  },
   chipInactive: {
     backgroundColor: colors.canvas,
     borderWidth: 1,
-    borderColor: colors.hairline,
   },
   chipText: {
     ...textStyle('buttonSm'),
   },
   chipTextActive: {
     color: colors.onPrimary,
-  },
-  chipTextInactive: {
-    color: colors.muted,
   },
 });

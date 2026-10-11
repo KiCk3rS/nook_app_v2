@@ -7,6 +7,10 @@ export interface CataloguePlaceMarker {
   categoryId: string;
   /** Libellé catégorie API (prioritaire sur i18n mock). */
   categoryLabel?: string;
+  /** Clé visuelle (toujours renseignée côté mapper ; défaut landmark). */
+  categoryIconKey: string;
+  /** Couleur pastille `#RRGGBB` (toujours renseignée côté mapper). */
+  categoryColorHex: string;
   parentId?: string | null;
   /** Statut publication API (`DRAFT` visible admin uniquement). */
   publicationStatus?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
@@ -27,4 +31,6 @@ export interface CatalogueCategory {
   id: string;
   slug: string;
   label: string;
+  iconKey: string;
+  colorHex: string;
 }

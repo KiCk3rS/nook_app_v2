@@ -29,6 +29,8 @@ describe('fetchCategories', () => {
             id: 'cat-1',
             slug: 'culture',
             label: 'Culture',
+            iconKey: 'landmark',
+            colorHex: '#7B1FA2',
             createdAt: '2026-01-01T00:00:00.000Z',
           },
         ],

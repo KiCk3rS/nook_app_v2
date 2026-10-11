@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 
-import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import { Platform, StyleSheet, View } from 'react-native';
 
@@ -16,6 +16,7 @@ import { useAdminAddPlace } from '../admin/AdminAddPlaceContext';
 
 import { ItineraryStepMarker } from './ItineraryStepMarker';
 import { PlaceMapMarker } from './PlaceMapMarker';
+import { PlacementPinMarker } from './PlacementPinMarker';
 
 export interface ItineraryMapOverlay {
   places: MockPlace[];
@@ -152,12 +153,13 @@ export const HomeMap = forwardRef<HomeMapHandle, HomeMapProps>(function HomeMap(
     adminAddPlace.openSheet('nearby');
   }
 
-  function handlePlacementPinDragEnd(event: {
-    nativeEvent: { coordinate: { latitude: number; longitude: number } };
+  function handlePlacementPinDragEnd(coord: {
+    latitude: number;
+    longitude: number;
   }) {
     adminAddPlace?.setPlacementPin({
-      lat: event.nativeEvent.coordinate.latitude,
-      lng: event.nativeEvent.coordinate.longitude,
+      lat: coord.latitude,
+      lng: coord.longitude,
     });
   }
 
@@ -185,18 +187,14 @@ export const HomeMap = forwardRef<HomeMapHandle, HomeMapProps>(function HomeMap(
         onRegionChangeComplete={handleRegionChangeComplete}
       >
         {adminAddPlace?.placementPin ? (
-          <Marker
-            coordinate={{
-              latitude: adminAddPlace.placementPin.lat,
-              longitude: adminAddPlace.placementPin.lng,
-            }}
-            draggable
-            pinColor="violet"
+          <PlacementPinMarker
+            latitude={adminAddPlace.placementPin.lat}
+            longitude={adminAddPlace.placementPin.lng}
+            preview={adminAddPlace.placementPreview}
             onDragStart={() => {
               ignoreNextMapPress.current = true;
             }}
             onDragEnd={handlePlacementPinDragEnd}
-            accessibilityLabel="Point de création de lieu"
           />
         ) : null}
 

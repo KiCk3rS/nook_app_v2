@@ -25,7 +25,7 @@ export function PlaceMapMarker({ place, selected, onPress }: PlaceMapMarkerProps
     setTracksViewChanges(true);
     const timer = setTimeout(() => setTracksViewChanges(false), TRACKS_OFF_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [selected, isDraft]);
+  }, [selected, isDraft, place.categoryIconKey, place.categoryColorHex]);
 
   return (
     <Marker
@@ -42,8 +42,9 @@ export function PlaceMapMarker({ place, selected, onPress }: PlaceMapMarkerProps
     >
       <View style={styles.markerTouchTarget} collapsable={false} pointerEvents="none">
         <PoiMarkerVisual
-          categoryId={place.categoryId}
           name={place.name}
+          iconKey={place.categoryIconKey}
+          colorHex={place.categoryColorHex}
           selected={selected}
           isDraft={isDraft}
           draftLabel={t('draftBadge')}

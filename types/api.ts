@@ -21,6 +21,8 @@ export interface PaginatedResponse<T> {
 export interface PoiCategory {
   slug: string;
   label: string;
+  iconKey: string;
+  colorHex: string;
 }
 
 /** Deep link hub quartier quand le POI est l’ancre éditoriale. */

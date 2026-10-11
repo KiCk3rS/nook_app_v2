@@ -1,11 +1,14 @@
 import {
   ActivityIndicator,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { Ionicons } from '@expo/vector-icons';
+import type { ComponentProps } from 'react';
 
 import {
   colors,
@@ -14,12 +17,17 @@ import {
   spacing,
   textStyle,
 } from '../../constants/theme';
+import { ioniconForCategoryIconKey } from '../../lib/categoryIcons';
 import type { WikipediaSearchItem } from '../../lib/api/adminWikipedia';
 import type { AdminWikipediaErrorKey } from '../../lib/mappers/adminWikipediaError';
+import type { CatalogueCategory } from '../../types/catalogue';
 
 interface AddWikipediaConfirmStepProps {
   item: WikipediaSearchItem;
   hasMapAnchor?: boolean;
+  categories: CatalogueCategory[];
+  selectedCategoryId: string | null;
+  onSelectCategory: (categoryId: string) => void;
   isCreating: boolean;
   errorKey: AdminWikipediaErrorKey | null;
   onCreate: () => void;
@@ -28,11 +36,15 @@ interface AddWikipediaConfirmStepProps {
 export function AddWikipediaConfirmStep({
   item,
   hasMapAnchor = false,
+  categories,
+  selectedCategoryId,
+  onSelectCategory,
   isCreating,
   errorKey,
   onCreate,
 }: AddWikipediaConfirmStepProps) {
   const { t } = useTranslation('adminAddPlace');
+  const canCreate = selectedCategoryId != null && !isCreating;
 
   return (
     <View style={styles.root}>
@@ -44,6 +56,34 @@ export function AddWikipediaConfirmStep({
       <Text style={styles.url} numberOfLines={2}>
         {item.wikipediaUrl}
       </Text>
+
+      <Text style={styles.categoryLabel}>{t('categoryLabel')}</Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.categoryRow}
+      >
+        {categories.map((category) => {
+          const selected = category.id === selectedCategoryId;
+          return (
+            <CategoryChip
+              key={category.id}
+              label={category.label}
+              tint={category.colorHex}
+              iconName={ioniconForCategoryIconKey(category.iconKey)}
+              selected={selected}
+              disabled={isCreating}
+              onPress={() => onSelectCategory(category.id)}
+            />
+          );
+        })}
+      </ScrollView>
+      {!selectedCategoryId ? (
+        <Text style={styles.categoryHint}>{t('categoryRequired')}</Text>
+      ) : hasMapAnchor ? (
+        <Text style={styles.note}>{t('confirmMapPreview')}</Text>
+      ) : null}
+
       <Text style={styles.note}>{t('confirmDraftNote')}</Text>
       <Text style={styles.note}>
         {hasMapAnchor ? t('confirmMapPosition') : t('confirmPositionNote')}
@@ -57,7 +97,7 @@ export function AddWikipediaConfirmStep({
             onPress={onCreate}
             accessibilityRole="button"
             accessibilityLabel={t('retry')}
-            disabled={isCreating}
+            disabled={!canCreate}
           >
             <Text style={styles.retryLabel}>{t('retry')}</Text>
           </Pressable>
@@ -68,13 +108,13 @@ export function AddWikipediaConfirmStep({
         style={({ pressed }) => [
           styles.cta,
           (isCreating || pressed) && styles.ctaPressed,
-          isCreating && styles.ctaDisabled,
+          !canCreate && styles.ctaDisabled,
         ]}
         onPress={onCreate}
-        disabled={isCreating}
+        disabled={!canCreate}
         accessibilityRole="button"
         accessibilityLabel={t('ctaCreate')}
-        accessibilityState={{ disabled: isCreating, busy: isCreating }}
+        accessibilityState={{ disabled: !canCreate, busy: isCreating }}
       >
         {isCreating ? (
           <ActivityIndicator color={colors.onPrimary} />
@@ -86,6 +126,52 @@ export function AddWikipediaConfirmStep({
         <Text style={styles.creatingHint}>{t('creating')}</Text>
       ) : null}
     </View>
+  );
+}
+
+function CategoryChip({
+  label,
+  tint,
+  iconName,
+  selected,
+  disabled,
+  onPress,
+}: {
+  label: string;
+  tint: string;
+  iconName: ComponentProps<typeof Ionicons>['name'];
+  selected: boolean;
+  disabled: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      style={[
+        styles.chip,
+        selected
+          ? { backgroundColor: tint }
+          : [styles.chipInactive, { borderColor: tint }],
+      ]}
+      accessibilityRole="button"
+      accessibilityState={{ selected, disabled }}
+      accessibilityLabel={label}
+    >
+      <Ionicons
+        name={iconName}
+        size={14}
+        color={selected ? colors.onPrimary : tint}
+      />
+      <Text
+        style={[
+          styles.chipText,
+          selected ? styles.chipTextActive : { color: tint },
+        ]}
+      >
+        {label}
+      </Text>
+    </Pressable>
   );
 }
 
@@ -111,6 +197,38 @@ const styles = StyleSheet.create({
   url: {
     ...textStyle('bodySm'),
     color: colors.mutedSoft,
+  },
+  categoryLabel: {
+    ...textStyle('microLabel'),
+    color: colors.muted,
+    marginTop: spacing.sm,
+  },
+  categoryRow: {
+    gap: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  categoryHint: {
+    ...textStyle('bodySm'),
+    color: colors.warning,
+  },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    minHeight: componentSizes.iconControlSize,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.full,
+  },
+  chipInactive: {
+    backgroundColor: colors.canvas,
+    borderWidth: 1,
+  },
+  chipText: {
+    ...textStyle('buttonSm'),
+  },
+  chipTextActive: {
+    color: colors.onPrimary,
   },
   note: {
     ...textStyle('bodySm'),

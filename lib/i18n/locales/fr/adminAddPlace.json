@@ -36,6 +36,9 @@
   "duplicateViewExisting": "Voir la fiche",
   "nearbyEmpty": "Aucun article Wikipedia à proximité. Élargis le rayon ou recherche par nom.",
   "confirmMapPosition": "Position : point placé sur la carte",
+  "categoryLabel": "Catégorie",
+  "categoryRequired": "Choisis une catégorie pour créer le lieu.",
+  "confirmMapPreview": "Le marqueur sur la carte se met à jour selon la catégorie.",
   "increaseRadius": "Élargir le rayon de recherche",
   "decreaseRadius": "Réduire le rayon de recherche"
 }

@@ -4,6 +4,8 @@ import { formatAudioDuration as formatAudioDurationI18n } from '../lib/i18n/form
 export interface PlaceCategory {
   id: string;
   label: string;
+  iconKey?: string;
+  colorHex?: string;
 }
 
 export type AudioGuideStatus = 'ready' | 'pending' | 'error';
@@ -91,11 +93,11 @@ export const parisRegion = {
 
 export const categories: PlaceCategory[] = [
   { id: 'all', label: 'Tous' },
-  { id: 'monument', label: 'Monument' },
-  { id: 'musee', label: 'Musée' },
-  { id: 'parc', label: 'Parc' },
-  { id: 'quartier', label: 'Quartier' },
-  { id: 'oeuvre', label: 'Œuvre' },
+  { id: 'monument', label: 'Monument', iconKey: 'landmark', colorHex: '#7B1FA2' },
+  { id: 'musee', label: 'Musée', iconKey: 'museum', colorHex: '#7B1FA2' },
+  { id: 'parc', label: 'Parc', iconKey: 'park', colorHex: '#188038' },
+  { id: 'quartier', label: 'Quartier', iconKey: 'place', colorHex: '#5F6368' },
+  { id: 'oeuvre', label: 'Œuvre', iconKey: 'artwork', colorHex: '#7B1FA2' },
 ];
 
 export const mockPlaces: MockPlace[] = [

@@ -1,11 +1,31 @@
 {
   "place": {
     "all": "Tous",
+    "culture": "Culture",
     "monument": "Monument",
     "musee": "Musée",
+    "galerie": "Galerie",
+    "theatre": "Théâtre",
+    "chateau": "Château",
+    "fontaine": "Fontaine",
+    "oeuvre": "Œuvre",
+    "attraction": "Attraction",
+    "restaurant": "Restaurant",
+    "cafe": "Café",
+    "bar": "Bar",
+    "hotel": "Hôtel",
+    "transport": "Transport",
     "parc": "Parc",
+    "jardin": "Jardin",
+    "nature": "Nature",
+    "zoo": "Zoo",
+    "bibliotheque": "Bibliothèque",
+    "universite": "Université",
+    "culte": "Lieu de culte",
     "quartier": "Quartier",
-    "oeuvre": "Œuvre"
+    "place": "Place",
+    "commerce": "Commerce",
+    "panorama": "Point de vue"
   },
   "itinerary": {
     "highlights": "Les points forts",

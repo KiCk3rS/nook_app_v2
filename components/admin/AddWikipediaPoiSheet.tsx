@@ -24,6 +24,7 @@ import {
 } from '../../constants/theme';
 import { useWikipediaNearby } from '../../hooks/useWikipediaNearby';
 import { useWikipediaSearch } from '../../hooks/useWikipediaSearch';
+import { useCategories } from '../../hooks/usePoisInBbox';
 import {
   createPoiFromWikipedia,
   type AdminPoi,
@@ -34,6 +35,7 @@ import {
   type AdminWikipediaErrorKey,
 } from '../../lib/mappers/adminWikipediaError';
 import type { AddPlaceSheetMode, PlacementPin } from './AdminAddPlaceContext';
+import { useAdminAddPlace } from './AdminAddPlaceContext';
 import { AddPlaceModeTabs } from './AddPlaceModeTabs';
 import { AddWikipediaConfirmStep } from './AddWikipediaConfirmStep';
 import { AddWikipediaNearbyStep } from './AddWikipediaNearbyStep';
@@ -46,6 +48,7 @@ type SheetPhase =
       kind: 'confirm';
       item: WikipediaSearchItem;
       anchor: PlacementPin | null;
+      categoryId: string | null;
       createErrorKey: AdminWikipediaErrorKey | null;
       isCreating: boolean;
     }
@@ -74,6 +77,8 @@ export function AddWikipediaPoiSheet({
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const inputRef = useRef<TextInput>(null);
+  const adminAddPlace = useAdminAddPlace();
+  const { categories } = useCategories();
 
   const [query, setQuery] = useState('');
   const [phase, setPhase] = useState<SheetPhase>({
@@ -139,8 +144,9 @@ export function AddWikipediaPoiSheet({
     if (!visible) {
       setQuery('');
       setPhase({ kind: 'browse', tab: initialMode });
+      adminAddPlace?.setPlacementPreview(null);
     }
-  }, [visible, initialMode]);
+  }, [visible, initialMode, adminAddPlace]);
 
   useEffect(() => {
     if (!visible) return;
@@ -160,17 +166,40 @@ export function AddWikipediaPoiSheet({
   }, [visible, phase, handleClose, navigateToPlace, placementPin]);
 
   function handleSelect(item: WikipediaSearchItem) {
+    adminAddPlace?.setPlacementPreview({
+      name: item.title,
+      iconKey: 'landmark',
+      colorHex: '#7B1FA2',
+    });
     setPhase({
       kind: 'confirm',
       item,
       anchor: placementPin,
+      categoryId: null,
       createErrorKey: null,
       isCreating: false,
     });
   }
 
+  function handleSelectCategory(categoryId: string) {
+    if (phase.kind !== 'confirm' || phase.isCreating) return;
+    const category = categories.find((c) => c.id === categoryId);
+    if (!category) return;
+    adminAddPlace?.setPlacementPreview({
+      name: phase.item.title,
+      iconKey: category.iconKey,
+      colorHex: category.colorHex,
+    });
+    setPhase({
+      ...phase,
+      categoryId,
+      createErrorKey: null,
+    });
+  }
+
   function handleBackToBrowse() {
     if (isCreating) return;
+    adminAddPlace?.setPlacementPreview(null);
     setPhase({
       kind: 'browse',
       tab: placementPin ? 'nearby' : 'search',
@@ -178,12 +207,15 @@ export function AddWikipediaPoiSheet({
   }
 
   async function handleCreate() {
-    if (phase.kind !== 'confirm' || phase.isCreating) return;
-    const { item, anchor } = phase;
+    if (phase.kind !== 'confirm' || phase.isCreating || !phase.categoryId) {
+      return;
+    }
+    const { item, anchor, categoryId } = phase;
     setPhase({
       kind: 'confirm',
       item,
       anchor,
+      categoryId,
       createErrorKey: null,
       isCreating: true,
     });
@@ -194,7 +226,9 @@ export function AddWikipediaPoiSheet({
         status: 'DRAFT',
         lat: anchor?.lat,
         lng: anchor?.lng,
+        categoryIds: [categoryId],
       });
+      adminAddPlace?.setPlacementPreview(null);
       setPhase({
         kind: 'success',
         poi,
@@ -205,6 +239,7 @@ export function AddWikipediaPoiSheet({
         kind: 'confirm',
         item,
         anchor,
+        categoryId,
         createErrorKey: mapAdminWikipediaErrorKey(error),
         isCreating: false,
       });
@@ -330,6 +365,9 @@ export function AddWikipediaPoiSheet({
           <AddWikipediaConfirmStep
             item={phase.item}
             hasMapAnchor={phase.anchor != null}
+            categories={categories}
+            selectedCategoryId={phase.categoryId}
+            onSelectCategory={handleSelectCategory}
             isCreating={phase.isCreating}
             errorKey={phase.createErrorKey}
             onCreate={() => void handleCreate()}

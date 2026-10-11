@@ -55,7 +55,7 @@ const sampleHub = {
       parentPoiId: null,
       lat: 48.853,
       lng: 2.3499,
-      categories: [{ slug: 'culture', label: 'Culture' }],
+      categories: [{ slug: 'culture', label: 'Culture', iconKey: 'landmark', colorHex: '#7B1FA2' }],
       popularity: null,
       coverImage: null,
     },

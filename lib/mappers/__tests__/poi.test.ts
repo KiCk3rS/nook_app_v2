@@ -15,7 +15,14 @@ describe('poiSummaryToMarker', () => {
     title: 'Musée',
     lat: 48.86,
     lng: 2.33,
-    categories: [{ slug: 'musee', label: 'Musée' }],
+    categories: [
+      {
+        slug: 'musee',
+        label: 'Musée',
+        iconKey: 'museum',
+        colorHex: '#7B1FA2',
+      },
+    ],
     parentPoiId: null,
   };
 
@@ -27,9 +34,12 @@ describe('poiSummaryToMarker', () => {
       longitude: 2.33,
       categoryId: 'musee',
       categoryLabel: 'Musée',
+      categoryIconKey: 'museum',
+      categoryColorHex: '#7B1FA2',
       parentId: null,
       publicationStatus: undefined,
       districtHub: null,
+      presentation: undefined,
     });
   });
 
@@ -45,6 +55,8 @@ describe('poiSummaryToMarker', () => {
     const marker = poiSummaryToMarker({ ...summary, categories: [] });
     expect(marker.categoryId).toBe('monument');
     expect(marker.categoryLabel).toBeUndefined();
+    expect(marker.categoryIconKey).toBe('landmark');
+    expect(marker.categoryColorHex).toBe('#7B1FA2');
   });
 });
 
@@ -64,7 +76,7 @@ describe('poiDetailToMockPlace', () => {
       childrenCount: 0,
       lat: 48.858,
       lng: 2.294,
-      categories: [{ slug: 'monument', label: 'Monument' }],
+      categories: [{ slug: 'monument', label: 'Monument', iconKey: 'landmark', colorHex: '#7B1FA2' }],
       images: [{ id: 'img-1', sortOrder: 0, altText: null }],
       audios: [
         {
@@ -97,7 +109,14 @@ describe('poiSummaryToMockPlaceSummary', () => {
       title: 'Musée',
       lat: 48.86,
       lng: 2.33,
-      categories: [{ slug: 'musee', label: 'Musée' }],
+      categories: [
+        {
+          slug: 'musee',
+          label: 'Musée',
+          iconKey: 'museum',
+          colorHex: '#7B1FA2',
+        },
+      ],
       parentPoiId: null,
     };
     expect(poiSummaryToMockPlaceSummary(summary)).toEqual(
@@ -106,7 +125,14 @@ describe('poiSummaryToMockPlaceSummary', () => {
         title: 'Musée',
         lat: 48.86,
         lng: 2.33,
-        categories: [{ slug: 'musee', label: 'Musée' }],
+        categories: [
+          {
+            slug: 'musee',
+            label: 'Musée',
+            iconKey: 'museum',
+            colorHex: '#7B1FA2',
+          },
+        ],
         parentPoiId: null,
       }),
     );

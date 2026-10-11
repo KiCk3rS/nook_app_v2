@@ -18,10 +18,26 @@ import {
 import type { CatalogueCategory, CataloguePlaceMarker } from '../types/catalogue';
 import { regionToBbox } from '../lib/geo/bbox';
 import type { MapRegion } from '../lib/itineraryMap';
+import {
+  DEFAULT_CATEGORY_COLOR,
+  DEFAULT_CATEGORY_ICON_KEY,
+} from '../lib/categoryIcons';
 import { getPlaceCategoryLabel } from '../lib/i18n/categoryLabels';
 
 const DEFAULT_DEBOUNCE_MS = 350;
 const MAP_POI_LIMIT = 100;
+
+function mockCatalogueCategories(): CatalogueCategory[] {
+  return mockCategories
+    .filter((c) => c.id !== 'all')
+    .map((c) => ({
+      id: c.id,
+      slug: c.id,
+      label: getPlaceCategoryLabel(c.id),
+      iconKey: c.iconKey ?? DEFAULT_CATEGORY_ICON_KEY,
+      colorHex: c.colorHex ?? DEFAULT_CATEGORY_COLOR,
+    }));
+}
 
 export interface UsePoisInBboxOptions {
   region: MapRegion | null;
@@ -141,26 +157,14 @@ export interface UseCategoriesResult {
 
 export function useCategories(): UseCategoriesResult {
   const [categories, setCategories] = useState<CatalogueCategory[]>(() =>
-    isApiConfigured()
-      ? []
-      : mockCategories
-          .filter((c) => c.id !== 'all')
-          .map((c) => ({ id: c.id, slug: c.id, label: getPlaceCategoryLabel(c.id) })),
+    isApiConfigured() ? [] : mockCatalogueCategories(),
   );
   const [loading, setLoading] = useState(isApiConfigured());
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     if (!isApiConfigured()) {
-      setCategories(
-        mockCategories
-          .filter((c) => c.id !== 'all')
-          .map((c) => ({
-            id: c.id,
-            slug: c.id,
-            label: getPlaceCategoryLabel(c.id),
-          })),
-      );
+      setCategories(mockCatalogueCategories());
       setLoading(false);
       return;
     }

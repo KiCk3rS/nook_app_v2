@@ -28,7 +28,7 @@ const sampleItem = {
   parentPoiId: null,
   lat: 48.8584,
   lng: 2.2945,
-  categories: [{ slug: 'monument', label: 'Monument' }],
+  categories: [{ slug: 'monument', label: 'Monument', iconKey: 'landmark', colorHex: '#7B1FA2' }],
   publishedAt: '2026-07-01T10:00:00.000Z',
   popularity: {
     averageRating: 4.5,

@@ -36,6 +36,9 @@
   "duplicateViewExisting": "View place",
   "nearbyEmpty": "No Wikipedia articles nearby. Widen the radius or search by name.",
   "confirmMapPosition": "Location: pin placed on the map",
+  "categoryLabel": "Category",
+  "categoryRequired": "Pick a category to create the place.",
+  "confirmMapPreview": "The map pin updates to match the selected category.",
   "increaseRadius": "Increase search radius",
   "decreaseRadius": "Decrease search radius"
 }

@@ -1,5 +1,13 @@
-import type { AudioGuide, MockPlace } from '../../constants/mockPlaces';
+import {
+  categories as mockCategories,
+  type AudioGuide,
+  type MockPlace,
+} from '../../constants/mockPlaces';
 import { PLACE_IMAGE_PLACEHOLDER } from '../../constants/placeImages';
+import {
+  DEFAULT_CATEGORY_COLOR,
+  DEFAULT_CATEGORY_ICON_KEY,
+} from '../categoryIcons';
 import { getPlaceCategoryLabel } from '../i18n/categoryLabels';
 import type {
   AudioTrack,
@@ -17,6 +25,16 @@ import type { DistrictHubRef, PoiPresentation } from '../../types/api';
 
 function primaryCategory(categories: PoiCategory[]): PoiCategory | undefined {
   return categories[0];
+}
+
+function visualFromCategory(cat?: PoiCategory): {
+  categoryIconKey: string;
+  categoryColorHex: string;
+} {
+  return {
+    categoryIconKey: cat?.iconKey?.trim() || DEFAULT_CATEGORY_ICON_KEY,
+    categoryColorHex: cat?.colorHex?.trim() || DEFAULT_CATEGORY_COLOR,
+  };
 }
 
 /** Champs communs summary / snippet hub → carte compacte. */
@@ -64,8 +82,16 @@ export function categoryDtoToCatalogueCategory(item: {
   id: string;
   slug: string;
   label: string;
+  iconKey: string;
+  colorHex: string;
 }): CatalogueCategory {
-  return { id: item.id, slug: item.slug, label: item.label };
+  return {
+    id: item.id,
+    slug: item.slug,
+    label: item.label,
+    iconKey: item.iconKey,
+    colorHex: item.colorHex,
+  };
 }
 
 export function poiSummaryToMarker(poi: PoiSummary): CataloguePlaceMarker {
@@ -77,6 +103,7 @@ export function poiSummaryToMarker(poi: PoiSummary): CataloguePlaceMarker {
     longitude: poi.lng,
     categoryId: cat?.slug ?? 'monument',
     categoryLabel: cat?.label,
+    ...visualFromCategory(cat),
     parentId: poi.parentPoiId ?? null,
     publicationStatus: poi.status,
     districtHub: poi.districtHub ?? null,
@@ -107,12 +134,15 @@ export function markerToPreview(marker: CataloguePlaceMarker): CataloguePlacePre
 }
 
 export function mockPlaceToMarker(place: MockPlace): CataloguePlaceMarker {
+  const mockCat = mockCategories.find((c) => c.id === place.categoryId);
   return {
     id: place.id,
     name: place.name,
     latitude: place.latitude,
     longitude: place.longitude,
     categoryId: place.categoryId,
+    categoryIconKey: mockCat?.iconKey ?? DEFAULT_CATEGORY_ICON_KEY,
+    categoryColorHex: mockCat?.colorHex ?? DEFAULT_CATEGORY_COLOR,
     parentId: place.parentId ?? null,
     publicationStatus: place.publicationStatus,
     districtHub: place.districtHub ?? null,

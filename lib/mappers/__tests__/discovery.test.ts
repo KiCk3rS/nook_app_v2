@@ -10,7 +10,14 @@ const baseItem: DiscoveryItem = {
   parentPoiId: null,
   lat: 48.8606,
   lng: 2.3376,
-  categories: [{ slug: 'museum', label: 'Musée' }],
+  categories: [
+    {
+      slug: 'museum',
+      label: 'Musée',
+      iconKey: 'museum',
+      colorHex: '#7B1FA2',
+    },
+  ],
   publishedAt: '2026-06-15T08:00:00.000Z',
   popularity: {
     averageRating: 4.8,

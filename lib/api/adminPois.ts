@@ -3,9 +3,10 @@ import { apiRequest } from './client';
 export type AdminPoiPublicationStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 
 export interface AdminPoiCategory {
-  id: string;
   slug: string;
   label: string;
+  iconKey: string;
+  colorHex: string;
 }
 
 export interface AdminPoiImage {

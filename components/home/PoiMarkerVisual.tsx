@@ -1,37 +1,38 @@
 import { Ionicons } from '@expo/vector-icons';
-import type { ComponentProps } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import {
+  DEFAULT_CATEGORY_COLOR,
+  DEFAULT_CATEGORY_ICON_KEY,
+  ioniconForCategoryIconKey,
+} from '../../lib/categoryIcons';
 import { colors, elevation, spacing, textStyle } from '../../constants/theme';
 
 interface PoiMarkerVisualProps {
-  categoryId: string;
   name: string;
+  iconKey: string;
+  colorHex: string;
   selected?: boolean;
   isDraft?: boolean;
   draftLabel?: string;
 }
 
-export const MARKER_SIZE = 48;
-export const MARKER_SIZE_SELECTED = 54;
-export const BORDER_WIDTH = 3;
-export const TAIL_WIDTH = 12;
-export const TAIL_HEIGHT = 8;
+/** Taille proche des pastilles Google Maps (pas des pins RN géants). */
+export const MARKER_SIZE = 28;
+export const MARKER_SIZE_SELECTED = 32;
+export const BORDER_WIDTH = 2;
+export const TAIL_WIDTH = 10;
+/** ~1/3 de l’ancienne queue (~8 → ~3). */
+export const TAIL_HEIGHT = 3;
 export const LABEL_MAX_WIDTH = 120;
 
 /** Point d’ancrage : base de la queue, au-dessus du libellé. */
 export const POI_MARKER_ANCHOR = { x: 0.5, y: 0.74 } as const;
 
-const categoryIconNames: Partial<Record<string, ComponentProps<typeof Ionicons>['name']>> = {
-  monument: 'business-outline',
-  musee: 'color-palette-outline',
-  parc: 'leaf-outline',
-  quartier: 'map-outline',
-};
-
 export function PoiMarkerVisual({
-  categoryId,
   name,
+  iconKey = DEFAULT_CATEGORY_ICON_KEY,
+  colorHex = DEFAULT_CATEGORY_COLOR,
   selected = false,
   isDraft = false,
   draftLabel,
@@ -42,9 +43,8 @@ export function PoiMarkerVisual({
     ? colors.warning
     : selected
       ? colors.markerActiveBorder
-      : colors.markerIdleBorder;
-  const iconColor = selected ? colors.markerActiveIcon : colors.markerIdleIcon;
-  const iconName = categoryIconNames[categoryId] ?? 'location-outline';
+      : '#FFFFFF';
+  const iconName = ioniconForCategoryIconKey(iconKey);
   const displayName =
     isDraft && draftLabel ? `${name} · ${draftLabel}` : name;
 
@@ -62,7 +62,7 @@ export function PoiMarkerVisual({
               width: ringSize,
               height: ringSize,
               borderRadius: ringSize / 2,
-              backgroundColor: colors.surfaceSoft,
+              backgroundColor: colorHex,
               borderColor: ringBorderColor,
               borderStyle: isDraft ? 'dashed' : 'solid',
             },
@@ -70,8 +70,8 @@ export function PoiMarkerVisual({
         >
           <Ionicons
             name={iconName}
-            size={selected ? 28 : 25}
-            color={iconColor}
+            size={selected ? 15 : 13}
+            color={colors.onPrimary}
             accessibilityElementsHidden
           />
         </View>
@@ -83,7 +83,7 @@ export function PoiMarkerVisual({
               borderLeftWidth: TAIL_WIDTH / 2,
               borderRightWidth: TAIL_WIDTH / 2,
               borderTopWidth: TAIL_HEIGHT,
-              borderTopColor: ringBorderColor,
+              borderTopColor: '#FFFFFF',
             },
           ]}
         />
